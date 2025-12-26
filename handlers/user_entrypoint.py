@@ -27,7 +27,11 @@ async def start_command(message:types.Message, state:FSMContext):
     user = await db.get_user(telegram_id)
 
     if user:
-        """============= Calling message sender function with main menu buttons =============="""
+        # Get the user's language from the database
+        lang = await db.get_user_language(telegram_id)
+        # Send a welcome back message to the user
+        await message.answer(registration_states['start'][lang],
+                             reply_markup=await user_main_menu_buttons(lang=lang))
         return
 
     """============= Inserting user to 'users' table ============"""
@@ -141,4 +145,3 @@ async def get_user_currency(callback:CallbackQuery, state:FSMContext):
         await callback.message.answer(registration_states['registration_failed'][lang])
         await state.clear()
         return
-

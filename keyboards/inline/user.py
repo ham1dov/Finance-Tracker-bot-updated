@@ -1,6 +1,6 @@
 from typing import Literal
 
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 """<<<---------- USER MAIN MENU BUTTONS ---------->>>"""
@@ -45,7 +45,7 @@ async def user_main_menu_buttons(lang:str)->InlineKeyboardMarkup:
 
     builder.row(
         InlineKeyboardButton(text=statistics[lang],
-                             callback_data=callback_data.format(mode='statistics')),
+                             web_app=WebAppInfo(url='https://www.chatgpt.com')),
         InlineKeyboardButton(text=settings[lang], callback_data=callback_data.format(mode='settings')))
 
     builder.row(InlineKeyboardButton(text=contact_to_admin[lang], callback_data=callback_data.format(mode='contact')))

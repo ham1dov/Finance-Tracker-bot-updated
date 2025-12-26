@@ -5,13 +5,13 @@ from keyboards.inline.user import select_income_source_buttons, add_additional_i
     select_expense_source_buttons, get_expense_additional_info_buttons
 from lexicon.userstates import add_income_states, add_expense_states
 from states.userstates import AddIncomeState, AddExpenseState
-from user_entrypoint import user_router
+from handlers.user_entrypoint import user_router
 from aiogram import F
 from aiogram.types import CallbackQuery, Message
 from database.db_query import db
 
 """<---------- MAIN MENU HANDLER: ---------->"""
-@user_router.message(F.data.startswith('user:main_menu:'))
+@user_router.callback_query(F.data.startswith('user:main_menu:'))
 async def user_main_menu_handler(callback:CallbackQuery, state:FSMContext):
     option = callback.data.split(':')[-1]
     user_id = int(callback.from_user.id)

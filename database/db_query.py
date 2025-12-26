@@ -25,17 +25,13 @@ class Database:
     async def add_income(self, user_id:int, amount:Union[float, int], source:str, additional_info:str=None, currency:str=None):
         try:
             async with self.pool.acquire() as conn:
+                query = """
+                INSERT INTO user_earnings(user_id, amount, currency, source, additional_info, inserted_at)
+                VALUES($1, $2, $3, $4, $5, $6) RETURNING id
+                """
                 if currency:
-                    query = """
-                    INSERT INTO user_earnings(user_id, amount, source, additional_info, inserted_at)
-                    VALUES($1, $2, $3, $4, $5, $6) RETURNING id
-                    """
                     return await conn.fetchval(query, user_id, amount, currency, source, additional_info, get_current_time())
                 else:
-                    query = """
-                    INSERT INTO user_earnings(user_id, amount, source, currency, additional_info, inserted_at)
-                    VALUES($1, $2, $3, $4, $5, $6) RETURNING id
-                    """
                     user_currency = await conn.fetchval("SELECT currency FROM users WHERE telegram_id = $1", user_id)
                     return await conn.fetchval(query, user_id, amount, user_currency, source, additional_info, get_current_time())
 
@@ -51,10 +47,10 @@ class Database:
                 VALUES($1, $2, $3, $4, $5, $6) RETURNING id
                 """
                 if currency:
-                    return await conn.execute(query, user_id, amount, currency, source, additional_info, get_current_time())
+                    return await conn.fetchval(query, user_id, amount, currency, source, additional_info, get_current_time())
                 else:
                     user_currency = await conn.fetchval("SELECT currency FROM users WHERE telegram_id = $1", user_id)
-                    return await conn.execute(query, user_id, amount, user_currency, source, additional_info, get_current_time())
+                    return await conn.fetchval(query, user_id, amount, user_currency, source, additional_info, get_current_time())
         except Exception as er:
             print('DATABASE ERROR: Error with INSERTING DATA to user_expenses --- ', str(er))
             return None
@@ -107,8 +103,10 @@ class Database:
             async with self.pool.acquire() as conn:
                 language =  await conn.fetchval(query, user_id)
             print(f"DATABASE SUCCESS: Fetching user[{user_id}] language successfully")
+            return language
         except Exception as er:
-            print(f'DATABASE ERROR: Error with fetching user[{language}] language', str(er))
+            print(f'DATABASE ERROR: Error with fetching user[{user_id}] language', str(er))
+            return None
 
     async def execute(self, query: str, *args, fetch: bool = False, fetchval: bool = False, fetchrow: bool = False, execute: bool = False, executemany:bool = False):
         if self.pool is None:
