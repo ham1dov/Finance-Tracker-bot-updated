@@ -27,3 +27,51 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 @app.get("/")
 async def root():
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+import asyncio
+import logging
+from aiogram import Bot, Dispatcher
+from os import getenv
+from dotenv import load_dotenv
+
+from config import ADMIN_TELEGRAM_ID
+from database.db_query import db
+from handlers.user_entrypoint import user_router
+
+load_dotenv()
+
+# Get the bot token from the environment variables
+token = getenv("BOT_TOKEN")
+
+# Initialize the bot and dispatcher
+bot = Bot(token=token)
+dp = Dispatcher()
+
+# Include the user router
+dp.include_router(user_router)
+
+
+async def main():
+    """
+    Main function to start the bot.
+    """
+    # Set up logging
+    logging.basicConfig(level=logging.INFO)
+    # Connect to the database
+    await db.connect()
+    await db.create_tables()
+    # Start polling for updates
+    try:
+        await bot.send_message(chat_id=ADMIN_TELEGRAM_ID, text='Machine is working...')
+    except:
+        pass
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    try:
+        # Run the main function
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        # Handle graceful shutdown on keyboard interrupt
+        print("Bot stopped")
