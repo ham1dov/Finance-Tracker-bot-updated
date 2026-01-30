@@ -52,22 +52,26 @@ async def trend(telegram_id: int, db: AsyncSession = Depends(get_db)):
     rows = (await db.execute(q, {"uid": telegram_id})).mappings().all()
     return rows
 
+from datetime import date
+from fastapi import Query
 
 @router.get("/expenses-pie/{telegram_id}")
 async def expenses_pie(
-    telegram_id: int,
-    date_from: str,
-    date_to: str,
-    db: AsyncSession = Depends(get_db)
+        telegram_id: int,
+        date_from: date = Query(...),
+        date_to: date = Query(...),
+        db: AsyncSession = Depends(get_db)
 ):
     q = text("""
-        SELECT source, SUM(amount) total
-        FROM user_expenses
-        WHERE user_id=:uid
-          AND inserted_at BETWEEN :df AND :dt
-        GROUP BY source
-        ORDER BY total DESC
-    """)
+            SELECT source, SUM(amount) total
+            FROM user_expenses
+            WHERE user_id = :uid
+              AND inserted_at >= :df
+              AND inserted_at < :dt + INTERVAL '1 day'
+            GROUP BY source
+            ORDER BY total DESC
+        """)
+
     rows = (await db.execute(q, {
         "uid": telegram_id,
         "df": date_from,
