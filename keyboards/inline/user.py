@@ -45,7 +45,7 @@ async def user_main_menu_buttons(lang:str)->InlineKeyboardMarkup:
 
     builder.row(
         InlineKeyboardButton(text=statistics[lang],
-                             web_app=WebAppInfo(url='http://127.0.0.1:8000')),
+                             web_app=WebAppInfo(url='https://web-production-04161.up.railway.app/')),
         InlineKeyboardButton(text=settings[lang], callback_data=callback_data.format(mode='settings')))
 
     builder.row(InlineKeyboardButton(text=contact_to_admin[lang], callback_data=callback_data.format(mode='contact')))
