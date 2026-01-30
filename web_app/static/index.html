@@ -41,13 +41,18 @@ button{padding:10px 20px;border:none;border-radius:8px;cursor:pointer}
 </div>
 
 <script>
-const API="http://localhost:8000";
+const API="https://finance-tracker-bot-production-9206.up.railway.app";
 
 // --- Telegram WebApp init ---
 Telegram.WebApp.ready();
 const user = Telegram.WebApp.initDataUnsafe.user; // foydalanuvchi info
-const UID = user ? user.id : 0; // agar webApp ichida ochilsa UID olinadi
 
+if (!user) {
+  alert("Telegram user not found");
+  throw new Error("Telegram user not found");
+}
+
+const UID = user.id;
 // --- Monthly summary ---
 fetch(`${API}/stats/summary/${UID}`)
 .then(r=>r.json())
