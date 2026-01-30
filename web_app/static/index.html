@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>Finance Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Telegram WebApp JS -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+body{font-family:Arial;background:#f5f6fa;padding:20px}
+.cards{display:flex;gap:15px;flex-wrap:wrap}
+.card{flex:1;padding:20px;border-radius:14px;color:#fff;text-align:center}
+.income{background:#2ecc71}
+.expense{background:#e74c3c}
+.result{background:#3498db}
+button{padding:10px 20px;border:none;border-radius:8px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<h2>📊 Joriy oy</h2>
+<div class="cards">
+  <div class="card income"><p>Kirim</p><h2 id="income">0</h2></div>
+  <div class="card expense"><p>Chiqim</p><h2 id="expense">0</h2></div>
+  <div class="card result"><p>Natija</p><h2 id="result">0</h2></div>
+</div>
+
+<h2>📈 12 oylik trend</h2>
+<canvas id="trend"></canvas>
+
+<hr>
+<button onclick="loadExpenses()">💸 Harajatlar</button>
+
+<div id="expensesSection" style="display:none">
+  <h3>Harajatlar taqsimoti</h3>
+  <input type="date" id="from">
+  <input type="date" id="to">
+  <button onclick="loadPie()">Ko‘rsat</button>
+  <canvas id="pie"></canvas>
+  <ul id="list"></ul>
+</div>
+
+<script>
+const API="http://localhost:8000";
+
+// --- Telegram WebApp init ---
+Telegram.WebApp.ready();
+const user = Telegram.WebApp.initDataUnsafe.user; // foydalanuvchi info
+const UID = user ? user.id : 0; // agar webApp ichida ochilsa UID olinadi
+
+// --- Monthly summary ---
+fetch(`${API}/stats/summary/${UID}`)
+.then(r=>r.json())
+.then(d=>{
+ income.innerText="$"+d.income;
+ expense.innerText="$"+d.expense;
+ result.innerText=(d.result>=0?"+":"-")+"$"+Math.abs(d.result);
+});
+
+// --- 12 month trend chart ---
+const trendChart=new Chart(trend,{
+ type:"line",
+ data:{labels:[],datasets:[
+  {label:"Kirim",borderColor:"#2ecc71",data:[]},
+  {label:"Chiqim",borderColor:"#e74c3c",data:[]}
+ ]}
+});
+
+fetch(`${API}/stats/trend/${UID}`)
+.then(r=>r.json())
+.then(d=>{
+ trendChart.data.labels=d.map(i=>i.month);
+ trendChart.data.datasets[0].data=d.map(i=>i.income);
+ trendChart.data.datasets[1].data=d.map(i=>i.expense);
+ trendChart.update();
+});
+
+// --- Expenses section ---
+function loadExpenses(){
+ document.getElementById("expensesSection").style.display="block";
+}
+
+let pieChart;
+function loadPie(){
+ fetch(`${API}/stats/expenses-pie/${UID}?date_from=${from.value}&date_to=${to.value}`)
+ .then(r=>r.json())
+ .then(d=>{
+  list.innerHTML="";
+  d.forEach(i=>{
+   list.innerHTML+=`<li>${i.source}: $${i.total}</li>`;
+  });
+
+  if(pieChart) pieChart.destroy();
+  pieChart=new Chart(pie,{
+    type:"pie",
+    data:{
+      labels:d.map(i=>i.source),
+      datasets:[{data:d.map(i=>i.total),
+                 backgroundColor:d.map(_=>`hsl(${Math.random()*360},70%,60%)`)}
+               ]
+    },
+    options:{responsive:true}
+  });
+ });
+}
+</script>
+</body>
+</html>

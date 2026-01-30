@@ -229,5 +229,15 @@ add_expense_states = {
         'en':"❌ Failed to save expense. Please try again.",
         'uz':"❌ Xarajatni saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.",
         'ru':"❌ Не удалось сохранить расход. Попробуйте снова."
+    },
+    'additional_info_added':{
+        'en': "📝 Additional information added successfully.",
+        'uz': "📝 Qo‘shimcha ma’lumot muvaffaqiyatli qo‘shildi.",
+        'ru': "📝 Дополнительная информация успешно добавлена."
+    },
+    'additional_info_not_added':{
+        'en': "ℹ️ No additional information provided.",
+        'uz': "ℹ️ Qo‘shimcha ma’lumot kiritilmadi.",
+        'ru': "ℹ️ Дополнительная информация не была добавлена."
     }
 }

@@ -45,7 +45,7 @@ async def user_main_menu_buttons(lang:str)->InlineKeyboardMarkup:
 
     builder.row(
         InlineKeyboardButton(text=statistics[lang],
-                             web_app=WebAppInfo(url='https://www.chatgpt.com')),
+                             web_app=WebAppInfo(url='http://127.0.0.1:8000')),
         InlineKeyboardButton(text=settings[lang], callback_data=callback_data.format(mode='settings')))
 
     builder.row(InlineKeyboardButton(text=contact_to_admin[lang], callback_data=callback_data.format(mode='contact')))
@@ -287,7 +287,7 @@ async def select_income_source_buttons(lang:str, social_status:str)->InlineKeybo
         pass
     builder = InlineKeyboardBuilder()
     for key, value in income_sources.items():
-        if value is not {}:
+        if value:
             builder.row(InlineKeyboardButton(text=value[lang], callback_data=f'user:add_income_select:{key}'))
 
     return builder.as_markup()

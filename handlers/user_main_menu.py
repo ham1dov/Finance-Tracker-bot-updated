@@ -1,4 +1,5 @@
 from aiogram.enums import ContentType
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 
 from keyboards.inline.user import select_income_source_buttons, add_additional_info_button, user_main_menu_buttons, \
@@ -9,6 +10,31 @@ from handlers.user_entrypoint import user_router
 from aiogram import F
 from aiogram.types import CallbackQuery, Message
 from database.db_query import db
+
+"""<---------- /all_earnings AND /all_expenses COMMANDS[TEMPORARY]: ---------->"""
+@user_router.message(Command('all_earnings'))
+async def user_get_all_incomes_temp(message:Message):
+    all_incomes = await db.get_all_users_earnings()
+    if not all_incomes:
+        await message.answer('There is no any earning')
+        return
+    message_text = ""
+    for index, income in enumerate(all_incomes):
+        message_text+=f'{index+1}: {income[0]} {income[1]} {income[2]} {income[3]} {income[4]} {income[5]} {income[6]}'
+    await message.answer(message_text)
+    return
+
+@user_router.message(Command('all_expenses'))
+async def user_get_all_incomes_temp(message:Message):
+    all_expenses = await db.get_all_users_expenses()
+    if not all_expenses:
+        await message.answer('There is no any expense')
+        return
+    message_text = ""
+    for index, expense in enumerate(all_expenses):
+        message_text+=f'{index+1}: {expense[0]} {expense[1]} {expense[2]} {expense[3]} {expense[4]} {expense[5]} {expense[6]}'
+    await message.answer(message_text)
+    return
 
 """<---------- MAIN MENU HANDLER: ---------->"""
 @user_router.callback_query(F.data.startswith('user:main_menu:'))
@@ -101,7 +127,6 @@ async def get_source_manually(message:Message, state:FSMContext):
 async def income_add_additional_info(callback:CallbackQuery, state:FSMContext):
     income_id = int(callback.data.split(':')[-1])
     lang = await db.get_user_language(user_id=callback.from_user.id)
-    await state.set_state(AddIncomeState.get_more_information)
     await callback.message.answer(add_income_states['enter_additional_info'][lang])
     await state.set_state(AddIncomeState.get_more_information)
     await state.update_data(lang=lang, income_id=income_id)
@@ -186,16 +211,28 @@ async def get_expense_source_manually(message:Message, state:FSMContext):
     await state.update_data(data=data)
     return
 
-@user_router.callback_query(F.data.startswith('user:add_expense_add_info:'), AddExpenseState.get_more_information)
+@user_router.callback_query(F.data.startswith('user:add_expense_add_info:'))
 async def get_user_expense_additional_info(callback:CallbackQuery, state:FSMContext):
     text = callback.message.text.strip()
     expense_id = int(callback.data.split(':')[-1])
     lang = await db.get_user_language(user_id=callback.from_user.id)
+    await callback.message.answer(add_expense_states['enter_additional_info'][lang])
+    await state.set_state(AddExpenseState.get_more_information)
+    await state.update_data(lang=lang, expense_id=expense_id)
+    return
+
+@user_router.message(F.text, AddExpenseState.get_more_information)
+async def get_expense_additional_info(message:Message, state:FSMContext):
+    additional_info = message.text
+    data = await state.get_data()
+    income_id = data.get('expense_id')
+    lang = data.get('lang', 'en')
+    await db.set_income_additional_info(income_id, additional_info)
     try:
-        await db.execute("UPDATE user_expenses SET additional_info = $1 WHERE id = $2", text, expense_id, execute=True)
-        await callback.message.answer(add_expense_states['successfully_saved'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await message.answer(add_expense_states['additional_info_added'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await state.clear()
         return
     except Exception as er:
-        print(str(er))
-        await callback.message.answer(add_expense_states['failed_to_save'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await message.answer(add_expense_states['additional_info_not_added'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await state.clear()
         return

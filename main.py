@@ -4,6 +4,7 @@ from aiogram import Bot, Dispatcher
 from os import getenv
 from dotenv import load_dotenv
 
+from config import ADMIN_TELEGRAM_ID
 from database.db_query import db
 from handlers.user_entrypoint import user_router
 
@@ -30,6 +31,10 @@ async def main():
     await db.connect()
     await db.create_tables()
     # Start polling for updates
+    try:
+        await bot.send_message(chat_id=ADMIN_TELEGRAM_ID, text='Machine is working...')
+    except:
+        pass
     await dp.start_polling(bot)
 
 

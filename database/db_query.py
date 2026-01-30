@@ -2,14 +2,23 @@ from typing import Literal, Union
 
 import asyncpg
 from utils.custom_functions import get_current_time
-from config import DATABASE_URL, CREATE_TABLES_PATH
+from config import DATABASE_URL_TG, CREATE_TABLES_PATH
 class Database:
     def __init__(self):
-        self.url = DATABASE_URL
+        self.url = DATABASE_URL_TG
         self.pool = None
 
     async def connect(self):
         self.pool = await asyncpg.create_pool(self.url)
+
+    async def get_all_users(self):
+        try:
+            async with self.pool.acquire() as conn:
+                query = """SELECT * FROM users"""
+                users = await conn.fetch(query)
+                return users
+        except Exception as er:
+            print('DATABASE ERROR: Error with fetching all users ---', str(er))
 
     async def create_tables(self):
         try:
@@ -136,11 +145,36 @@ class Database:
             if self.pool is None:
                 self.pool = await asyncpg.create_pool(self.url)
             async with self.pool.acquire() as connection:
-                query = "UPDATE user_incomes SET additional_info = $1 WHERE id = $2"
+                query = "UPDATE user_earnings SET additional_info = $1 WHERE id = $2"
                 await connection.execute(query, additional_info, income_id)
                 print(f'DATABASE SUCCESS: Additional info is set to income[{income_id}]')
         except Exception as er:
-            print(f'DATABASE ERROR: Error with setting additional info to income[{income_id}]')
+            print(f'DATABASE ERROR: Error with setting additional info to income[{income_id}] --- ', str(er))
+
+    """<---------- Fetching all users incomes ---------->"""
+
+    async def get_all_users_earnings(self):
+        try:
+            if self.pool is None:
+                self.pool = await asyncpg.create_pool(self.pool)
+            async with self.pool.acquire() as conn:
+                query = "SELECT * FROM user_earnings WHERE TRUE"
+                all_incomes = await conn.fetch(query)
+                return all_incomes
+        except Exception as er:
+            print('DATABASE ERROR: Error with fetching all users incomes --- ', str(er))
+
+    """<----------- Fetching all users expenses ----------->"""
+    async def get_all_users_expenses(self):
+        try:
+            if self.pool is None:
+                self.pool = await asyncpg.create_pool(self.pool)
+            async with self.pool.acquire() as conn:
+                query = "SELECT * FROM user_expenses WHERE TRUE"
+                all_expenses = await conn.fetch(query)
+                return all_expenses
+        except Exception as er:
+            print('DATABASE ERROR: Error with fetching all users expenses --- ', str(er))
 
 
 
