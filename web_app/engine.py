@@ -15,8 +15,8 @@ app.add_middleware(
 )
 
 app.include_router(stats_router)
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
+BASE_DIR = os.path.dirname(__file__)
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, 'static')), name="static")
 
 @app.get("/")
 async def root():
