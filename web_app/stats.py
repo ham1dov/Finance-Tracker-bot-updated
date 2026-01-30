@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from .web_database import get_db
-
+from datetime import timedelta
 router = APIRouter(prefix="/stats", tags=["Stats"])
 
 @router.get("/summary/{telegram_id}")
@@ -62,12 +62,15 @@ async def expenses_pie(
         date_to: date = Query(...),
         db: AsyncSession = Depends(get_db)
 ):
+    # convert to datetime and add 1 day for upper bound
+    dt_plus_one = date_to + timedelta(days=1)
+
     q = text("""
             SELECT source, SUM(amount) total
             FROM user_expenses
             WHERE user_id = :uid
               AND inserted_at >= :df
-              AND inserted_at < :dt + INTERVAL '1 day'
+              AND inserted_at < :dt
             GROUP BY source
             ORDER BY total DESC
         """)
@@ -75,7 +78,7 @@ async def expenses_pie(
     rows = (await db.execute(q, {
         "uid": telegram_id,
         "df": date_from,
-        "dt": date_to
+        "dt": dt_plus_one
     })).mappings().all()
 
     return rows
