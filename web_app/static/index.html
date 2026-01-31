@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Finance Tracker</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Telegram WebApp JS -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 body{font-family:Arial;background:#f5f6fa;padding:20px}
@@ -13,7 +12,7 @@ body{font-family:Arial;background:#f5f6fa;padding:20px}
 .income{background:#2ecc71}
 .expense{background:#e74c3c}
 .result{background:#3498db}
-button{padding:10px 20px;border:none;border-radius:8px;cursor:pointer}
+button{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;margin:5px}
 </style>
 </head>
 <body>
@@ -29,30 +28,20 @@ button{padding:10px 20px;border:none;border-radius:8px;cursor:pointer}
 <canvas id="trend"></canvas>
 
 <hr>
-<button onclick="loadExpenses()">💸 Harajatlar</button>
-
-<div id="expensesSection" style="display:none">
-  <h3>Harajatlar taqsimoti</h3>
-  <input type="date" id="from">
-  <input type="date" id="to">
-  <button onclick="loadPie()">Ko‘rsat</button>
-  <canvas id="pie"></canvas>
-  <ul id="list"></ul>
+<div id="buttons">
+  <button onclick="openPiePage('expenses')">💸 Harajatlar</button>
+  <button onclick="openPiePage('income')">💰 Kirimlar</button>
 </div>
 
 <script>
 const API="https://finance-tracker-bot-production-9206.up.railway.app";
 
-// --- Telegram WebApp init ---
+// Telegram WebApp init
 Telegram.WebApp.ready();
-const user = Telegram.WebApp.initDataUnsafe.user; // foydalanuvchi info
-
-if (!user) {
-  alert("Telegram user not found");
-  throw new Error("Telegram user not found");
-}
-
+const user = Telegram.WebApp.initDataUnsafe.user;
+if (!user) { alert("Telegram user not found"); throw new Error("Telegram user not found"); }
 const UID = user.id;
+
 // --- Monthly summary ---
 fetch(`${API}/stats/summary/${UID}`)
 .then(r=>r.json())
@@ -68,7 +57,8 @@ const trendChart=new Chart(trend,{
  data:{labels:[],datasets:[
   {label:"Kirim",borderColor:"#2ecc71",data:[]},
   {label:"Chiqim",borderColor:"#e74c3c",data:[]}
- ]}
+ ]},
+ options:{responsive:true}
 });
 
 fetch(`${API}/stats/trend/${UID}`)
@@ -80,33 +70,53 @@ fetch(`${API}/stats/trend/${UID}`)
  trendChart.update();
 });
 
-// --- Expenses section ---
-function loadExpenses(){
- document.getElementById("expensesSection").style.display="block";
-}
-
-let pieChart;
-function loadPie(){
- fetch(`${API}/stats/expenses-pie/${UID}?date_from=${from.value}&date_to=${to.value}`)
- .then(r=>r.json())
- .then(d=>{
-  list.innerHTML="";
-  d.forEach(i=>{
-   list.innerHTML+=`<li>${i.source}: $${i.total}</li>`;
-  });
-
-  if(pieChart) pieChart.destroy();
-  pieChart=new Chart(pie,{
-    type:"pie",
-    data:{
-      labels:d.map(i=>i.source),
-      datasets:[{data:d.map(i=>i.total),
-                 backgroundColor:d.map(_=>`hsl(${Math.random()*360},70%,60%)`)}
-               ]
-    },
-    options:{responsive:true}
-  });
- });
+// --- Open Pie Chart Page ---
+function openPiePage(type){
+    const w = window.open("", "_blank", "width=600,height=600");
+    w.document.write(`
+        <html>
+        <head>
+        <title>${type==='expenses'?'Harajatlar':'Kirimlar'} Pie Chart</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        </head>
+        <body>
+        <h2>${type==='expenses'?'Harajatlar':'Kirimlar'} taqsimoti</h2>
+        <input type="date" id="from">
+        <input type="date" id="to">
+        <button onclick="loadPie()">Ko‘rsat</button>
+        <canvas id="pie"></canvas>
+        <ul id="list"></ul>
+        <script>
+        const UID = ${UID};
+        let pieChart;
+        function loadPie(){
+            const from = document.getElementById('from').value;
+            const to = document.getElementById('to').value;
+            fetch(\`${API}/stats/${type}-pie/\${UID}?date_from=\${from}&date_to=\${to}\`)
+            .then(r=>r.json())
+            .then(d=>{
+                const list = document.getElementById('list');
+                list.innerHTML = "";
+                d.forEach(i=>{ list.innerHTML += '<li>'+i.source+': $'+i.total+'</li>'; });
+                const ctx = document.getElementById('pie');
+                if(pieChart) pieChart.destroy();
+                pieChart = new Chart(ctx,{
+                    type:"pie",
+                    data:{
+                        labels: d.map(i=>i.source),
+                        datasets:[{
+                            data: d.map(i=>i.total),
+                            backgroundColor:d.map(_=>`hsl(${Math.random()*360},70%,60%)`)
+                        }]
+                    },
+                    options:{responsive:true}
+                });
+            });
+        }
+        </script>
+        </body>
+        </html>
+    `);
 }
 </script>
 </body>
