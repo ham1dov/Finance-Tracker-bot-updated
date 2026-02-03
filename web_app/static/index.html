@@ -154,6 +154,13 @@ function openPage(type){
   btnExpenses.classList.remove("active");
   btnIncome.classList.remove("active");
 
+  // Clear previous results
+  list.innerHTML = "";
+  if(pieChart) {
+    pieChart.destroy();
+    pieChart = null;
+  }
+
   if(type==="expenses"){
     distributionTitle.innerText="💸 Harajatlar taqsimoti";
     btnExpenses.classList.add("active");
