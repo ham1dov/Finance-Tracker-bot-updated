@@ -150,22 +150,15 @@ let pieChart = null;
 function openPage(type){
   currentType = type;
 
-  detailsPage.classList.remove("hidden");
+  // For now, keep details page hidden as requested
+  detailsPage.classList.add("hidden");
+
   btnExpenses.classList.remove("active");
   btnIncome.classList.remove("active");
 
-  // Clear previous results
-  list.innerHTML = "";
-  if(pieChart) {
-    pieChart.destroy();
-    pieChart = null;
-  }
-
   if(type==="expenses"){
-    distributionTitle.innerText="💸 Harajatlar taqsimoti";
     btnExpenses.classList.add("active");
   }else{
-    distributionTitle.innerText="💰 Kirimlar taqsimoti";
     btnIncome.classList.add("active");
   }
 }
