@@ -104,6 +104,10 @@ hr{margin:30px 0}
 /* ================= CONFIG ================= */
 const API = "https://dottie-unbespoken-causatively.ngrok-free.dev";
 
+/* ================= STATE ================= */
+let currentType = null;
+let pieChart = null;
+
 /* ================= TELEGRAM ================= */
 Telegram.WebApp.ready();
 const user = Telegram.WebApp.initDataUnsafe.user;
@@ -113,17 +117,24 @@ if(!user){
 }
 const UID = user.id;
 
+// Set default dates (current month)
+const now = new Date();
+const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+document.getElementById('from').value = firstDay;
+document.getElementById('to').value = lastDay;
+
 /* ================= SUMMARY ================= */
 fetch(`${API}/stats/summary/${UID}`)
 .then(r=>r.json())
 .then(d=>{
-  income.innerText="$"+d.income;
-  expense.innerText="$"+d.expense;
-  result.innerText=(d.result>=0?"+":"-")+"$"+Math.abs(d.result);
+  document.getElementById("income").innerText="$"+d.income;
+  document.getElementById("expense").innerText="$"+d.expense;
+  document.getElementById("result").innerText=(d.result>=0?"+":"-")+"$"+Math.abs(d.result);
 });
 
 /* ================= TREND ================= */
-const trendChart=new Chart(trend,{
+const trendChart=new Chart(document.getElementById("trend"),{
   type:"line",
   data:{
     labels:[],
@@ -144,26 +155,36 @@ fetch(`${API}/stats/trend/${UID}`)
 });
 
 /* ================= DETAILS ================= */
-let currentType = null;
-let pieChart = null;
-
 function openPage(type){
   currentType = type;
 
-  // For now, keep details page hidden as requested
-  detailsPage.classList.add("hidden");
+  const detailsPage = document.getElementById("detailsPage");
+  const btnExpenses = document.getElementById("btnExpenses");
+  const btnIncome = document.getElementById("btnIncome");
+  const distributionTitle = document.getElementById("distributionTitle");
+
+  detailsPage.classList.remove("hidden");
 
   btnExpenses.classList.remove("active");
   btnIncome.classList.remove("active");
 
   if(type==="expenses"){
     btnExpenses.classList.add("active");
+    distributionTitle.innerText = "💸 Harajatlar taqsimoti";
   }else{
     btnIncome.classList.add("active");
+    distributionTitle.innerText = "💰 Kirimlar taqsimoti";
   }
+
+  loadPie();
 }
 
 function loadPie(){
+  const from = document.getElementById("from");
+  const to = document.getElementById("to");
+  const list = document.getElementById("list");
+  const pie = document.getElementById("pie");
+
   if(!from.value || !to.value){
     alert("Sanani tanlang");
     return;
