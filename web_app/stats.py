@@ -32,20 +32,19 @@ async def trend(telegram_id: int, db: AsyncSession = Depends(get_db)):
     q = text("""
         SELECT
             to_char(m,'Mon') AS month,
-            COALESCE(SUM(e.amount),0) AS income,
-            COALESCE(SUM(x.amount),0) AS expense
+            (SELECT COALESCE(SUM(amount), 0)
+             FROM user_earnings
+             WHERE date_trunc('month', inserted_at) = m
+               AND user_id = :uid)::FLOAT AS income,
+            (SELECT COALESCE(SUM(amount), 0)
+             FROM user_expenses
+             WHERE date_trunc('month', inserted_at) = m
+               AND user_id = :uid)::FLOAT AS expense
         FROM generate_series(
-            date_trunc('month', now())-interval '11 months',
+            date_trunc('month', now()) - interval '11 months',
             date_trunc('month', now()),
             interval '1 month'
         ) m
-        LEFT JOIN user_earnings e
-            ON date_trunc('month', e.inserted_at)=m
-            AND e.user_id=:uid
-        LEFT JOIN user_expenses x
-            ON date_trunc('month', x.inserted_at)=m
-            AND x.user_id=:uid
-        GROUP BY m
         ORDER BY m
     """)
     rows = (await db.execute(q, {"uid": telegram_id})).mappings().all()
@@ -86,14 +85,14 @@ async def daily_stats(
     table = "user_earnings" if type == "income" else "user_expenses"
     q = text(f"""
         SELECT
-            m::date as date,
-            COALESCE(SUM(t.amount), 0) as total
-        FROM generate_series(:df::date, :dt::date, interval '1 day') m
+            d.day::date as day,
+            COALESCE(SUM(t.amount), 0)::FLOAT as total
+        FROM generate_series(CAST(:df AS timestamp), CAST(:dt AS timestamp), interval '1 day') AS d(day)
         LEFT JOIN {table} t
-            ON t.inserted_at::date = m::date
+            ON t.inserted_at::date = d.day::date
             AND t.user_id = :uid
-        GROUP BY m
-        ORDER BY m
+        GROUP BY d.day
+        ORDER BY d.day
     """)
     rows = (await db.execute(q, {"uid": telegram_id, "df": date_from, "dt": date_to})).mappings().all()
     return rows

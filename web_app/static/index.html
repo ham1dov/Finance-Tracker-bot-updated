@@ -180,10 +180,10 @@ document.getElementById('to').value = lastDay;
 fetch(`${API}/stats/summary/${UID}`)
 .then(r=>r.json())
 .then(d=>{
-  document.getElementById("income").innerText="$"+d.income;
-  document.getElementById("expense").innerText="$"+d.expense;
-  document.getElementById("result").innerText=(d.result>=0?"+":"-")+"$"+Math.abs(d.result);
-});
+  document.getElementById("income").innerText="$"+d.income.toLocaleString();
+  document.getElementById("expense").innerText="$"+d.expense.toLocaleString();
+  document.getElementById("result").innerText=(d.result>=0?"+":"-")+"$"+Math.abs(d.result).toLocaleString();
+}).catch(err => console.error("Summary error:", err));
 
 /* ================= TREND ================= */
 const trendChart=new Chart(document.getElementById("trend"),{
@@ -204,7 +204,7 @@ fetch(`${API}/stats/trend/${UID}`)
   trendChart.data.datasets[0].data=d.map(i=>i.income);
   trendChart.data.datasets[1].data=d.map(i=>i.expense);
   trendChart.update();
-});
+}).catch(err => console.error("Trend error:", err));
 
 /* ================= DETAILS ================= */
 function openPage(type){
@@ -251,7 +251,7 @@ function loadMetrics(f, t) {
     document.getElementById("mTotal").innerText = "$" + d.total.toLocaleString();
     document.getElementById("mAvg").innerText = "$" + Math.round(d.average).toLocaleString();
     document.getElementById("mCount").innerText = d.count;
-  });
+  }).catch(err => console.error("Metrics error:", err));
 }
 
 function loadPie(f, t){
@@ -290,20 +290,23 @@ function loadPie(f, t){
         cutout: '60%'
       }
     });
-  });
+  }).catch(err => console.error("Pie error:", err));
 }
 
 function loadDaily(f, t) {
   const ctx = document.getElementById("dailyBar");
   fetch(`${API}/stats/daily/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`)
-  .then(r=>r.json())
+  .then(r=>{
+    if(!r.ok) throw new Error('Daily stats fetch failed');
+    return r.json();
+  })
   .then(d=>{
     if(dailyChart) dailyChart.destroy();
 
     dailyChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: d.map(i => i.date),
+        labels: d.map(i => i.day),
         datasets: [{
           label: currentType === 'expenses' ? 'Chiqim' : 'Kirim',
           data: d.map(i => i.total),
@@ -317,7 +320,7 @@ function loadDaily(f, t) {
         }
       }
     });
-  });
+  }).catch(err => console.error("Daily error:", err));
 }
 </script>
 
