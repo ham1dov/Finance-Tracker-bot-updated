@@ -53,6 +53,36 @@ button.active{
 hr{margin:30px 0}
 
 .hidden{display:none}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 20px 0;
+}
+.metric-card {
+  background: #fff;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  text-align: center;
+}
+.metric-card h4 { margin: 0; font-size: 12px; color: #7f8c8d; text-transform: uppercase; }
+.metric-card p { margin: 5px 0 0; font-size: 16px; font-weight: bold; color: #2c3e50; }
+
+#list {
+  list-style: none;
+  padding: 0;
+}
+#list li {
+  background: #fff;
+  margin-bottom: 8px;
+  padding: 10px 15px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
 </style>
 </head>
 
@@ -89,13 +119,34 @@ hr{margin:30px 0}
 
   <h3 id="distributionTitle"></h3>
 
-  <div style="margin:10px 0">
-    <input type="date" id="from">
-    <input type="date" id="to">
-    <button onclick="loadPie()">Ko‘rsat</button>
+  <div style="margin:10px 0; display: flex; gap: 5px; align-items: center;">
+    <input type="date" id="from" style="flex:1; padding: 8px; border: 1px solid #ddd; border-radius: 8px;">
+    <input type="date" id="to" style="flex:1; padding: 8px; border: 1px solid #ddd; border-radius: 8px;">
+    <button onclick="loadDetails()" style="background: #3498db; color: #fff;">👁️</button>
   </div>
 
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <h4>Jami</h4>
+      <p id="mTotal">$0</p>
+    </div>
+    <div class="metric-card">
+      <h4>O‘rtacha</h4>
+      <p id="mAvg">$0</p>
+    </div>
+    <div class="metric-card">
+      <h4>Soni</h4>
+      <p id="mCount">0</p>
+    </div>
+  </div>
+
+  <h4 style="margin: 20px 0 10px">📊 Taqsimot</h4>
   <canvas id="pie"></canvas>
+
+  <h4 style="margin: 30px 0 10px">📅 Kunlik faollik</h4>
+  <canvas id="dailyBar"></canvas>
+
+  <h4 style="margin: 30px 0 10px">📝 Tafsilotlar</h4>
   <ul id="list"></ul>
 
 </div>
@@ -107,6 +158,7 @@ const API = "https://dottie-unbespoken-causatively.ngrok-free.dev";
 /* ================= STATE ================= */
 let currentType = null;
 let pieChart = null;
+let dailyChart = null;
 
 /* ================= TELEGRAM ================= */
 Telegram.WebApp.ready();
@@ -176,42 +228,93 @@ function openPage(type){
     distributionTitle.innerText = "💰 Kirimlar taqsimoti";
   }
 
-  loadPie();
+  loadDetails();
 }
 
-function loadPie(){
-  const from = document.getElementById("from");
-  const to = document.getElementById("to");
-  const list = document.getElementById("list");
-  const pie = document.getElementById("pie");
-
-  if(!from.value || !to.value){
+function loadDetails() {
+  const f = document.getElementById("from").value;
+  const t = document.getElementById("to").value;
+  if(!f || !t) {
     alert("Sanani tanlang");
     return;
   }
 
+  loadMetrics(f, t);
+  loadPie(f, t);
+  loadDaily(f, t);
+}
+
+function loadMetrics(f, t) {
+  fetch(`${API}/stats/metrics/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`)
+  .then(r=>r.json())
+  .then(d=>{
+    document.getElementById("mTotal").innerText = "$" + d.total.toLocaleString();
+    document.getElementById("mAvg").innerText = "$" + Math.round(d.average).toLocaleString();
+    document.getElementById("mCount").innerText = d.count;
+  });
+}
+
+function loadPie(f, t){
+  const list = document.getElementById("list");
+  const pie = document.getElementById("pie");
+
   let url = currentType==="expenses"
-    ? `${API}/stats/expenses-pie/${UID}?date_from=${from.value}&date_to=${to.value}`
-    : `${API}/stats/income-pie/${UID}?date_from=${from.value}&date_to=${to.value}`;
+    ? `${API}/stats/expenses-pie/${UID}?date_from=${f}&date_to=${t}`
+    : `${API}/stats/income-pie/${UID}?date_from=${f}&date_to=${t}`;
 
   fetch(url)
   .then(r=>r.json())
   .then(d=>{
     list.innerHTML="";
     d.forEach(i=>{
-      list.innerHTML+=`<li>${i.source}: $${i.total}</li>`;
+      list.innerHTML+=`<li><span>${i.source}</span> <b>$${i.total.toLocaleString()}</b></li>`;
     });
 
     if(pieChart) pieChart.destroy();
 
     pieChart=new Chart(pie,{
-      type:"pie",
+      type:"doughnut",
       data:{
         labels:d.map(i=>i.source),
         datasets:[{
           data:d.map(i=>i.total),
-          backgroundColor:d.map(_=>`hsl(${Math.random()*360},70%,60%)`)
+          backgroundColor:d.map((_,idx)=>`hsl(${(idx*40)%360},70%,60%)`),
+          borderWidth: 2,
+          hoverOffset: 10
         }]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom' }
+        },
+        cutout: '60%'
+      }
+    });
+  });
+}
+
+function loadDaily(f, t) {
+  const ctx = document.getElementById("dailyBar");
+  fetch(`${API}/stats/daily/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`)
+  .then(r=>r.json())
+  .then(d=>{
+    if(dailyChart) dailyChart.destroy();
+
+    dailyChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: d.map(i => i.date),
+        datasets: [{
+          label: currentType === 'expenses' ? 'Chiqim' : 'Kirim',
+          data: d.map(i => i.total),
+          backgroundColor: currentType === 'expenses' ? '#e74c3c' : '#2ecc71',
+          borderRadius: 5
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true }
+        }
       }
     });
   });

@@ -75,6 +75,56 @@ async def expenses_pie(
     })).mappings().all()
     return rows
 
+@router.get("/daily/{telegram_id}")
+async def daily_stats(
+    telegram_id: int,
+    type: str = Query(..., regex="^(income|expenses)$"),
+    date_from: date = Query(...),
+    date_to: date = Query(...),
+    db: AsyncSession = Depends(get_db)
+):
+    table = "user_earnings" if type == "income" else "user_expenses"
+    q = text(f"""
+        SELECT
+            m::date as date,
+            COALESCE(SUM(t.amount), 0) as total
+        FROM generate_series(:df::date, :dt::date, interval '1 day') m
+        LEFT JOIN {table} t
+            ON t.inserted_at::date = m::date
+            AND t.user_id = :uid
+        GROUP BY m
+        ORDER BY m
+    """)
+    rows = (await db.execute(q, {"uid": telegram_id, "df": date_from, "dt": date_to})).mappings().all()
+    return rows
+
+@router.get("/metrics/{telegram_id}")
+async def metrics(
+    telegram_id: int,
+    type: str = Query(..., regex="^(income|expenses)$"),
+    date_from: date = Query(...),
+    date_to: date = Query(...),
+    db: AsyncSession = Depends(get_db)
+):
+    table = "user_earnings" if type == "income" else "user_expenses"
+    dt_plus_one = date_to + timedelta(days=1)
+    q = text(f"""
+        SELECT
+            COALESCE(AVG(amount), 0) as average,
+            COUNT(*) as count,
+            COALESCE(MAX(amount), 0) as max_val,
+            COALESCE(SUM(amount), 0) as total
+        FROM {table}
+        WHERE user_id = :uid AND inserted_at >= :df AND inserted_at < :dt
+    """)
+    r = (await db.execute(q, {"uid": telegram_id, "df": date_from, "dt": dt_plus_one})).mappings().first()
+    return {
+        "average": float(r.average),
+        "count": int(r.count),
+        "max": float(r.max_val),
+        "total": float(r.total)
+    }
+
 @router.get("/income-pie/{telegram_id}")
 async def income_pie(
         telegram_id: int,
