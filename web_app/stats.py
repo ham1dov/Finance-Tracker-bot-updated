@@ -59,7 +59,7 @@ async def expenses_pie(
 ):
     dt_plus_one = date_to + timedelta(days=1)
     q = text("""
-        SELECT source, SUM(amount) total
+        SELECT source, SUM(amount)::FLOAT total
         FROM user_expenses
         WHERE user_id = :uid
           AND inserted_at >= :df
@@ -77,7 +77,7 @@ async def expenses_pie(
 @router.get("/daily/{telegram_id}")
 async def daily_stats(
     telegram_id: int,
-    type: str = Query(..., regex="^(income|expenses)$"),
+    type: str = Query(..., pattern="^(income|expenses)$"),
     date_from: date = Query(...),
     date_to: date = Query(...),
     db: AsyncSession = Depends(get_db)
@@ -85,14 +85,13 @@ async def daily_stats(
     table = "user_earnings" if type == "income" else "user_expenses"
     q = text(f"""
         SELECT
-            d.day::date as day,
-            COALESCE(SUM(t.amount), 0)::FLOAT as total
-        FROM generate_series(CAST(:df AS timestamp), CAST(:dt AS timestamp), interval '1 day') AS d(day)
-        LEFT JOIN {table} t
-            ON t.inserted_at::date = d.day::date
-            AND t.user_id = :uid
-        GROUP BY d.day
-        ORDER BY d.day
+            gs.day::date as day,
+            (SELECT COALESCE(SUM(amount), 0)
+             FROM {table}
+             WHERE inserted_at::date = gs.day::date
+               AND user_id = :uid)::FLOAT as total
+        FROM generate_series(CAST(:df AS timestamp), CAST(:dt AS timestamp), interval '1 day') AS gs(day)
+        ORDER BY gs.day
     """)
     rows = (await db.execute(q, {"uid": telegram_id, "df": date_from, "dt": date_to})).mappings().all()
     return rows
@@ -100,7 +99,7 @@ async def daily_stats(
 @router.get("/metrics/{telegram_id}")
 async def metrics(
     telegram_id: int,
-    type: str = Query(..., regex="^(income|expenses)$"),
+    type: str = Query(..., pattern="^(income|expenses)$"),
     date_from: date = Query(...),
     date_to: date = Query(...),
     db: AsyncSession = Depends(get_db)
@@ -133,7 +132,7 @@ async def income_pie(
 ):
     dt_plus_one = date_to + timedelta(days=1)
     q = text("""
-        SELECT source, SUM(amount) total
+        SELECT source, SUM(amount)::FLOAT total
         FROM user_earnings
         WHERE user_id = :uid
           AND inserted_at >= :df

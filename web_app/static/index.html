@@ -153,7 +153,7 @@ hr{margin:30px 0}
 
 <script>
 /* ================= CONFIG ================= */
-const API = "https://dottie-unbespoken-causatively.ngrok-free.dev";
+const API = window.location.origin;
 
 /* ================= STATE ================= */
 let currentType = null;
@@ -295,12 +295,18 @@ function loadPie(f, t){
 
 function loadDaily(f, t) {
   const ctx = document.getElementById("dailyBar");
+  console.log(`Loading daily stats for ${currentType} from ${f} to ${t}`);
+
   fetch(`${API}/stats/daily/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`)
   .then(r=>{
-    if(!r.ok) throw new Error('Daily stats fetch failed');
+    if(!r.ok) {
+      console.error(`Daily stats fetch failed: ${r.status}`);
+      throw new Error('Daily stats fetch failed');
+    }
     return r.json();
   })
   .then(d=>{
+    console.log("Daily data received:", d);
     if(dailyChart) dailyChart.destroy();
 
     dailyChart = new Chart(ctx, {
