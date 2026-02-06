@@ -88,36 +88,44 @@ hr{margin:30px 0}
 
 <body>
 
-<h2>📊 Joriy oy</h2>
+<!-- SUMMARY PAGE -->
+<div id="summaryPage">
+  <h2>📊 Joriy oy</h2>
 
-<div class="cards">
-  <div class="card income">
-    <p>Kirim</p>
-    <h2 id="income">0</h2>
+  <div class="cards">
+    <div class="card income">
+      <p>Kirim</p>
+      <h2 id="income">0</h2>
+    </div>
+    <div class="card expense">
+      <p>Chiqim</p>
+      <h2 id="expense">0</h2>
+    </div>
+    <div class="card result">
+      <p>Natija</p>
+      <h2 id="result">0</h2>
+    </div>
   </div>
-  <div class="card expense">
-    <p>Chiqim</p>
-    <h2 id="expense">0</h2>
-  </div>
-  <div class="card result">
-    <p>Natija</p>
-    <h2 id="result">0</h2>
+
+  <h2 style="margin-top:30px">📈 12 oylik trend</h2>
+  <canvas id="trend"></canvas>
+
+  <hr>
+
+  <!-- NAV BUTTONS -->
+  <div style="display: flex; gap: 10px;">
+    <button id="btnExpenses" onclick="openPage('expenses')" style="flex:1">💸 Harajatlar</button>
+    <button id="btnIncome" onclick="openPage('income')" style="flex:1">💰 Kirimlar</button>
   </div>
 </div>
-
-<h2 style="margin-top:30px">📈 12 oylik trend</h2>
-<canvas id="trend"></canvas>
-
-<hr>
-
-<!-- NAV BUTTONS -->
-<button id="btnExpenses" onclick="openPage('expenses')">💸 Harajatlar</button>
-<button id="btnIncome" onclick="openPage('income')">💰 Kirimlar</button>
 
 <!-- DETAILS PAGE -->
 <div id="detailsPage" class="hidden">
 
-  <h3 id="distributionTitle"></h3>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h3 id="distributionTitle" style="margin: 0;"></h3>
+    <button onclick="backToSummary()" style="background: #95a5a6; color: #fff;">⬅️ Orqaga</button>
+  </div>
 
   <div style="margin:10px 0; display: flex; gap: 5px; align-items: center;">
     <input type="date" id="from" style="flex:1; padding: 8px; border: 1px solid #ddd; border-radius: 8px;">
@@ -210,11 +218,13 @@ fetch(`${API}/stats/trend/${UID}`)
 function openPage(type){
   currentType = type;
 
+  const summaryPage = document.getElementById("summaryPage");
   const detailsPage = document.getElementById("detailsPage");
   const btnExpenses = document.getElementById("btnExpenses");
   const btnIncome = document.getElementById("btnIncome");
   const distributionTitle = document.getElementById("distributionTitle");
 
+  summaryPage.classList.add("hidden");
   detailsPage.classList.remove("hidden");
 
   btnExpenses.classList.remove("active");
@@ -222,13 +232,18 @@ function openPage(type){
 
   if(type==="expenses"){
     btnExpenses.classList.add("active");
-    distributionTitle.innerText = "💸 Harajatlar taqsimoti";
+    distributionTitle.innerText = "💸 Harajatlar";
   }else{
     btnIncome.classList.add("active");
-    distributionTitle.innerText = "💰 Kirimlar taqsimoti";
+    distributionTitle.innerText = "💰 Kirimlar";
   }
 
   loadDetails();
+}
+
+function backToSummary() {
+  document.getElementById("summaryPage").classList.remove("hidden");
+  document.getElementById("detailsPage").classList.add("hidden");
 }
 
 function loadDetails() {
