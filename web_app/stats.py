@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from .web_database import get_db
 from datetime import date, timedelta
+from typing import Annotated
 
 router = APIRouter(prefix="/stats", tags=["Stats"])
 
@@ -53,8 +54,8 @@ async def trend(telegram_id: int, db: AsyncSession = Depends(get_db)):
 @router.get("/expenses-pie/{telegram_id}")
 async def expenses_pie(
         telegram_id: int,
-        date_from: date = Query(...),
-        date_to: date = Query(...),
+        date_from: date,
+        date_to: date,
         db: AsyncSession = Depends(get_db)
 ):
     dt_plus_one = date_to + timedelta(days=1)
@@ -77,9 +78,9 @@ async def expenses_pie(
 @router.get("/daily/{telegram_id}")
 async def daily_stats(
     telegram_id: int,
-    type: str = Query(..., pattern="^(income|expenses)$"),
-    date_from: date = Query(...),
-    date_to: date = Query(...),
+    type: Annotated[str, Query(pattern="^(income|expenses)$")],
+    date_from: date,
+    date_to: date,
     db: AsyncSession = Depends(get_db)
 ):
     table = "user_earnings" if type == "income" else "user_expenses"
@@ -99,9 +100,9 @@ async def daily_stats(
 @router.get("/metrics/{telegram_id}")
 async def metrics(
     telegram_id: int,
-    type: str = Query(..., pattern="^(income|expenses)$"),
-    date_from: date = Query(...),
-    date_to: date = Query(...),
+    type: Annotated[str, Query(pattern="^(income|expenses)$")],
+    date_from: date,
+    date_to: date,
     db: AsyncSession = Depends(get_db)
 ):
     table = "user_earnings" if type == "income" else "user_expenses"
@@ -126,8 +127,8 @@ async def metrics(
 @router.get("/income-pie/{telegram_id}")
 async def income_pie(
         telegram_id: int,
-        date_from: date = Query(...),
-        date_to: date = Query(...),
+        date_from: date,
+        date_to: date,
         db: AsyncSession = Depends(get_db)
 ):
     dt_plus_one = date_to + timedelta(days=1)
