@@ -75,6 +75,40 @@ async def expenses_pie(
     })).mappings().all()
     return rows
 
+@router.get("/weekly/{telegram_id}")
+async def weekly_stats(
+    telegram_id: int,
+    type: Annotated[str, Query(pattern="^(income|expenses)$")],
+    date_from: date,
+    date_to: date,
+    db: AsyncSession = Depends(get_db)
+):
+    table = "user_earnings" if type == "income" else "user_expenses"
+    dt_plus_one = date_to + timedelta(days=1)
+
+    # DOW: 0 is Sunday, 1 is Monday, ..., 6 is Saturday
+    # We want to return them in order starting from Monday (1)
+    q = text(f"""
+        SELECT
+            CASE dow
+                WHEN 0 THEN 'Yak' WHEN 1 THEN 'Dush' WHEN 2 THEN 'Sesh'
+                WHEN 3 THEN 'Chor' WHEN 4 THEN 'Pay' WHEN 5 THEN 'Jum' WHEN 6 THEN 'Shan'
+            END as day,
+            (SELECT COALESCE(SUM(amount), 0)
+             FROM {table}
+             WHERE user_id = :uid
+               AND inserted_at >= :df AND inserted_at < :dt
+               AND EXTRACT(DOW FROM inserted_at) = dow)::FLOAT as total
+        FROM generate_series(0, 6) as dow
+        ORDER BY (dow + 6) % 7
+    """)
+    rows = (await db.execute(q, {
+        "uid": telegram_id,
+        "df": date_from,
+        "dt": dt_plus_one
+    })).mappings().all()
+    return rows
+
 @router.get("/daily/{telegram_id}")
 async def daily_stats(
     telegram_id: int,
