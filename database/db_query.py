@@ -31,35 +31,35 @@ class Database:
             print('DATABASE ERROR: Error with CREATING TABLES --- ', str(er))
             pass
 
-    async def add_income(self, user_id:int, amount:Union[float, int], source:str, additional_info:str=None, currency:str=None):
+    async def add_income(self, user_id:int, amount:Union[float, int], source:str, payment_method:str='cash', additional_info:str=None, currency:str=None):
         try:
             async with self.pool.acquire() as conn:
                 query = """
-                INSERT INTO user_earnings(user_id, amount, currency, source, additional_info, inserted_at)
-                VALUES($1, $2, $3, $4, $5, $6) RETURNING id
+                INSERT INTO user_earnings(user_id, amount, currency, source, payment_method, additional_info, inserted_at)
+                VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id
                 """
                 if currency:
-                    return await conn.fetchval(query, user_id, amount, currency, source, additional_info, get_current_time())
+                    return await conn.fetchval(query, user_id, amount, currency, source, payment_method, additional_info, get_current_time())
                 else:
                     user_currency = await conn.fetchval("SELECT currency FROM users WHERE telegram_id = $1", user_id)
-                    return await conn.fetchval(query, user_id, amount, user_currency, source, additional_info, get_current_time())
+                    return await conn.fetchval(query, user_id, amount, user_currency, source, payment_method, additional_info, get_current_time())
 
         except Exception as er:
             print('DATABASE ERROR: Error with INSERTING DATA to user_earnings --- ', str(er))
             return None
 
-    async def add_expense(self, user_id:int, amount:float, source:str, additional_info:str=None, currency:str=None):
+    async def add_expense(self, user_id:int, amount:float, source:str, payment_method:str='cash', additional_info:str=None, currency:str=None):
         try:
             async with self.pool.acquire() as conn:
                 query = """
-                INSERT INTO user_expenses(user_id, amount, currency, source, additional_info, inserted_at)
-                VALUES($1, $2, $3, $4, $5, $6) RETURNING id
+                INSERT INTO user_expenses(user_id, amount, currency, source, payment_method, additional_info, inserted_at)
+                VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id
                 """
                 if currency:
-                    return await conn.fetchval(query, user_id, amount, currency, source, additional_info, get_current_time())
+                    return await conn.fetchval(query, user_id, amount, currency, source, payment_method, additional_info, get_current_time())
                 else:
                     user_currency = await conn.fetchval("SELECT currency FROM users WHERE telegram_id = $1", user_id)
-                    return await conn.fetchval(query, user_id, amount, user_currency, source, additional_info, get_current_time())
+                    return await conn.fetchval(query, user_id, amount, user_currency, source, payment_method, additional_info, get_current_time())
         except Exception as er:
             print('DATABASE ERROR: Error with INSERTING DATA to user_expenses --- ', str(er))
             return None
@@ -176,6 +176,33 @@ class Database:
         except Exception as er:
             print('DATABASE ERROR: Error with fetching all users expenses --- ', str(er))
 
+    async def delete_transaction(self, table: Literal['user_earnings', 'user_expenses'], transaction_id: int, user_id: int):
+        try:
+            if self.pool is None:
+                self.pool = await asyncpg.create_pool(self.url)
+            async with self.pool.acquire() as conn:
+                query = f"DELETE FROM {table} WHERE id = $1 AND user_id = $2"
+                await conn.execute(query, transaction_id, user_id)
+                return True
+        except Exception as er:
+            print(f'DATABASE ERROR: Error with deleting from {table} --- ', str(er))
+            return False
+
+    async def update_transaction(self, table: Literal['user_earnings', 'user_expenses'], transaction_id: int, user_id: int, amount: float, source: str, payment_method: str, additional_info: str = None):
+        try:
+            if self.pool is None:
+                self.pool = await asyncpg.create_pool(self.url)
+            async with self.pool.acquire() as conn:
+                query = f"""
+                UPDATE {table}
+                SET amount = $1, source = $2, payment_method = $3, additional_info = $4
+                WHERE id = $5 AND user_id = $6
+                """
+                await conn.execute(query, amount, source, payment_method, additional_info, transaction_id, user_id)
+                return True
+        except Exception as er:
+            print(f'DATABASE ERROR: Error with updating {table} --- ', str(er))
+            return False
 
 
 db = Database()

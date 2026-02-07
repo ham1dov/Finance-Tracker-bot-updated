@@ -133,6 +133,11 @@ Quyidagi ro‘yxatdan birini belgilang. Agar mos kelmasa, “Boshqa” tugmasini
         'uz':"""✏️ Iltimos, daromad manbasini kiriting:""",
         'ru':"""✏️ Пожалуйста, введите источник дохода:"""
     },
+    'get_payment_method':{
+        'en':"""💳 Select the payment method:""",
+        'uz':"""💳 To‘lov usulini tanlang:""",
+        'ru':"""💳 Выберите способ оплаты:"""
+    },
     'get_more_information':{
         'en':"""📝 Please enter any additional information or notes about your income:""",
         'uz':"""📝 Iltimos, daromad haqida qo‘shimcha ma’lumot yoki eslatmalar kiriting:""",
@@ -214,6 +219,11 @@ add_expense_states = {
         'en':"✏️ Enter the expense category manually:",
         'uz':"✏️ Xarajat turini qo‘lda kiriting:",
         'ru':"✏️ Введите категорию расхода вручную:"
+    },
+    'get_payment_method':{
+        'en':"""💳 Select the payment method:""",
+        'uz':"""💳 To‘lov usulini tanlang:""",
+        'ru':"""💳 Выберите способ оплаты:"""
     },
     'enter_additional_info':{
         'en':"📝 Enter additional notes (optional):",

@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS user_earnings(
     amount DECIMAL (12, 2),
     currency VARCHAR(5) CHECK (currency IN ('usd', 'uzs', 'rub', 'eur')),
     source VARCHAR(255),
+    payment_method VARCHAR(10) DEFAULT 'cash' CHECK (payment_method IN ('cash', 'card')),
     additional_info TEXT DEFAULT NULL,
     inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -23,7 +24,8 @@ CREATE TABLE IF NOT EXISTS user_expenses(
     user_id BIGINT REFERENCES users(telegram_id) ON DELETE CASCADE,
     amount DECIMAL(12, 2),
     currency VARCHAR(5) CHECK (currency IN ('usd', 'uzs', 'rub', 'eur')),
-    source VARCHAR(20),
+    source VARCHAR(255),
+    payment_method VARCHAR(10) DEFAULT 'cash' CHECK (payment_method IN ('cash', 'card')),
     additional_info TEXT DEFAULT NULL,
     inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

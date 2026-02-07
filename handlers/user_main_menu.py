@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 
 from keyboards.inline.user import select_income_source_buttons, add_additional_info_button, user_main_menu_buttons, \
-    select_expense_source_buttons, get_expense_additional_info_buttons
+    select_expense_source_buttons, get_expense_additional_info_buttons, select_payment_method_buttons
 from lexicon.userstates import add_income_states, add_expense_states
 from states.userstates import AddIncomeState, AddExpenseState
 from handlers.user_entrypoint import user_router
@@ -20,7 +20,7 @@ async def user_get_all_incomes_temp(message:Message):
         return
     message_text = ""
     for index, income in enumerate(all_incomes):
-        message_text+=f'{index+1}: {income[0]} {income[1]} {income[2]} {income[3]} {income[4]} {income[5]} {income[6]}'
+        message_text+=f'{index+1}: {list(income.values())}\n'
     await message.answer(message_text)
     return
 
@@ -32,7 +32,7 @@ async def user_get_all_incomes_temp(message:Message):
         return
     message_text = ""
     for index, expense in enumerate(all_expenses):
-        message_text+=f'{index+1}: {expense[0]} {expense[1]} {expense[2]} {expense[3]} {expense[4]} {expense[5]} {expense[6]}'
+        message_text+=f'{index+1}: {list(expense.values())}\n'
     await message.answer(message_text)
     return
 
@@ -99,14 +99,11 @@ async def get_income_source(callback:CallbackQuery, state:FSMContext):
         await callback.message.answer(add_income_states['get_source_manually'][lang])
         await state.set_state(AddIncomeState.get_source_manually)
         return
+
     data['source'] = source
-    amount = data.get('amount')
-    income_id = await db.add_income(user_id=callback.from_user.id, amount=amount, source=source)
-    if income_id is None:
-        return
-    button = await add_additional_info_button(lang=lang, income_id=income_id)
-    await callback.message.answer(text=add_income_states['income_successfully_inserted'][lang], reply_markup=button)
-    await state.clear()
+    await state.update_data(data=data)
+    await callback.message.answer(add_income_states['get_payment_method'][lang], reply_markup=await select_payment_method_buttons(lang=lang, type='income'))
+    await state.set_state(AddIncomeState.get_payment_method)
     return
 
 @user_router.message(F.text, AddIncomeState.get_source_manually)
@@ -114,12 +111,33 @@ async def get_source_manually(message:Message, state:FSMContext):
     source = message.text
     data = await state.get_data()
     data['source'] = source
+    lang = data.get('user_language', 'en')
     await state.update_data(data=data)
+    await message.answer(add_income_states['get_payment_method'][lang], reply_markup=await select_payment_method_buttons(lang=lang, type='income'))
+    await state.set_state(AddIncomeState.get_payment_method)
+    return
+
+@user_router.callback_query(F.data.startswith('user:add_income_payment_method:'), AddIncomeState.get_payment_method)
+async def get_income_payment_method(callback:CallbackQuery, state:FSMContext):
+    payment_method = callback.data.split(':')[-1]
+    data = await state.get_data()
+    lang = data.get('user_language', 'en')
     amount = data.get('amount')
-    lang = data.get('lang', 'en')
-    income_id = await db.add_income(user_id=message.from_user.id, amount=amount, source=source)
-    await message.answer(add_income_states['get_additional_info'][lang],
-                                  reply_markup=await add_additional_info_button(lang=lang, income_id=income_id))
+    source = data.get('source')
+
+    try:
+        await callback.message.delete()
+    except:
+        pass
+
+    income_id = await db.add_income(user_id=callback.from_user.id, amount=amount, source=source, payment_method=payment_method)
+    if income_id is None:
+        await callback.message.answer(add_income_states['income_addition_failed'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await state.clear()
+        return
+
+    button = await add_additional_info_button(lang=lang, income_id=income_id)
+    await callback.message.answer(text=add_income_states['income_successfully_inserted'][lang], reply_markup=button)
     await state.clear()
     return
 
@@ -177,7 +195,6 @@ async def get_expense_source(callback:CallbackQuery, state:FSMContext):
     source = callback.data.split(':')[-1]
     data = await state.get_data()
     lang = data.get('user_language', 'en')
-    amount = data.get('amount')
     try:
         await callback.message.delete()
     except:
@@ -186,13 +203,11 @@ async def get_expense_source(callback:CallbackQuery, state:FSMContext):
         await callback.message.answer(add_expense_states['get_source_manually'][lang])
         await state.set_state(AddExpenseState.get_source_manually)
         return
-    expense_id = await db.add_expense(user_id=callback.from_user.id, amount=amount, source=source)
-    if expense_id is None:
-        await callback.message.answer(add_expense_states['failed_to_save'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
-        await state.clear()
-        return
-    await callback.message.answer(add_expense_states['successfully_saved'][lang], reply_markup=await get_expense_additional_info_buttons(lang=lang, expense_id=expense_id))
-    await state.clear()
+
+    data['source'] = source
+    await state.update_data(data=data)
+    await callback.message.answer(add_expense_states['get_payment_method'][lang], reply_markup=await select_payment_method_buttons(lang=lang, type='expense'))
+    await state.set_state(AddExpenseState.get_payment_method)
     return
 
 @user_router.message(F.content_type==ContentType.TEXT, AddExpenseState.get_source_manually)
@@ -201,14 +216,32 @@ async def get_expense_source_manually(message:Message, state:FSMContext):
     data = await state.get_data()
     data['source'] = source
     lang = data.get('user_language', 'en')
+    await state.update_data(data=data)
+    await message.answer(add_expense_states['get_payment_method'][lang], reply_markup=await select_payment_method_buttons(lang=lang, type='expense'))
+    await state.set_state(AddExpenseState.get_payment_method)
+    return
+
+@user_router.callback_query(F.data.startswith('user:add_expense_payment_method:'), AddExpenseState.get_payment_method)
+async def get_expense_payment_method(callback:CallbackQuery, state:FSMContext):
+    payment_method = callback.data.split(':')[-1]
+    data = await state.get_data()
+    lang = data.get('user_language', 'en')
     amount = data.get('amount')
-    expense_id = await db.add_expense(user_id=message.from_user.id, amount=amount, source=source)
+    source = data.get('source')
+
+    try:
+        await callback.message.delete()
+    except:
+        pass
+
+    expense_id = await db.add_expense(user_id=callback.from_user.id, amount=amount, source=source, payment_method=payment_method)
     if expense_id is None:
-        await message.answer(add_expense_states['failed_to_save'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await callback.message.answer(add_expense_states['failed_to_save'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
         await state.clear()
         return
-    await message.answer(add_expense_states['successfully_saved'][lang], reply_markup=await get_expense_additional_info_buttons(lang=lang, expense_id=expense_id))
-    await state.update_data(data=data)
+
+    await callback.message.answer(add_expense_states['successfully_saved'][lang], reply_markup=await get_expense_additional_info_buttons(lang=lang, expense_id=expense_id))
+    await state.clear()
     return
 
 @user_router.callback_query(F.data.startswith('user:add_expense_add_info:'))

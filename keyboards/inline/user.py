@@ -404,3 +404,23 @@ async def get_expense_additional_info_buttons(lang:str, expense_id:int)->InlineK
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(text=text[lang], callback_data=f'user:add_expense_add_info:{expense_id}'))
     return builder.as_markup()
+
+"""<---------- SELECT PAYMENT METHOD BUTTONS ---------->"""
+async def select_payment_method_buttons(lang:str, type: Literal['income', 'expense'])->InlineKeyboardMarkup:
+    methods = {
+        'cash': {
+            'en': "💵 Cash",
+            'uz': "💵 Naqd",
+            'ru': "💵 Наличные"
+        },
+        'card': {
+            'en': "💳 Card",
+            'uz': "💳 Karta",
+            'ru': "💳 Карта"
+        }
+    }
+    builder = InlineKeyboardBuilder()
+    builder.max_width = 2
+    for key, value in methods.items():
+        builder.add(InlineKeyboardButton(text=value[lang], callback_data=f'user:add_{type}_payment_method:{key}'))
+    return builder.as_markup()

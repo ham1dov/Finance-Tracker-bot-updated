@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from .web_database import get_db
 from datetime import date, timedelta
-from typing import Annotated
+from typing import Annotated, Optional
 
 router = APIRouter(prefix="/stats", tags=["Stats"])
 
@@ -11,20 +11,22 @@ router = APIRouter(prefix="/stats", tags=["Stats"])
 async def monthly_summary(telegram_id: int, db: AsyncSession = Depends(get_db)):
     q = text("""
         SELECT
-            (SELECT COALESCE(SUM(amount),0)
-             FROM user_earnings
-             WHERE user_id=:uid
-               AND inserted_at >= date_trunc('month', now())) AS income,
-            (SELECT COALESCE(SUM(amount),0)
-             FROM user_expenses
-             WHERE user_id=:uid
-               AND inserted_at >= date_trunc('month', now())) AS expense
+            (SELECT COALESCE(SUM(amount),0) FROM user_earnings WHERE user_id=:uid AND inserted_at >= date_trunc('month', now())) AS income,
+            (SELECT COALESCE(SUM(amount),0) FROM user_earnings WHERE user_id=:uid AND inserted_at >= date_trunc('month', now()) AND payment_method='cash') AS income_cash,
+            (SELECT COALESCE(SUM(amount),0) FROM user_earnings WHERE user_id=:uid AND inserted_at >= date_trunc('month', now()) AND payment_method='card') AS income_card,
+            (SELECT COALESCE(SUM(amount),0) FROM user_expenses WHERE user_id=:uid AND inserted_at >= date_trunc('month', now())) AS expense,
+            (SELECT COALESCE(SUM(amount),0) FROM user_expenses WHERE user_id=:uid AND inserted_at >= date_trunc('month', now()) AND payment_method='cash') AS expense_cash,
+            (SELECT COALESCE(SUM(amount),0) FROM user_expenses WHERE user_id=:uid AND inserted_at >= date_trunc('month', now()) AND payment_method='card') AS expense_card
     """)
     r = (await db.execute(q, {"uid": telegram_id})).first()
 
     return {
         "income": float(r.income),
+        "income_cash": float(r.income_cash),
+        "income_card": float(r.income_card),
         "expense": float(r.expense),
+        "expense_cash": float(r.expense_cash),
+        "expense_card": float(r.expense_card),
         "result": float(r.income - r.expense)
     }
 
@@ -74,6 +76,118 @@ async def expenses_pie(
         "dt": dt_plus_one
     })).mappings().all()
     return rows
+
+@router.get("/monitoring/{telegram_id}")
+async def monitoring(
+    telegram_id: int,
+    type: Annotated[str, Query(pattern="^(income|expenses)$")],
+    db: AsyncSession = Depends(get_db)
+):
+    table = "user_earnings" if type == "income" else "user_expenses"
+    q = text(f"""
+        SELECT
+            (SELECT COALESCE(SUM(amount), 0) FROM {table} WHERE user_id = :uid AND inserted_at::date = now()::date)::FLOAT as total,
+            (SELECT COALESCE(SUM(amount), 0) FROM {table} WHERE user_id = :uid AND inserted_at::date = now()::date AND payment_method = 'cash')::FLOAT as cash,
+            (SELECT COALESCE(SUM(amount), 0) FROM {table} WHERE user_id = :uid AND inserted_at::date = now()::date AND payment_method = 'card')::FLOAT as card
+    """)
+    summary = (await db.execute(q, {"uid": telegram_id})).mappings().first()
+
+    q_cat = text(f"""
+        SELECT source, SUM(amount)::FLOAT total
+        FROM {table}
+        WHERE user_id = :uid AND inserted_at::date = now()::date
+        GROUP BY source
+        ORDER BY total DESC
+    """)
+    categories = (await db.execute(q_cat, {"uid": telegram_id})).mappings().all()
+
+    return {
+        "summary": summary,
+        "categories": categories
+    }
+
+@router.get("/report/{telegram_id}")
+async def report(
+    telegram_id: int,
+    type: Annotated[str, Query(pattern="^(income|expenses)$")],
+    date_from: date,
+    date_to: date,
+    source: Optional[str] = None,
+    payment_method: Optional[str] = None,
+    sort_by: str = "inserted_at",
+    order: str = "DESC",
+    db: AsyncSession = Depends(get_db)
+):
+    table = "user_earnings" if type == "income" else "user_expenses"
+    dt_plus_one = date_to + timedelta(days=1)
+
+    conditions = ["user_id = :uid", "inserted_at >= :df", "inserted_at < :dt"]
+    params = {"uid": telegram_id, "df": date_from, "dt": dt_plus_one}
+
+    if source:
+        conditions.append("source = :source")
+        params["source"] = source
+    if payment_method:
+        conditions.append("payment_method = :pm")
+        params["pm"] = payment_method
+
+    where_clause = " AND ".join(conditions)
+
+    if sort_by not in ["inserted_at", "amount", "source", "payment_method"]:
+        sort_by = "inserted_at"
+    if order not in ["ASC", "DESC"]:
+        order = "DESC"
+
+    q = text(f"""
+        SELECT id, amount::FLOAT, source, payment_method, additional_info, to_char(inserted_at, 'YYYY-MM-DD HH24:MI') as date
+        FROM {table}
+        WHERE {where_clause}
+        ORDER BY {sort_by} {order}
+    """)
+
+    rows = (await db.execute(q, params)).mappings().all()
+    return rows
+
+@router.delete("/transaction/{telegram_id}/{type}/{transaction_id}")
+async def delete_transaction(
+    telegram_id: int,
+    type: str,
+    transaction_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    table = "user_earnings" if type == "income" else "user_expenses"
+    q = text(f"DELETE FROM {table} WHERE id = :tid AND user_id = :uid")
+    await db.execute(q, {"tid": transaction_id, "uid": telegram_id})
+    await db.commit()
+    return {"status": "success"}
+
+@router.put("/transaction/{telegram_id}/{type}/{transaction_id}")
+async def update_transaction(
+    telegram_id: int,
+    type: str,
+    transaction_id: int,
+    amount: float = Body(...),
+    source: str = Body(...),
+    payment_method: str = Body(...),
+    additional_info: Optional[str] = Body(None),
+    db: AsyncSession = Depends(get_db)
+):
+    table = "user_earnings" if type == "income" else "user_expenses"
+    q = text(f"""
+        UPDATE {table}
+        SET amount = :amount, source = :source, payment_method = :pm, additional_info = :info
+        WHERE id = :tid AND user_id = :uid
+    """)
+    await db.execute(q, {
+        "amount": amount,
+        "source": source,
+        "pm": payment_method,
+        "info": additional_info,
+        "tid": transaction_id,
+        "uid": telegram_id
+    })
+    await db.commit()
+    return {"status": "success"}
 
 @router.get("/weekly/{telegram_id}")
 async def weekly_stats(
