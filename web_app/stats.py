@@ -1,9 +1,14 @@
-from fastapi import APIRouter, Depends, Query, Body
+from fastapi import APIRouter, Depends, Query, Body, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from .web_database import get_db
 from datetime import date, timedelta
 from typing import Annotated, Optional
+import io
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill
+from .bot.engine import bot
+from aiogram.types import BufferedInputFile
 
 router = APIRouter(prefix="/stats", tags=["Stats"])
 
@@ -188,6 +193,75 @@ async def update_transaction(
     })
     await db.commit()
     return {"status": "success"}
+
+@router.get("/export/{telegram_id}")
+async def export_excel(
+    telegram_id: int,
+    type: Annotated[str, Query(pattern="^(income|expenses)$")],
+    date_from: date,
+    date_to: date,
+    db: AsyncSession = Depends(get_db)
+):
+    table = "user_earnings" if type == "income" else "user_expenses"
+    dt_plus_one = date_to + timedelta(days=1)
+
+    q = text(f"""
+        SELECT to_char(inserted_at, 'YYYY-MM-DD HH24:MI') as date, amount::FLOAT, source, payment_method, additional_info
+        FROM {table}
+        WHERE user_id = :uid AND inserted_at >= :df AND inserted_at < :dt
+        ORDER BY inserted_at DESC
+    """)
+    rows = (await db.execute(q, {"uid": telegram_id, "df": date_from, "dt": dt_plus_one})).mappings().all()
+
+    if not rows:
+        raise HTTPException(status_code=404, detail="No data found for the selected period")
+
+    # Create Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Hisobot"
+
+    headers = ["Sana", "Summa", "Kategoriya", "To'lov usuli", "Izoh"]
+    ws.append(headers)
+
+    # Style headers
+    header_fill = PatternFill(start_color="3498DB", end_color="3498DB", fill_type="solid")
+    header_font = Font(color="FFFFFF", bold=True)
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center")
+
+    for row in rows:
+        ws.append([row['date'], row['amount'], row['source'], row['payment_method'], row['additional_info']])
+
+    # Auto-adjust columns width
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        ws.column_dimensions[column].width = max_length + 2
+
+    # Save to buffer
+    excel_file = io.BytesIO()
+    wb.save(excel_file)
+    excel_file.seek(0)
+
+    # Send via Bot
+    filename = f"hisobot_{type}_{date_from}_{date_to}.xlsx"
+    input_file = BufferedInputFile(excel_file.read(), filename=filename)
+
+    try:
+        await bot.send_document(chat_id=telegram_id, document=input_file, caption=f"📊 Sizning {date_from} dan {date_to} gacha bo'lgan {type} hisobotingiz.")
+        return {"status": "success", "message": "Excel file sent to Telegram"}
+    except Exception as e:
+        print(f"Error sending document: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to send document: {str(e)}")
 
 @router.get("/weekly/{telegram_id}")
 async def weekly_stats(

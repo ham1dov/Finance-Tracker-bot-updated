@@ -12,9 +12,11 @@
 
 <style>
 body{
-  font-family: Arial, sans-serif;
-  background:#f5f6fa;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--tg-theme-bg-color, #f5f6fa);
+  color: var(--tg-theme-text-color, #222);
   padding:20px;
+  margin: 0;
 }
 
 .cards{
@@ -30,6 +32,7 @@ body{
   color:#fff;
   text-align:center;
   min-width:200px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .income{background:#2ecc71}
@@ -42,15 +45,21 @@ button{
   border-radius:10px;
   cursor:pointer;
   font-size:15px;
-  background:#eee;
+  background: var(--tg-theme-secondary-bg-color, #eee);
+  color: var(--tg-theme-text-color, #222);
+  transition: all 0.2s ease;
 }
 
 button.active{
-  background:#3498db;
-  color:#fff;
+  background: var(--tg-theme-button-color, #3498db);
+  color: var(--tg-theme-button-text-color, #fff);
 }
 
-hr{margin:30px 0}
+hr{
+  margin:30px 0;
+  border: 0;
+  border-top: 1px solid var(--tg-theme-secondary-bg-color, #eee);
+}
 
 .hidden{display:none}
 
@@ -61,18 +70,18 @@ hr{margin:30px 0}
   margin: 20px 0;
 }
 .metric-card {
-  background: #fff;
+  background: var(--tg-theme-secondary-bg-color, #fff);
   padding: 12px;
   border-radius: 12px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   text-align: center;
 }
-.metric-card h4 { margin: 0; font-size: 10px; color: #7f8c8d; text-transform: uppercase; }
-.metric-card p { margin: 5px 0 0; font-size: 14px; font-weight: bold; color: #2c3e50; }
+.metric-card h4 { margin: 0; font-size: 10px; color: var(--tg-theme-hint-color, #7f8c8d); text-transform: uppercase; }
+.metric-card p { margin: 5px 0 0; font-size: 14px; font-weight: bold; color: var(--tg-theme-text-color, #2c3e50); }
 
 .tab-nav {
   display: flex;
-  background: #eee;
+  background: var(--tg-theme-secondary-bg-color, #eee);
   padding: 5px;
   border-radius: 12px;
   margin: 20px 0;
@@ -84,11 +93,11 @@ hr{margin:30px 0}
   border-radius: 8px;
   font-size: 13px;
   background: transparent;
-  color: #7f8c8d;
+  color: var(--tg-theme-hint-color, #7f8c8d);
 }
 .tab-nav button.active {
-  background: #fff;
-  color: #3498db;
+  background: var(--tg-theme-bg-color, #fff);
+  color: var(--tg-theme-button-color, #3498db);
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
@@ -98,27 +107,46 @@ hr{margin:30px 0}
 #modal {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
     z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    backdrop-filter: blur(2px);
 }
 #modal.hidden { display: none; }
+
+.modal-content-wrapper {
+    background: var(--tg-theme-bg-color, #fff);
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
 
 #list {
   list-style: none;
   padding: 0;
 }
 #list li {
-  background: #fff;
+  background: var(--tg-theme-secondary-bg-color, #fff);
   margin-bottom: 8px;
   padding: 10px 15px;
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
   box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+input, select, textarea {
+    background: var(--tg-theme-secondary-bg-color, #fff);
+    color: var(--tg-theme-text-color, #222);
+    border: 1px solid var(--tg-theme-hint-color, #ddd);
 }
 </style>
 </head>
@@ -198,20 +226,20 @@ hr{margin:30px 0}
 
   <!-- MONITORING TAB -->
   <div id="tab-monitoring" class="tab-content active">
-    <div id="monitoringSummary" style="background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-around; text-align: center;">
+    <div id="monitoringSummary" style="background: var(--tg-theme-secondary-bg-color, #fff); padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-around; text-align: center;">
         <div>
-            <p style="margin:0; font-size: 12px; color: #7f8c8d;">Jami Bugun</p>
+            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);">Jami Bugun</p>
             <b id="monTotal">$0</b>
         </div>
         <div>
-            <p style="margin:0; font-size: 12px; color: #7f8c8d;">Naqd</p>
+            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);">Naqd</p>
             <b id="monCash">$0</b>
-            <div id="monCashPct" style="font-size: 10px; color: #7f8c8d;">0%</div>
+            <div id="monCashPct" style="font-size: 10px; color: var(--tg-theme-hint-color, #7f8c8d);">0%</div>
         </div>
         <div>
-            <p style="margin:0; font-size: 12px; color: #7f8c8d;">Karta</p>
+            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);">Karta</p>
             <b id="monCard">$0</b>
-            <div id="monCardPct" style="font-size: 10px; color: #7f8c8d;">0%</div>
+            <div id="monCardPct" style="font-size: 10px; color: var(--tg-theme-hint-color, #7f8c8d);">0%</div>
         </div>
     </div>
 
@@ -227,12 +255,12 @@ hr{margin:30px 0}
 
   <!-- REPORT TAB -->
   <div id="tab-report" class="tab-content">
-    <div style="background: #fff; padding: 10px; border-radius: 12px; margin-bottom: 15px;">
+    <div style="background: var(--tg-theme-secondary-bg-color, #fff); padding: 10px; border-radius: 12px; margin-bottom: 15px;">
         <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-            <select id="repSource" style="flex:1; padding: 8px; border-radius: 8px; border: 1px solid #ddd;">
+            <select id="repSource" style="flex:1; padding: 8px; border-radius: 8px;">
                 <option value="">Hamma kategoriyalar</option>
             </select>
-            <select id="repMethod" style="flex:1; padding: 8px; border-radius: 8px; border: 1px solid #ddd;">
+            <select id="repMethod" style="flex:1; padding: 8px; border-radius: 8px;">
                 <option value="">Hamma to‘lovlar</option>
                 <option value="cash">Naqd</option>
                 <option value="card">Karta</option>
@@ -251,9 +279,9 @@ hr{margin:30px 0}
     <canvas id="repPie" style="margin-bottom: 20px;"></canvas>
 
     <div id="reportTableContainer" style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px;">
+        <table style="width: 100%; border-collapse: collapse; background: var(--tg-theme-bg-color, #fff); border-radius: 12px;">
             <thead>
-                <tr style="background: #eee; text-align: left; font-size: 12px;">
+                <tr style="background: var(--tg-theme-secondary-bg-color, #eee); text-align: left; font-size: 12px;">
                     <th style="padding: 10px;">Sana</th>
                     <th style="padding: 10px;">Kategoriya</th>
                     <th style="padding: 10px;">Summa</th>
@@ -269,10 +297,10 @@ hr{margin:30px 0}
 
 <!-- MODAL FOR DETAILED LIST / EDIT -->
 <div id="modal" class="hidden">
-    <div style="background: #fff; width: 100%; max-width: 500px; max-height: 90vh; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column;">
-        <div style="padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+    <div class="modal-content-wrapper">
+        <div style="padding: 15px; border-bottom: 1px solid var(--tg-theme-secondary-bg-color, #eee); display: flex; justify-content: space-between; align-items: center;">
             <h3 id="modalTitle" style="margin:0;">Batafsil</h3>
-            <button onclick="closeModal()" style="padding: 5px 10px;">✖</button>
+            <button onclick="closeModal()" style="padding: 5px 10px; background: transparent; color: var(--tg-theme-hint-color);">✖</button>
         </div>
         <div id="modalContent" style="padding: 15px; overflow-y: auto; flex: 1;">
             <!-- Table or Form will go here -->
@@ -292,6 +320,14 @@ var repPieChart = null;
 /* ================= TELEGRAM ================= */
 try {
   Telegram.WebApp.ready();
+
+  // Apply Telegram Theme to Chart.js
+  const tgStyle = getComputedStyle(document.body);
+  const textColor = tgStyle.getPropertyValue('--tg-theme-text-color') || '#222';
+  const hintColor = tgStyle.getPropertyValue('--tg-theme-hint-color') || '#7f8c8d';
+
+  Chart.defaults.color = textColor;
+  Chart.defaults.borderColor = tgStyle.getPropertyValue('--tg-theme-secondary-bg-color') || '#eee';
   const user = Telegram.WebApp.initDataUnsafe.user;
   if(user) {
     UID = user.id;
@@ -464,7 +500,7 @@ function loadReport() {
 
         if(repPieChart) repPieChart.destroy();
         repPieChart = new Chart(document.getElementById("repPie"), {
-            type: 'pie',
+            type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
@@ -570,25 +606,29 @@ function closeModal() {
 function downloadReport() {
     const f = document.getElementById("from").value;
     const t = document.getElementById("to").value;
-    let url = `${API}/stats/report/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`;
 
-    fetch(url).then(r=>r.json()).then(rows => {
-        let csv = "Sana,Kategoriya,Summa,To'lov usuli,Qo'shimcha\n";
-        rows.forEach(r => {
-            csv += `"${r.date}","${r.source}",${r.amount},"${r.payment_method}","${r.additional_info||''}"\n`;
-        });
-        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-        const urlBlob = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = urlBlob;
-        a.download = `hisobot_${currentType}_${f}_${t}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            window.URL.revokeObjectURL(urlBlob);
-            document.body.removeChild(a);
-        }, 100);
+    // Disable button during export
+    const btn = event.currentTarget;
+    const originalContent = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = "⏳";
+
+    fetch(`${API}/stats/export/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`)
+    .then(r => r.json())
+    .then(d => {
+        if(d.status === 'success') {
+            Telegram.WebApp.showAlert("✅ Excel fayl Telegram botingizga yuborildi!");
+        } else {
+            Telegram.WebApp.showAlert("❌ Xatolik yuz berdi: " + (d.detail || "Noma'lum"));
+        }
+    })
+    .catch(err => {
+        console.error("Export error:", err);
+        Telegram.WebApp.showAlert("❌ Xatolik yuz berdi.");
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
     });
 }
 </script>
