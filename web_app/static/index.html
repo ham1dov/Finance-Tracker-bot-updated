@@ -272,7 +272,7 @@ input, select, textarea {
                 <option value="amount">Summa bo‘yicha</option>
             </select>
             <button onclick="loadReport()" style="background: #2ecc71; color: #fff; flex: 0.5;">🔄</button>
-            <button onclick="downloadReport()" style="background: #e67e22; color: #fff; flex: 0.5;">📥</button>
+            <button onclick="downloadReport(event)" style="background: #e67e22; color: #fff; flex: 0.5;">📥</button>
         </div>
     </div>
 
@@ -318,38 +318,53 @@ var monPieChart = null;
 var repPieChart = null;
 
 /* ================= TELEGRAM ================= */
-try {
-  Telegram.WebApp.ready();
+function initApp() {
+  try {
+    Telegram.WebApp.ready();
 
-  // Apply Telegram Theme to Chart.js
-  const tgStyle = getComputedStyle(document.body);
-  const textColor = tgStyle.getPropertyValue('--tg-theme-text-color') || '#222';
-  const hintColor = tgStyle.getPropertyValue('--tg-theme-hint-color') || '#7f8c8d';
+    // Apply Telegram Theme to Chart.js
+    const tgStyle = getComputedStyle(document.body);
+    const textColor = tgStyle.getPropertyValue('--tg-theme-text-color') || '#222';
 
-  Chart.defaults.color = textColor;
-  Chart.defaults.borderColor = tgStyle.getPropertyValue('--tg-theme-secondary-bg-color') || '#eee';
-  const user = Telegram.WebApp.initDataUnsafe.user;
-  if(user) {
-    UID = user.id;
-  } else {
-    console.warn("Telegram user not found in initDataUnsafe");
+    Chart.defaults.color = textColor;
+    Chart.defaults.borderColor = tgStyle.getPropertyValue('--tg-theme-secondary-bg-color') || '#eee';
+
+    const user = Telegram.WebApp.initDataUnsafe.user;
+    if(user) {
+      UID = user.id;
+      console.log("Authenticated User ID:", UID);
+
+      // Set default dates (current month)
+      const now = new Date();
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+      document.getElementById('from').value = firstDay;
+      document.getElementById('to').value = lastDay;
+
+      // Start loading data
+      loadMonthlySummary();
+      loadTrend();
+    } else {
+      console.warn("Telegram user not found in initDataUnsafe. API calls will be delayed.");
+      // For development outside Telegram
+      // UID = 12345; // Uncomment for local testing
+    }
+  } catch (e) {
+    console.error("Telegram WebApp error:", e);
   }
-} catch (e) {
-  console.error("Telegram WebApp error:", e);
 }
-
-// Set default dates (current month)
-const now = new Date();
-const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-document.getElementById('from').value = firstDay;
-document.getElementById('to').value = lastDay;
 
 /* ================= SUMMARY ================= */
 function loadMonthlySummary() {
+    if(!UID) return;
+    console.log("Fetching summary for UID:", UID);
     fetch(`${API}/stats/summary/${UID}`)
-    .then(r=>r.json())
+    .then(r=>{
+      if(!r.ok) throw new Error("HTTP error " + r.status);
+      return r.json();
+    })
     .then(d=>{
+      console.log("Summary data received:", d);
       document.getElementById("income").innerText="$"+d.income.toLocaleString();
       document.getElementById("income_cash").innerText="$"+d.income_cash.toLocaleString();
       document.getElementById("income_card").innerText="$"+d.income_card.toLocaleString();
@@ -375,14 +390,17 @@ const trendChart=new Chart(document.getElementById("trend"),{
   }
 });
 
-fetch(`${API}/stats/trend/${UID}`)
-.then(r=>r.json())
-.then(d=>{
-  trendChart.data.labels=d.map(i=>i.month);
-  trendChart.data.datasets[0].data=d.map(i=>i.income);
-  trendChart.data.datasets[1].data=d.map(i=>i.expense);
-  trendChart.update();
-}).catch(err => console.error("Trend error:", err));
+function loadTrend() {
+  if(!UID) return;
+  fetch(`${API}/stats/trend/${UID}`)
+  .then(r=>r.json())
+  .then(d=>{
+    trendChart.data.labels=d.map(i=>i.month);
+    trendChart.data.datasets[0].data=d.map(i=>i.income);
+    trendChart.data.datasets[1].data=d.map(i=>i.expense);
+    trendChart.update();
+  }).catch(err => console.error("Trend error:", err));
+}
 
 /* ================= DETAILS ================= */
 function openPage(type){
@@ -419,26 +437,31 @@ function showTab(tabId) {
 }
 
 function loadMetrics(f, t) {
+  if(!UID) return;
   fetch(`${API}/stats/metrics/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`)
   .then(r=>r.json())
   .then(d=>{
-    document.getElementById("mTotal").innerText = "$" + d.total.toLocaleString();
-    document.getElementById("mAvg").innerText = "$" + Math.round(d.average).toLocaleString();
-    document.getElementById("mCount").innerText = d.count;
+    document.getElementById("mTotal").innerText = "$" + (d.total || 0).toLocaleString();
+    document.getElementById("mAvg").innerText = "$" + (Math.round(d.average) || 0).toLocaleString();
+    document.getElementById("mCount").innerText = d.count || 0;
   }).catch(err => console.error("Metrics error:", err));
 }
 
 function loadMonitoring() {
+    if(!UID) return;
+    console.log(`Loading monitoring for ${currentType}`);
     fetch(`${API}/stats/monitoring/${UID}?type=${currentType}`)
     .then(r=>r.json())
     .then(d=>{
-        const total = d.summary.total || 0;
-        document.getElementById("monTotal").innerText = "$" + total.toLocaleString();
-        document.getElementById("monCash").innerText = "$" + d.summary.cash.toLocaleString();
-        document.getElementById("monCard").innerText = "$" + d.summary.card.toLocaleString();
+        const summary = d.summary || { total: 0, cash: 0, card: 0 };
+        const total = summary.total || 0;
 
-        document.getElementById("monCashPct").innerText = total > 0 ? Math.round((d.summary.cash / total) * 100) + "%" : "0%";
-        document.getElementById("monCardPct").innerText = total > 0 ? Math.round((d.summary.card / total) * 100) + "%" : "0%";
+        document.getElementById("monTotal").innerText = "$" + total.toLocaleString();
+        document.getElementById("monCash").innerText = "$" + (summary.cash || 0).toLocaleString();
+        document.getElementById("monCard").innerText = "$" + (summary.card || 0).toLocaleString();
+
+        document.getElementById("monCashPct").innerText = total > 0 ? Math.round(((summary.cash || 0) / total) * 100) + "%" : "0%";
+        document.getElementById("monCardPct").innerText = total > 0 ? Math.round(((summary.card || 0) / total) * 100) + "%" : "0%";
 
         const monList = document.getElementById("monList");
         monList.innerHTML = "";
@@ -464,6 +487,8 @@ function loadMonitoring() {
 }
 
 function loadReport() {
+    if(!UID) return;
+    console.log(`Loading report for ${currentType}`);
     const f = document.getElementById("from").value;
     const t = document.getElementById("to").value;
     const src = document.getElementById("repSource").value;
@@ -524,6 +549,7 @@ function loadReport() {
 }
 
 function showBatafsilToday() {
+    if(!UID) return;
     fetch(`${API}/stats/report/${UID}?type=${currentType}&date_from=${new Date().toISOString().split('T')[0]}&date_to=${new Date().toISOString().split('T')[0]}`)
     .then(r=>r.json())
     .then(rows => {
@@ -603,7 +629,8 @@ function closeModal() {
     document.getElementById("modal").classList.add("hidden");
 }
 
-function downloadReport() {
+function downloadReport(event) {
+    if(!UID) return;
     const f = document.getElementById("from").value;
     const t = document.getElementById("to").value;
 

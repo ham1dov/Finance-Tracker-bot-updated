@@ -23,16 +23,16 @@ async def monthly_summary(telegram_id: int, db: AsyncSession = Depends(get_db)):
             (SELECT COALESCE(SUM(amount),0) FROM user_expenses WHERE user_id=:uid AND inserted_at >= date_trunc('month', now()) AND payment_method='cash') AS expense_cash,
             (SELECT COALESCE(SUM(amount),0) FROM user_expenses WHERE user_id=:uid AND inserted_at >= date_trunc('month', now()) AND payment_method='card') AS expense_card
     """)
-    r = (await db.execute(q, {"uid": telegram_id})).first()
+    r = (await db.execute(q, {"uid": telegram_id})).mappings().first()
 
     return {
-        "income": float(r.income),
-        "income_cash": float(r.income_cash),
-        "income_card": float(r.income_card),
-        "expense": float(r.expense),
-        "expense_cash": float(r.expense_cash),
-        "expense_card": float(r.expense_card),
-        "result": float(r.income - r.expense)
+        "income": float(r['income']),
+        "income_cash": float(r['income_cash']),
+        "income_card": float(r['income_card']),
+        "expense": float(r['expense']),
+        "expense_cash": float(r['expense_cash']),
+        "expense_card": float(r['expense_card']),
+        "result": float(r['income'] - r['expense'])
     }
 
 @router.get("/trend/{telegram_id}")
@@ -107,8 +107,8 @@ async def monitoring(
     categories = (await db.execute(q_cat, {"uid": telegram_id})).mappings().all()
 
     return {
-        "summary": summary,
-        "categories": categories
+        "summary": dict(summary) if summary else None,
+        "categories": [dict(c) for c in categories]
     }
 
 @router.get("/report/{telegram_id}")
@@ -340,10 +340,10 @@ async def metrics(
     """)
     r = (await db.execute(q, {"uid": telegram_id, "df": date_from, "dt": dt_plus_one})).mappings().first()
     return {
-        "average": float(r.average),
-        "count": int(r.count),
-        "max": float(r.max_val),
-        "total": float(r.total)
+        "average": float(r['average']),
+        "count": int(r['count']),
+        "max": float(r['max_val']),
+        "total": float(r['total'])
     }
 
 @router.get("/income-pie/{telegram_id}")
