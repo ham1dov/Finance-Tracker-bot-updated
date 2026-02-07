@@ -20,7 +20,7 @@ async def user_get_all_incomes_temp(message:Message):
         return
     message_text = ""
     for index, income in enumerate(all_incomes):
-        message_text+=f'{index+1}: {list(income.values())}\n'
+        message_text+=f'{index+1}: {list(dict(income).values())}\n'
     await message.answer(message_text)
     return
 
@@ -32,7 +32,7 @@ async def user_get_all_incomes_temp(message:Message):
         return
     message_text = ""
     for index, expense in enumerate(all_expenses):
-        message_text+=f'{index+1}: {list(expense.values())}\n'
+        message_text+=f'{index+1}: {list(dict(expense).values())}\n'
     await message.answer(message_text)
     return
 

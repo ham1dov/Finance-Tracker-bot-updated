@@ -577,12 +577,18 @@ function downloadReport() {
         rows.forEach(r => {
             csv += `"${r.date}","${r.source}",${r.amount},"${r.payment_method}","${r.additional_info||''}"\n`;
         });
-        const blob = new Blob([csv], { type: 'text/csv' });
+        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
         const urlBlob = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
+        a.style.display = 'none';
         a.href = urlBlob;
         a.download = `hisobot_${currentType}_${f}_${t}.csv`;
+        document.body.appendChild(a);
         a.click();
+        setTimeout(() => {
+            window.URL.revokeObjectURL(urlBlob);
+            document.body.removeChild(a);
+        }, 100);
     });
 }
 </script>
