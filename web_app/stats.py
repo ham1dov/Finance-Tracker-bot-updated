@@ -56,7 +56,7 @@ async def trend(telegram_id: int, db: AsyncSession = Depends(get_db)):
         ORDER BY m
     """)
     rows = (await db.execute(q, {"uid": telegram_id})).mappings().all()
-    return rows
+    return [dict(r) for r in rows]
 
 @router.get("/expenses-pie/{telegram_id}")
 async def expenses_pie(
@@ -80,7 +80,7 @@ async def expenses_pie(
         "df": date_from,
         "dt": dt_plus_one
     })).mappings().all()
-    return rows
+    return [dict(r) for r in rows]
 
 @router.get("/monitoring/{telegram_id}")
 async def monitoring(
@@ -151,7 +151,7 @@ async def report(
     """)
 
     rows = (await db.execute(q, params)).mappings().all()
-    return rows
+    return [dict(r) for r in rows]
 
 @router.delete("/transaction/{telegram_id}/{type}/{transaction_id}")
 async def delete_transaction(
@@ -295,7 +295,7 @@ async def weekly_stats(
         "df": date_from,
         "dt": dt_plus_one
     })).mappings().all()
-    return rows
+    return [dict(r) for r in rows]
 
 @router.get("/daily/{telegram_id}")
 async def daily_stats(
@@ -317,7 +317,7 @@ async def daily_stats(
         ORDER BY gs.day
     """)
     rows = (await db.execute(q, {"uid": telegram_id, "df": date_from, "dt": date_to})).mappings().all()
-    return rows
+    return [dict(r) for r in rows]
 
 @router.get("/metrics/{telegram_id}")
 async def metrics(
@@ -368,4 +368,4 @@ async def income_pie(
         "df": date_from,
         "dt": dt_plus_one
     })).mappings().all()
-    return rows
+    return [dict(r) for r in rows]

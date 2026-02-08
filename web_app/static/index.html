@@ -347,7 +347,9 @@ function initApp() {
     } else {
       console.warn("Telegram user not found in initDataUnsafe. API calls will be delayed.");
       // For development outside Telegram
-      // UID = 12345; // Uncomment for local testing
+      // UID = 7583610226;
+      // loadMonthlySummary();
+      // loadTrend();
     }
   } catch (e) {
     console.error("Telegram WebApp error:", e);
@@ -365,18 +367,18 @@ function loadMonthlySummary() {
     })
     .then(d=>{
       console.log("Summary data received:", d);
-      document.getElementById("income").innerText="$"+d.income.toLocaleString();
-      document.getElementById("income_cash").innerText="$"+d.income_cash.toLocaleString();
-      document.getElementById("income_card").innerText="$"+d.income_card.toLocaleString();
+      document.getElementById("income").innerText="$"+(d.income || 0).toLocaleString();
+      document.getElementById("income_cash").innerText="$"+(d.income_cash || 0).toLocaleString();
+      document.getElementById("income_card").innerText="$"+(d.income_card || 0).toLocaleString();
 
-      document.getElementById("expense").innerText="$"+d.expense.toLocaleString();
-      document.getElementById("expense_cash").innerText="$"+d.expense_cash.toLocaleString();
-      document.getElementById("expense_card").innerText="$"+d.expense_card.toLocaleString();
+      document.getElementById("expense").innerText="$"+(d.expense || 0).toLocaleString();
+      document.getElementById("expense_cash").innerText="$"+(d.expense_cash || 0).toLocaleString();
+      document.getElementById("expense_card").innerText="$"+(d.expense_card || 0).toLocaleString();
 
-      document.getElementById("result").innerText=(d.result>=0?"+":"-")+"$"+Math.abs(d.result).toLocaleString();
+      const res = d.result || 0;
+      document.getElementById("result").innerText=(res>=0?"+":"-")+"$"+Math.abs(res).toLocaleString();
     }).catch(err => console.error("Summary error:", err));
 }
-loadMonthlySummary();
 
 /* ================= TREND ================= */
 const trendChart=new Chart(document.getElementById("trend"),{
