@@ -12,6 +12,14 @@ from aiogram.types import BufferedInputFile
 
 router = APIRouter(prefix="/stats", tags=["Stats"])
 
+@router.get("/settings/{telegram_id}")
+async def get_user_settings(telegram_id: int, db: AsyncSession = Depends(get_db)):
+    q = text("SELECT language, currency FROM users WHERE telegram_id = :uid")
+    r = (await db.execute(q, {"uid": telegram_id})).mappings().first()
+    if not r:
+        return {"language": "uz", "currency": "uzs"}
+    return dict(r)
+
 @router.get("/summary/{telegram_id}")
 async def monthly_summary(telegram_id: int, db: AsyncSession = Depends(get_db)):
     q = text("""

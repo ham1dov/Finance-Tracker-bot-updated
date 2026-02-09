@@ -155,38 +155,38 @@ input, select, textarea {
 
 <!-- SUMMARY PAGE -->
 <div id="summaryPage">
-  <h2>📊 Joriy oy</h2>
+  <h2 data-i18n="currentMonth">📊 Joriy oy</h2>
 
   <div class="cards">
     <div class="card income">
-      <p>Kirim</p>
+      <p data-i18n="income">Kirim</p>
       <h2 id="income">0</h2>
       <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">
-        Naqd: <span id="income_cash">0</span> | Karta: <span id="income_card">0</span>
+        <span data-i18n="cash">Naqd</span>: <span id="income_cash">0</span> | <span data-i18n="card">Karta</span>: <span id="income_card">0</span>
       </div>
     </div>
     <div class="card expense">
-      <p>Chiqim</p>
+      <p data-i18n="expense">Chiqim</p>
       <h2 id="expense">0</h2>
       <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">
-        Naqd: <span id="expense_cash">0</span> | Karta: <span id="expense_card">0</span>
+        <span data-i18n="cash">Naqd</span>: <span id="expense_cash">0</span> | <span data-i18n="card">Karta</span>: <span id="expense_card">0</span>
       </div>
     </div>
     <div class="card result">
-      <p>Natija</p>
+      <p data-i18n="result">Natija</p>
       <h2 id="result">0</h2>
     </div>
   </div>
 
-  <h2 style="margin-top:30px">📈 12 oylik trend</h2>
+  <h2 style="margin-top:30px" data-i18n="trendTitle">📈 12 oylik trend</h2>
   <canvas id="trend"></canvas>
 
   <hr>
 
   <!-- NAV BUTTONS -->
   <div style="display: flex; gap: 10px;">
-    <button id="btnExpenses" onclick="openPage('expenses')" style="flex:1">💸 Harajatlar</button>
-    <button id="btnIncome" onclick="openPage('income')" style="flex:1">💰 Kirimlar</button>
+    <button id="btnExpenses" onclick="openPage('expenses')" style="flex:1" data-i18n="btnExpenses">💸 Harajatlar</button>
+    <button id="btnIncome" onclick="openPage('income')" style="flex:1" data-i18n="btnIncome">💰 Kirimlar</button>
   </div>
 </div>
 
@@ -195,7 +195,7 @@ input, select, textarea {
 
   <div style="display: flex; justify-content: space-between; align-items: center;">
     <h3 id="distributionTitle" style="margin: 0;"></h3>
-    <button onclick="backToSummary()" style="background: #95a5a6; color: #fff;">⬅️ Orqaga</button>
+    <button onclick="backToSummary()" style="background: #95a5a6; color: #fff;" data-i18n="back">⬅️ Orqaga</button>
   </div>
 
   <div style="margin:10px 0; display: flex; gap: 5px; align-items: center;">
@@ -206,38 +206,38 @@ input, select, textarea {
 
   <div class="metrics-grid">
     <div class="metric-card">
-      <h4>Jami</h4>
+      <h4 data-i18n="total">Jami</h4>
       <p id="mTotal">$0</p>
     </div>
     <div class="metric-card">
-      <h4>O‘rtacha</h4>
+      <h4 data-i18n="average">O‘rtacha</h4>
       <p id="mAvg">$0</p>
     </div>
     <div class="metric-card">
-      <h4>Soni</h4>
+      <h4 data-i18n="count">Soni</h4>
       <p id="mCount">0</p>
     </div>
   </div>
 
   <div class="tab-nav">
-    <button id="tabBtn-monitoring" onclick="showTab('monitoring')" class="active">📊 Monitoring</button>
-    <button id="tabBtn-report" onclick="showTab('report')">📅 Hisobot</button>
+    <button id="tabBtn-monitoring" onclick="showTab('monitoring')" class="active" data-i18n="monitoring">📊 Monitoring</button>
+    <button id="tabBtn-report" onclick="showTab('report')" data-i18n="report">📅 Hisobot</button>
   </div>
 
   <!-- MONITORING TAB -->
   <div id="tab-monitoring" class="tab-content active">
     <div id="monitoringSummary" style="background: var(--tg-theme-secondary-bg-color, #fff); padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-around; text-align: center;">
         <div>
-            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);">Jami Bugun</p>
+            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);" data-i18n="totalToday">Jami Bugun</p>
             <b id="monTotal">$0</b>
         </div>
         <div>
-            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);">Naqd</p>
+            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);" data-i18n="cash">Naqd</p>
             <b id="monCash">$0</b>
             <div id="monCashPct" style="font-size: 10px; color: var(--tg-theme-hint-color, #7f8c8d);">0%</div>
         </div>
         <div>
-            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);">Karta</p>
+            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);" data-i18n="card">Karta</p>
             <b id="monCard">$0</b>
             <div id="monCardPct" style="font-size: 10px; color: var(--tg-theme-hint-color, #7f8c8d);">0%</div>
         </div>
@@ -246,11 +246,11 @@ input, select, textarea {
     <canvas id="monPie"></canvas>
 
     <div style="margin-top: 20px;">
-        <h4 style="margin-bottom: 10px;">Kategoriyalar</h4>
+        <h4 style="margin-bottom: 10px;" data-i18n="categories">Kategoriyalar</h4>
         <ul id="monList" style="list-style: none; padding: 0;"></ul>
     </div>
 
-    <button onclick="showBatafsilToday()" style="width: 100%; background: #3498db; color: #fff; margin-top: 15px;">🔍 Batafsil</button>
+    <button onclick="showBatafsilToday()" style="width: 100%; background: #3498db; color: #fff; margin-top: 15px;" data-i18n="detailed">🔍 Batafsil</button>
   </div>
 
   <!-- REPORT TAB -->
@@ -258,18 +258,18 @@ input, select, textarea {
     <div style="background: var(--tg-theme-secondary-bg-color, #fff); padding: 10px; border-radius: 12px; margin-bottom: 15px;">
         <div style="display: flex; gap: 5px; margin-bottom: 5px;">
             <select id="repSource" style="flex:1; padding: 8px; border-radius: 8px;">
-                <option value="">Hamma kategoriyalar</option>
+                <option value="" data-i18n="allCategories">Hamma kategoriyalar</option>
             </select>
             <select id="repMethod" style="flex:1; padding: 8px; border-radius: 8px;">
-                <option value="">Hamma to‘lovlar</option>
-                <option value="cash">Naqd</option>
-                <option value="card">Karta</option>
+                <option value="" data-i18n="allPayments">Hamma to‘lovlar</option>
+                <option value="cash" data-i18n="cash">Naqd</option>
+                <option value="card" data-i18n="card">Karta</option>
             </select>
         </div>
         <div style="display: flex; gap: 5px;">
             <select id="repSort" style="flex:1; padding: 8px; border-radius: 8px; border: 1px solid #ddd;">
-                <option value="inserted_at">Sana bo‘yicha</option>
-                <option value="amount">Summa bo‘yicha</option>
+                <option value="inserted_at" data-i18n="byDate">Sana bo‘yicha</option>
+                <option value="amount" data-i18n="byAmount">Summa bo‘yicha</option>
             </select>
             <button onclick="loadReport()" style="background: #2ecc71; color: #fff; flex: 0.5;">🔄</button>
             <button onclick="downloadReport(event)" style="background: #e67e22; color: #fff; flex: 0.5;">📥</button>
@@ -282,9 +282,9 @@ input, select, textarea {
         <table style="width: 100%; border-collapse: collapse; background: var(--tg-theme-bg-color, #fff); border-radius: 12px;">
             <thead>
                 <tr style="background: var(--tg-theme-secondary-bg-color, #eee); text-align: left; font-size: 12px;">
-                    <th style="padding: 10px;">Sana</th>
-                    <th style="padding: 10px;">Kategoriya</th>
-                    <th style="padding: 10px;">Summa</th>
+                    <th style="padding: 10px;" data-i18n="date">Sana</th>
+                    <th style="padding: 10px;" data-i18n="category">Kategoriya</th>
+                    <th style="padding: 10px;" data-i18n="amount">Summa</th>
                     <th style="padding: 10px;"></th>
                 </tr>
             </thead>
@@ -312,10 +312,63 @@ input, select, textarea {
 /* ================= CONFIG & STATE ================= */
 var API = window.location.origin;
 var UID = null;
+var LANG = 'uz';
 var currentType = null;
 var currentTab = 'monitoring';
 var monPieChart = null;
 var repPieChart = null;
+
+const translations = {
+    uz: {
+        currentMonth: "📊 Joriy oy", income: "Kirim", expense: "Chiqim", result: "Natija", cash: "Naqd", card: "Karta",
+        trendTitle: "📈 12 oylik trend", btnExpenses: "💸 Harajatlar", btnIncome: "💰 Kirimlar", back: "⬅️ Orqaga",
+        total: "Jami", average: "O‘rtacha", count: "Soni", monitoring: "📊 Monitoring", report: "📅 Hisobot",
+        totalToday: "Jami Bugun", categories: "Kategoriyalar", detailed: "🔍 Batafsil",
+        allCategories: "Hamma kategoriyalar", allPayments: "Hamma to‘lovlar", byDate: "Sana bo‘yicha",
+        byAmount: "Summa bo‘yicha", update: "Yangilash", date: "Sana", category: "Kategoriya", amount: "Summa",
+        batafsilTitle: "Bugungi batafsil ro'yxat", edit: "Tahrirlash", save: "Saqlash",
+        deleteConfirm: "Haqiqatdan ham o'chirmoqchimisiz?",
+        excelSuccess: "✅ Excel fayl Telegram botingizga yuborildi!", error: "❌ Xatolik yuz berdi",
+        time: "Vaqt", additional: "Qo'shimcha", summa: "Summa:", tMethod: "To'lov usuli:", chooseSource: "Kategoriya:"
+    },
+    en: {
+        currentMonth: "📊 Current Month", income: "Income", expense: "Expense", result: "Result", cash: "Cash", card: "Card",
+        trendTitle: "📈 12-Month Trend", btnExpenses: "💸 Expenses", btnIncome: "💰 Incomes", back: "⬅️ Back",
+        total: "Total", average: "Average", count: "Count", monitoring: "📊 Monitoring", report: "📅 Report",
+        totalToday: "Total Today", categories: "Categories", detailed: "🔍 Detailed",
+        allCategories: "All Categories", allPayments: "All Payments", byDate: "By Date",
+        byAmount: "By Amount", update: "Refresh", date: "Date", category: "Category", amount: "Amount",
+        batafsilTitle: "Detailed List Today", edit: "Edit", save: "Save",
+        deleteConfirm: "Are you sure you want to delete?",
+        excelSuccess: "✅ Excel file sent to your Telegram bot!", error: "❌ An error occurred",
+        time: "Time", additional: "Additional", summa: "Amount:", tMethod: "Payment Method:", chooseSource: "Category:"
+    },
+    ru: {
+        currentMonth: "📊 Текущий месяц", income: "Доход", expense: "Расход", result: "Результат", cash: "Наличные", card: "Карта",
+        trendTitle: "📈 Тренд за 12 месяцев", btnExpenses: "💸 Расходы", btnIncome: "💰 Доходы", back: "⬅️ Назад",
+        total: "Итого", average: "Среднее", count: "Количество", monitoring: "📊 Мониторинг", report: "📅 Отчет",
+        totalToday: "Итого сегодня", categories: "Категории", detailed: "🔍 Подробнее",
+        allCategories: "Все категории", allPayments: "Все платежи", byDate: "По дате",
+        byAmount: "По сумме", update: "Обновить", date: "Дата", category: "Категория", amount: "Сумма",
+        batafsilTitle: "Детальный список на сегодня", edit: "Редактировать", save: "Сохранить",
+        deleteConfirm: "Вы уверены, что хотите удалить?",
+        excelSuccess: "✅ Excel-файл отправлен вашему Telegram-боту!", error: "❌ Произошла ошибка",
+        time: "Время", additional: "Дополнительно", summa: "Сумма:", tMethod: "Способ оплаты:", chooseSource: "Категория:"
+    }
+};
+
+function applyTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[LANG] && translations[LANG][key]) {
+            el.innerText = translations[LANG][key];
+        }
+    });
+    // Update charts labels
+    trendChart.data.datasets[0].label = translations[LANG].income;
+    trendChart.data.datasets[1].label = translations[LANG].expense;
+    trendChart.update();
+}
 
 /* ================= TELEGRAM ================= */
 function initApp() {
@@ -341,19 +394,31 @@ function initApp() {
       document.getElementById('from').value = firstDay;
       document.getElementById('to').value = lastDay;
 
-      // Start loading data
-      refreshData();
+      fetchSettings();
     } else {
       console.warn("Telegram user not found in initDataUnsafe.");
-      // For local testing
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
          UID = 7583610226;
-         refreshData();
+         fetchSettings();
       }
     }
   } catch (e) {
     console.error("Telegram WebApp error:", e);
   }
+}
+
+function fetchSettings() {
+    if(!UID) return;
+    fetch(`${API}/stats/settings/${UID}`)
+    .then(r => r.json())
+    .then(d => {
+        LANG = d.language || 'uz';
+        applyTranslations();
+        refreshData();
+    }).catch(err => {
+        console.error("Settings error:", err);
+        refreshData();
+    });
 }
 
 /* ================= DATA LOADING ================= */
@@ -419,7 +484,7 @@ function openPage(type){
   currentType = type;
   document.getElementById("summaryPage").classList.add("hidden");
   document.getElementById("detailsPage").classList.remove("hidden");
-  document.getElementById("distributionTitle").innerText = (type === 'income' ? "💰 Kirimlar" : "💸 Harajatlar");
+  document.getElementById("distributionTitle").innerText = (type === 'income' ? translations[LANG].btnIncome : translations[LANG].btnExpenses);
 
   showTab('monitoring');
   loadDetails();
@@ -565,12 +630,12 @@ function showBatafsilToday() {
     fetch(`${API}/stats/report/${UID}?type=${currentType}&date_from=${new Date().toISOString().split('T')[0]}&date_to=${new Date().toISOString().split('T')[0]}`)
     .then(r=>r.json())
     .then(rows => {
-        document.getElementById("modalTitle").innerText = "Bugungi batafsil ro'yxat";
+        document.getElementById("modalTitle").innerText = translations[LANG].batafsilTitle;
         let html = `<table style="width:100%; border-collapse:collapse;">
             <tr style="background:#f8f9fa; font-size:12px;">
-                <th style="padding:8px; text-align:left;">Vaqt</th>
-                <th style="padding:8px; text-align:left;">Kategoriya</th>
-                <th style="padding:8px; text-align:right;">Summa</th>
+                <th style="padding:8px; text-align:left;">${translations[LANG].time}</th>
+                <th style="padding:8px; text-align:left;">${translations[LANG].category}</th>
+                <th style="padding:8px; text-align:right;">${translations[LANG].amount}</th>
             </tr>`;
         rows.forEach(r => {
             html += `<tr style="border-bottom:1px solid #eee; font-size:12px;">
@@ -590,21 +655,21 @@ function showBatafsilToday() {
 }
 
 function editTransaction(type, id, amount, source, method, info) {
-    document.getElementById("modalTitle").innerText = "Tahrirlash";
+    document.getElementById("modalTitle").innerText = translations[LANG].edit;
     document.getElementById("modalContent").innerHTML = `
         <div style="display:flex; flex-direction:column; gap:10px;">
-            <label>Summa:</label>
+            <label>${translations[LANG].summa}</label>
             <input type="number" id="editAmount" value="${amount}" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
-            <label>Kategoriya:</label>
+            <label>${translations[LANG].chooseSource}</label>
             <input type="text" id="editSource" value="${source}" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
-            <label>To'lov usuli:</label>
+            <label>${translations[LANG].tMethod}</label>
             <select id="editMethod" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
-                <option value="cash" ${method==='cash'?'selected':''}>Naqd</option>
-                <option value="card" ${method==='card'?'selected':''}>Karta</option>
+                <option value="cash" ${method==='cash'?'selected':''}>${translations[LANG].cash}</option>
+                <option value="card" ${method==='card'?'selected':''}>${translations[LANG].card}</option>
             </select>
-            <label>Qo'shimcha:</label>
+            <label>${translations[LANG].additional}:</label>
             <textarea id="editInfo" style="padding:10px; border-radius:8px; border:1px solid #ddd;">${info}</textarea>
-            <button onclick="saveEdit('${type}', ${id})" style="background:#2ecc71; color:#fff; padding:12px; margin-top:10px;">Saqlash</button>
+            <button onclick="saveEdit('${type}', ${id})" style="background:#2ecc71; color:#fff; padding:12px; margin-top:10px;">${translations[LANG].save}</button>
         </div>
     `;
     document.getElementById("modal").classList.remove("hidden");
@@ -629,7 +694,7 @@ function saveEdit(type, id) {
 }
 
 function deleteTransaction(type, id) {
-    if(!confirm("Haqiqatdan ham o'chirmoqchimisiz?")) return;
+    if(!confirm(translations[LANG].deleteConfirm)) return;
     fetch(`${API}/stats/transaction/${UID}/${type}/${id}`, {
         method: 'DELETE'
     }).then(r => {
@@ -656,14 +721,14 @@ function downloadReport(event) {
     .then(r => r.json())
     .then(d => {
         if(d.status === 'success') {
-            Telegram.WebApp.showAlert("✅ Excel fayl Telegram botingizga yuborildi!");
+            Telegram.WebApp.showAlert(translations[LANG].excelSuccess);
         } else {
-            Telegram.WebApp.showAlert("❌ Xatolik yuz berdi: " + (d.detail || "Noma'lum"));
+            Telegram.WebApp.showAlert(translations[LANG].error + ": " + (d.detail || ""));
         }
     })
     .catch(err => {
         console.error("Export error:", err);
-        Telegram.WebApp.showAlert("❌ Xatolik yuz berdi.");
+        Telegram.WebApp.showAlert(translations[LANG].error);
     })
     .finally(() => {
         btn.disabled = false;
