@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 
 from keyboards.inline.user import select_income_source_buttons, add_additional_info_button, user_main_menu_buttons, \
     select_expense_source_buttons, get_expense_additional_info_buttons, select_payment_method_buttons
+from utils.formatter import get_category_label
 from lexicon.userstates import add_income_states, add_expense_states
 from states.userstates import AddIncomeState, AddExpenseState
 from handlers.user_entrypoint import user_router
@@ -130,14 +131,28 @@ async def get_income_payment_method(callback:CallbackQuery, state:FSMContext):
     except:
         pass
 
+    user_currency = await db.execute("SELECT currency FROM users WHERE telegram_id = $1", callback.from_user.id, fetchval=True)
     income_id = await db.add_income(user_id=callback.from_user.id, amount=amount, source=source, payment_method=payment_method)
     if income_id is None:
-        await callback.message.answer(add_income_states['income_addition_failed'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await callback.message.answer(add_income_states['failed_to_add'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
         await state.clear()
         return
 
+    source_label = get_category_label(source, lang)
+    method_label = "💵 Cash" if payment_method == 'cash' else "💳 Card"
+    if lang == 'uz': method_label = "💵 Naqd" if payment_method == 'cash' else "💳 Karta"
+    elif lang == 'ru': method_label = "💵 Наличные" if payment_method == 'cash' else "💳 Карта"
+
+    success_msg = add_income_states['added_successfully'][lang].format(
+        amount=f"{amount:,}",
+        currency=user_currency.upper() if user_currency else "",
+        source=source_label,
+        method=method_label,
+        notes="-"
+    )
+
     button = await add_additional_info_button(lang=lang, income_id=income_id)
-    await callback.message.answer(text=add_income_states['income_successfully_inserted'][lang], reply_markup=button)
+    await callback.message.answer(text=success_msg, reply_markup=button)
     await state.clear()
     return
 
@@ -234,13 +249,27 @@ async def get_expense_payment_method(callback:CallbackQuery, state:FSMContext):
     except:
         pass
 
+    user_currency = await db.execute("SELECT currency FROM users WHERE telegram_id = $1", callback.from_user.id, fetchval=True)
     expense_id = await db.add_expense(user_id=callback.from_user.id, amount=amount, source=source, payment_method=payment_method)
     if expense_id is None:
         await callback.message.answer(add_expense_states['failed_to_save'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
         await state.clear()
         return
 
-    await callback.message.answer(add_expense_states['successfully_saved'][lang], reply_markup=await get_expense_additional_info_buttons(lang=lang, expense_id=expense_id))
+    source_label = get_category_label(source, lang)
+    method_label = "💵 Cash" if payment_method == 'cash' else "💳 Card"
+    if lang == 'uz': method_label = "💵 Naqd" if payment_method == 'cash' else "💳 Karta"
+    elif lang == 'ru': method_label = "💵 Наличные" if payment_method == 'cash' else "💳 Карта"
+
+    success_msg = add_expense_states['added_successfully'][lang].format(
+        amount=f"{amount:,}",
+        currency=user_currency.upper() if user_currency else "",
+        source=source_label,
+        method=method_label,
+        notes="-"
+    )
+
+    await callback.message.answer(success_msg, reply_markup=await get_expense_additional_info_buttons(lang=lang, expense_id=expense_id))
     await state.clear()
     return
 

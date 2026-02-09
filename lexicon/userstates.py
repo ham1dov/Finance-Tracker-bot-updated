@@ -1,253 +1,201 @@
 registration_states = {
-    'start':{
-        'en':"""Hello! 👋
+    'start': {
+        'en': """Welcome to **Finance Tracker Pro**! 🚀
 
-Welcome to your personal financial world! 💼💡
-I am your AI assistant, tracking all your income and expenses, analyzing your financial habits, and helping you make smart decisions with your money.
+I am your personal financial assistant, designed to help you gain full control over your money. 💼
 
-With my help, you can:
+**What I can do for you:**
+📊 **Detailed Analytics**: Real-time tracking of your income and expenses.
+💡 **Smart Insights**: Personalized tips to optimize your budget.
+🚀 **Goal Oriented**: Help you achieve your financial milestones faster.
 
-📊 See complete statistics of your expenses and income in an easy-to-understand format
+Let's turn financial complexity into clarity. Ready to start your journey to financial freedom? 🌟""",
+        'ru': """Добро пожаловать в **Finance Tracker Pro**! 🚀
 
-💡 Receive personalized tips on saving and budget planning
+Я — ваш персональный финансовый помощник, созданный для того, чтобы помочь вам взять свои деньги под полный контроль. 💼
 
-🚀 Manage your finances easily and efficiently, achieving your goals faster
+**Чем я могу быть полезен:**
+📊 **Детальная аналитика**: Отслеживание ваших доходов и расходов в реальном времени.
+💡 **Умные советы**: Персонализированные рекомендации по оптимизации бюджета.
+🚀 **Достижение целей**: Помощь в более быстром достижении финансовых рубежей.
 
-I am here to make your money understandable and manageable, turn chaos into order, and help you build financial confidence step by step. Let’s make your finances clear, smart, and productive together! 🌟""",
-        'ru':"""Привет! 👋
+Давайте превратим финансовый хаос в порядок. Готовы начать путь к финансовой свободе? 🌟""",
+        'uz': """**Finance Tracker Pro**-ga xush kelibsiz! 🚀
 
-Добро пожаловать в твой персональный финансовый мир! 💼💡
-Я — твой ИИ-помощник, который следит за всеми твоими доходами и расходами, анализирует финансовые привычки и помогает принимать умные решения с деньгами.
+Men sizning shaxsiy moliyaviy yordamchingizman. Sizga o'z mablag'laringizni to'liq nazorat qilishda yordam berish uchun yaratilganman. 💼
 
-С моей помощью ты сможешь:
+**Men nima qila olaman:**
+📊 **Batafsil tahlil**: Daromad va xarajatlaringizni real vaqt rejimida kuzatish.
+💡 **Aqlli tushunchalar**: Budjetingizni optimallashtirish uchun shaxsiy maslahatlar.
+🚀 **Maqsad sari**: Moliyaviy maqsadlaringizga tezroq erishishda ko'maklashish.
 
-📊 Видеть полную статистику расходов и доходов в удобном виде
-
-💡 Получать персональные советы по экономии и планированию бюджета
-
-🚀 Управлять финансами легко и эффективно, чтобы достигать целей быстрее
-
-Я здесь, чтобы сделать твои деньги понятными и управляемыми, превратить хаос в порядок и помочь строить финансовую уверенность шаг за шагом. Давай вместе сделаем твои финансы прозрачными, умными и продуктивными! 🌟""",
-        'uz':"""Salom! 👋
-
-Shaxsiy moliyaviy dunyongizga xush kelibsiz! 💼💡
-Men — sizning AI yordamchingiz, barcha daromad va xarajatlaringizni kuzatib boraman, moliyaviy odatlaringizni tahlil qilaman va pul bilan aqlli qarorlar qabul qilishda yordam beraman.
-
-Mening yordamim bilan siz:
-
-📊 Xarajatlar va daromadlar bo‘yicha to‘liq statistika olishingiz mumkin
-
-💡 Shaxsiy tejash va byudjet rejalashtirish bo‘yicha maslahatlar olishingiz mumkin
-
-🚀 Moliyangizni oson va samarali boshqarib, maqsadlaringizga tezroq erishishingiz mumkin
-
-Men bu yerda sizning pulingizni tushunarli va boshqariladigan qilish, tartibsizlikni tartibga aylantirish va moliyaviy ishonchni bosqichma-bosqich qurishga yordam berish uchunman. Keling, moliyangizni aniq, aqlli va samarali qilaylik! 🌟"""
+Keling, moliyaviy murakkablikni aniqlikka aylantiramiz. Moliyaviy erkinlik sari yo'lni boshlashga tayyormisiz? 🌟"""
     },
-    'select_language':{
-        'en':"""Before we get started, please choose the language you are most comfortable with:
-🇬🇧 English | 🇷🇺 Russian | 🇺🇿 Uzbek""",
-        'ru':"""Прежде чем мы начнем, пожалуйста, выберите язык, на котором вам удобнее пользоваться ботом:
-🇷🇺 Русский | 🇺🇿 Узбекский | 🇬🇧 English""",
-        'uz':"""Boshlashdan oldin, iltimos, botdan foydalanishda qulay bo‘lgan tilni tanlang:
-🇺🇿 O‘zbekcha | 🇷🇺 Ruscha | 🇬🇧 Inglizcha"""
+    'select_language': {
+        'en': "Please select your preferred language to continue:",
+        'ru': "Пожалуйста, выберите предпочитаемый язык, чтобы продолжить:",
+        'uz': "Davom etish uchun o'zingizga qulay tilni tanlang:"
     },
-    'get_user_name':{
-        'en':"""Great! 😊
-Now, please enter your name so I can address you personally.""",
-        'ru':"""Прекрасно! 😊
-Теперь, пожалуйста, введите своё имя, чтобы я мог обращаться к вам лично.""",
-        'uz':"""Zo‘r! 😊
-Endi iltimos, sizga shaxsan murojaat qila olishim uchun ismingizni kiriting."""
+    'get_user_name': {
+        'en': "Excellent! Please enter your name so I can personalize your experience.",
+        'ru': "Отлично! Пожалуйста, введите ваше имя, чтобы я мог обращаться к вам лично.",
+        'uz': "Ajoyib! Sizga qanday murojaat qilishimni xohlasangiz, ismingizni kiriting."
     },
-    'get_user_sex':{
-        'en':"""Отлично! 😊
-Пожалуйста, выберите ваш пол:""",
-        'uz':"""Zo‘r! 😊
-Iltimos, jinsingizni tanlang:""",
-        'ru':"""Отлично! 😊
-Пожалуйста, выберите ваш пол:"""
+    'get_user_sex': {
+        'en': "Please select your gender:",
+        'ru': "Пожалуйста, выберите ваш пол:",
+        'uz': "Iltimos, jinsingizni tanlang:"
     },
-    'get_user_status':{
-        'en':"""Now choose the category that best describes your activity:""",
-        'uz':"""Endi faoliyatingizni eng yaxshi ifodalovchi toifani tanlang:""",
-        'ru':"""Теперь выберите, какая категория лучше всего описывает вашу деятельность:"""
+    'get_user_status': {
+        'en': "Which category best describes your current occupation?",
+        'ru': "Какая категория лучше всего описывает вашу текущую деятельность?",
+        'uz': "Hozirgi faoliyat turini tanlang:"
     },
-    'get_user_currency':{
-        'en':"Now choose the currency you prefer to use for tracking your expenses and income:",
-        'uz':"Endi xarajat va daromadlarni qaysi valyutada yuritishni xohlasangiz, o‘sha valyutani tanlang:",
-        'ru':"Теперь выберите валюту, в которой вам удобнее вести учёт расходов и доходов:"
+    'get_user_currency': {
+        'en': "Please choose your preferred currency for financial tracking:",
+        'ru': "Пожалуйста, выберите основную валюту для ведения учета:",
+        'uz': "Hisob-kitoblar uchun asosiy valyutani tanlang:"
     },
-    'ask_user_status':{
-        'en':"Please enter your status so I can provide accurate advice:",
-        'uz':"Iltimos, o‘zingizning faoliyatingizni kiriting, shunda men sizga aniqroq maslahat bera olaman:",
-        'ru':"Пожалуйста, введите ваш статус, чтобы я мог давать точные советы:"
+    'ask_user_status': {
+        'en': "Please specify your occupation for more personalized advice:",
+        'ru': "Пожалуйста, уточните вашу деятельность для получения более точных советов:",
+        'uz': "Aniqroq tavsiyalar berishimiz uchun faoliyatingizni yozib yuboring:"
     },
-    'successful_registration':{
-        'en':"""Your registration is complete! We’re happy to welcome you 😊
-You can now easily track your income and expenses.
-Please choose a section from the menu to get started 📋""",
-        'uz':"""Ro‘yxatdan o‘tish muvaffaqiyatli yakunlandi! Botimizga xush kelibsiz 😊
-Endi daromad va xarajatlaringizni qulay boshqarishingiz mumkin.
-Boshlash uchun menyudan bo‘limni tanlang 📋""",
-        'ru':"""Регистрация прошла успешно! Мы рады приветствовать вас в нашем боте 😊
-Теперь вы можете удобно отслеживать свои доходы и расходы.
-Чтобы начать, выберите подходящий раздел в меню 📋"""
+    'successful_registration': {
+        'en': """Registration complete! Welcome aboard. 🤝
+You are now ready to track your finances professionally. 💼
+Use the menu below to start recording your transactions. 📋""",
+        'uz': """Ro'yxatdan o'tish muvaffaqiyatli yakunlandi! 🤝
+Endi siz o'z moliyangizni professional tarzda kuzatishga tayyorsiz. 💼
+Amallarni bajarish uchun quyidagi menyudan foydalaning. 📋""",
+        'ru': """Регистрация завершена! Добро пожаловать. 🤝
+Теперь вы готовы профессионально управлять своими финансами. 💼
+Используйте меню ниже, чтобы начать записывать операции. 📋"""
     },
-    'registration_failed':{
-        'en':"""Unfortunately, your registration was not completed 😕
-Please check the information and try again.
-If you need any help, we’re always here for you 🤝""",
-        'uz':"""Afsuski, ro‘yxatdan o‘tish yakunlanmadi 😕
-Iltimos, ma’lumotlarni tekshirib, yana bir bor urinib ko‘ring.
-Yordam kerak bo‘lsa, bemalol murojaat qilishingiz mumkin 🤝""",
-        'ru':"""К сожалению, регистрация не была завершена 😕
-Пожалуйста, проверьте введённые данные и попробуйте ещё раз.
-Если потребуется помощь — мы всегда рядом и готовы поддержать 🤝"""
+    'registration_failed': {
+        'en': "⚠️ Registration failed. Please check your inputs and try again.",
+        'uz': "⚠️ Ro'yxatdan o'tishda xato. Iltimos, ma'lumotlarni tekshirib qayta urinib ko'ring.",
+        'ru': "⚠️ Ошибка регистрации. Пожалуйста, проверьте данные и попробуйте снова."
     }
 }
 
 add_income_states = {
-    'get_amount':{
-        'en':"""💰 Please enter the amount of income you received. Example: 150000, 250.5, or 1200000.""",
-        'uz':"""💰 Iltimos, olgan daromadingiz miqdorini kiriting. Masalan: 150000, 250.5, yoki 1200000.""",
-        'ru':"""💰 Пожалуйста, укажите полученную сумму дохода. Например: 150000, 250.5, или 1200000."""
+    'get_amount': {
+        'en': "💰 Please enter the **income amount** (e.g., 50000 or 150.50):",
+        'uz': "💰 Iltimos, **daromad miqdorini** kiriting (masalan, 50000 yoki 150.50):",
+        'ru': "💰 Пожалуйста, введите **сумму дохода** (например, 50000 или 150.50):"
     },
-    'wrong_amount':{
-        'en':"""⚠️ Error!
-Please enter a valid number only. For example: 50000 or 125.75.""",
-        'uz':"""⚠️ Xatolik!
-Iltimos, faqat son kiriting. Masalan: 50000 yoki 125.75.""",
-        'ru':"""⚠️ Ошибка!
-Пожалуйста, введите только корректное числовое значение. Например: 50000 или 125.75."""
+    'wrong_amount': {
+        'en': "⚠️ **Invalid input.** Please enter a numeric value only.",
+        'uz': "⚠️ **Xato.** Iltimos, faqat raqamli qiymat kiriting.",
+        'ru': "⚠️ **Ошибка.** Пожалуйста, введите только числовое значение."
     },
-    'get_source':{
-        'en':"""📂 Select the income source:
-Please choose one option from the list. If none fits, tap “Other” or type your own source.""",
-        'uz':"""📂 Daromad manbasini tanlang:
-Quyidagi ro‘yxatdan birini belgilang. Agar mos kelmasa, “Boshqa” tugmasini tanlang yoki o‘zingiz yozib yuboring.""",
-        'ru':"""📂 Выберите источник дохода:
-Пожалуйста, выберите один вариант из списка. Если подходящего нет, нажмите «Другое» или введите свой вариант."""
+    'get_source': {
+        'en': "📂 Select the **source** of this income:",
+        'uz': "📂 Ushbu daromad **manbasini** tanlang:",
+        'ru': "📂 Выберите **источник** этого дохода:"
     },
-    'get_source_manually':{
-        'en':"""✏️ Please enter your income source:""",
-        'uz':"""✏️ Iltimos, daromad manbasini kiriting:""",
-        'ru':"""✏️ Пожалуйста, введите источник дохода:"""
+    'get_source_manually': {
+        'en': "✏️ Please type the income source:",
+        'uz': "✏️ Iltimos, daromad manbasini yozing:",
+        'ru': "✏️ Пожалуйста, введите источник дохода:"
     },
-    'get_payment_method':{
-        'en':"""💳 Select the payment method:""",
-        'uz':"""💳 To‘lov usulini tanlang:""",
-        'ru':"""💳 Выберите способ оплаты:"""
+    'get_payment_method': {
+        'en': "💳 Choose the **payment method**:",
+        'uz': "💳 **To'lov usulini** tanlang:",
+        'ru': "💳 Выберите **способ оплаты**:"
     },
-    'get_more_information':{
-        'en':"""📝 Please enter any additional information or notes about your income:""",
-        'uz':"""📝 Iltimos, daromad haqida qo‘shimcha ma’lumot yoki eslatmalar kiriting:""",
-        'ru':"""📝 Пожалуйста, введите дополнительную информацию или заметки о вашем доходе:"""
+    'get_more_information': {
+        'en': "📝 Any additional notes for this income? (optional):",
+        'uz': "📝 Ushbu daromad uchun qo'shimcha izohingiz bormi? (ixtiyoriy):",
+        'ru': "📝 Дополнительные примечания к этому доходу? (необязательно):"
     },
-    'added_successfully':{
-        'en':"""🎉 Your income has been successfully added!
-💰 Amount: {amount}
-📂 Source: {source}
-📝 Notes: {notes}
-Your financial records have been updated.""",
-        'uz':"""🎉 Daromadingiz muvaffaqiyatli qo‘shildi!
-💰 Miqdor: {amount}
-📂 Manba: {source}
-📝 Qo‘shimcha: {notes}
-Sizning moliyaviy hisobotlaringiz yangilandi.""",
-        'ru':"""🎉 Ваш доход успешно добавлен!
-💰 Сумма: {amount}
-📂 Источник: {source}
-📝 Заметки: {notes}
-Ваши финансовые записи обновлены."""
+    'added_successfully': {
+        'en': """✅ **Income recorded successfully!**
+
+💰 **Amount**: {amount} {currency}
+📂 **Source**: {source}
+💳 **Method**: {method}
+📝 **Notes**: {notes}""",
+        'uz': """✅ **Daromad muvaffaqiyatli qayd etildi!**
+
+💰 **Miqdor**: {amount} {currency}
+📂 **Manba**: {source}
+💳 **Usul**: {method}
+📝 **Izoh**: {notes}""",
+        'ru': """✅ **Доход успешно записан!**
+
+💰 **Сумма**: {amount} {currency}
+📂 **Источник**: {source}
+💳 **Способ**: {method}
+📝 **Заметки**: {notes}"""
     },
-    'failed_to_add':{
-        'en':"""⚠️ Failed to add your income.
-❗ Please check that the amount and source are entered correctly.
-🔄 Try again.""",
-        'uz':"""⚠️ Daromadni qo‘shishda xatolik yuz berdi.
-❗ Iltimos, miqdor va manba to‘g‘ri kiritilganligini tekshiring.
-🔄 Qayta urinib ko‘ring.""",
-        'ru':"""⚠️ Не удалось добавить доход.
-❗ Пожалуйста, проверьте правильность суммы и источника.
-🔄 Попробуйте снова."""
+    'failed_to_add': {
+        'en': "⚠️ **Error.** Failed to record the income. Please check your data and try again.",
+        'uz': "⚠️ **Xato.** Daromadni qayd etib bo'lmadi. Ma'lumotlarni tekshirib qayta urinib ko'ring.",
+        'ru': "⚠️ **Ошибка.** Не удалось записать доход. Пожалуйста, проверьте данные и попробуйте снова."
     },
-    'income_successfully_inserted':{
-        'en':"✅ Your income has been saved successfully.",
-        'uz':"✅ Daromad muvaffaqiyatli saqlandi.",
-        'ru':"✅ Доход успешно сохранён."
-    },
-    'income_addition_failed':{
-          'en':"❌ Failed to save income. Please try again.",
-        'uz':"❌ Daromadni saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.",
-        'ru':"❌ Не удалось сохранить доход. Попробуйте снова."
-    },
-    'additional_info_added':{
-        'en': "📝 Additional information added successfully.",
-        'uz': "📝 Qo‘shimcha ma’lumot muvaffaqiyatli qo‘shildi.",
-        'ru': "📝 Дополнительная информация успешно добавлена."
-    },
-    'additional_info_not_added':{
-        'en': "ℹ️ No additional information provided.",
-        'uz': "ℹ️ Qo‘shimcha ma’lumot kiritilmadi.",
-        'ru': "ℹ️ Дополнительная информация не была добавлена."
-    },
-    'enter_additional_info':{
-          'en':"📝 Enter additional notes (optional):",
-          'uz':"📝 Qo‘shimcha izoh kiriting (ixtiyoriy):",
-          'ru':"📝 Введите дополнительное примечание (необязательно):"
-    },
+    'enter_additional_info': {
+        'en': "📝 Enter optional notes:",
+        'uz': "📝 Qo'shimcha izoh kiriting (ixtiyoriy):",
+        'ru': "📝 Введите примечание (необязательно):"
+    }
 }
 
-
 add_expense_states = {
-    'get_amount':{
-        'en':"💸 Please enter the amount of the expense. Example: 50000, 125.5, or 780000.",
-        'uz':"💸 Iltimos, xarajat summasini kiriting. Masalan: 50000, 125.5 yoki 780000.",
-        'ru':"💸 Пожалуйста, укажите сумму расхода. Например: 50000, 125.5 или 780000."
+    'get_amount': {
+        'en': "💸 Please enter the **expense amount** (e.g., 20000 or 45.00):",
+        'uz': "💸 Iltimos, **xarajat miqdorini** kiriting (masalan, 20000 yoki 45.00):",
+        'ru': "💸 Пожалуйста, введите **сумму расхода** (например, 20000 или 45.00):"
     },
-    'wrong_amount':{
-        'en':"⚠️ Invalid amount! Please enter a valid number.",
-        'uz':"⚠️ Noto‘g‘ri summa! Iltimos, to‘g‘ri raqam kiriting.",
-        'ru':"⚠️ Неверная сумма! Пожалуйста, введите корректное число."
+    'wrong_amount': {
+        'en': "⚠️ **Invalid input.** Please enter a numeric value only.",
+        'uz': "⚠️ **Xato.** Iltimos, faqat raqamli qiymat kiriting.",
+        'ru': "⚠️ **Ошибка.** Пожалуйста, введите только числовое значение."
     },
-    'get_source':{
-        'en':"📂 Select the expense category:",
-        'uz':"📂 Xarajat turini tanlang:",
-        'ru':"📂 Выберите категорию расхода:"
+    'get_source': {
+        'en': "📂 Select the **expense category**:",
+        'uz': "📂 **Xarajat toifasini** tanlang:",
+        'ru': "📂 Выберите **категорию расхода**:"
     },
-    'get_source_manually':{
-        'en':"✏️ Enter the expense category manually:",
-        'uz':"✏️ Xarajat turini qo‘lda kiriting:",
-        'ru':"✏️ Введите категорию расхода вручную:"
+    'get_source_manually': {
+        'en': "✏️ Please type the expense category:",
+        'uz': "✏️ Iltimos, xarajat toifasini yozing:",
+        'ru': "✏️ Пожалуйста, введите категорию расхода:"
     },
-    'get_payment_method':{
-        'en':"""💳 Select the payment method:""",
-        'uz':"""💳 To‘lov usulini tanlang:""",
-        'ru':"""💳 Выберите способ оплаты:"""
+    'get_payment_method': {
+        'en': "💳 Choose the **payment method**:",
+        'uz': "💳 **To'lov usulini** tanlang:",
+        'ru': "💳 Выберите **способ оплаты**:"
     },
-    'enter_additional_info':{
-        'en':"📝 Enter additional notes (optional):",
-        'uz':"📝 Qo‘shimcha izoh kiriting (ixtiyoriy):",
-        'ru':"📝 Введите дополнительное примечание (необязательно):"
+    'enter_additional_info': {
+        'en': "📝 Any additional notes for this expense? (optional):",
+        'uz': "📝 Ushbu xarajat uchun qo'shimcha izohingiz bormi? (ixtiyoriy):",
+        'ru': "📝 Дополнительные примечания к этому расходу? (необязательно):"
     },
-    'successfully_saved':{
-        'en':"✅ Expense saved successfully.",
-        'uz':"✅ Xarajat muvaffaqiyatli saqlandi.",
-        'ru':"✅ Расход успешно сохранён."
+    'added_successfully': {
+        'en': """✅ **Expense recorded successfully!**
+
+💰 **Amount**: {amount} {currency}
+📂 **Category**: {source}
+💳 **Method**: {method}
+📝 **Notes**: {notes}""",
+        'uz': """✅ **Xarajat muvaffaqiyatli qayd etildi!**
+
+💰 **Miqdor**: {amount} {currency}
+📂 **Toifa**: {source}
+💳 **Usul**: {method}
+📝 **Izoh**: {notes}""",
+        'ru': """✅ **Расход успешно записан!**
+
+💰 **Сумма**: {amount} {currency}
+📂 **Категория**: {source}
+💳 **Способ**: {method}
+📝 **Заметки**: {notes}"""
     },
-    'failed_to_save':{
-        'en':"❌ Failed to save expense. Please try again.",
-        'uz':"❌ Xarajatni saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.",
-        'ru':"❌ Не удалось сохранить расход. Попробуйте снова."
-    },
-    'additional_info_added':{
-        'en': "📝 Additional information added successfully.",
-        'uz': "📝 Qo‘shimcha ma’lumot muvaffaqiyatli qo‘shildi.",
-        'ru': "📝 Дополнительная информация успешно добавлена."
-    },
-    'additional_info_not_added':{
-        'en': "ℹ️ No additional information provided.",
-        'uz': "ℹ️ Qo‘shimcha ma’lumot kiritilmadi.",
-        'ru': "ℹ️ Дополнительная информация не была добавлена."
+    'failed_to_save': {
+        'en': "⚠️ **Error.** Failed to record the expense. Please try again.",
+        'uz': "⚠️ **Xato.** Xarajatni qayd etib bo'lmadi. Iltimos, qayta urinib ko'ring.",
+        'ru': "⚠️ **Ошибка.** Не удалось записать расход. Пожалуйста, попробуйте снова."
     }
 }
