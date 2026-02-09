@@ -87,8 +87,7 @@ class Database:
                 query = """INSERT INTO users(telegram_id, fullname, sex, social_status, language, currency)
                 VALUES($1, $2, $3, $4, $5, $6)
                 ON CONFLICT (telegram_id) DO NOTHING;"""
-                async with self.pool.acquire() as conn:
-                    await conn.execute(query, user_id, fullname, sex, status, language, currency)
+                await conn.execute(query, user_id, fullname, sex, status, language, currency)
         except Exception as er:
             print('DATABASE ERROR: Error with inserting new user to user table', str(er))
 
@@ -206,7 +205,3 @@ class Database:
 
 
 db = Database()
-
-
-
-

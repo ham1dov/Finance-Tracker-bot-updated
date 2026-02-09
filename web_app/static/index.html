@@ -342,17 +342,27 @@ function initApp() {
       document.getElementById('to').value = lastDay;
 
       // Start loading data
-      loadMonthlySummary();
-      loadTrend();
+      refreshData();
     } else {
-      console.warn("Telegram user not found in initDataUnsafe. API calls will be delayed.");
-      // For development outside Telegram
-      // UID = 7583610226;
-      // loadMonthlySummary();
-      // loadTrend();
+      console.warn("Telegram user not found in initDataUnsafe.");
+      // For local testing
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+         UID = 7583610226;
+         refreshData();
+      }
     }
   } catch (e) {
     console.error("Telegram WebApp error:", e);
+  }
+}
+
+/* ================= DATA LOADING ================= */
+function refreshData() {
+  if(!UID) return;
+  loadMonthlySummary();
+  loadTrend();
+  if(currentType) {
+    loadDetails();
   }
 }
 
@@ -367,16 +377,16 @@ function loadMonthlySummary() {
     })
     .then(d=>{
       console.log("Summary data received:", d);
-      document.getElementById("income").innerText="$"+(d.income || 0).toLocaleString();
-      document.getElementById("income_cash").innerText="$"+(d.income_cash || 0).toLocaleString();
-      document.getElementById("income_card").innerText="$"+(d.income_card || 0).toLocaleString();
+      document.getElementById("income").innerText=(d.income || 0).toLocaleString();
+      document.getElementById("income_cash").innerText=(d.income_cash || 0).toLocaleString();
+      document.getElementById("income_card").innerText=(d.income_card || 0).toLocaleString();
 
-      document.getElementById("expense").innerText="$"+(d.expense || 0).toLocaleString();
-      document.getElementById("expense_cash").innerText="$"+(d.expense_cash || 0).toLocaleString();
-      document.getElementById("expense_card").innerText="$"+(d.expense_card || 0).toLocaleString();
+      document.getElementById("expense").innerText=(d.expense || 0).toLocaleString();
+      document.getElementById("expense_cash").innerText=(d.expense_cash || 0).toLocaleString();
+      document.getElementById("expense_card").innerText=(d.expense_card || 0).toLocaleString();
 
       const res = d.result || 0;
-      document.getElementById("result").innerText=(res>=0?"+":"-")+"$"+Math.abs(res).toLocaleString();
+      document.getElementById("result").innerText=(res>=0?"+":"-")+Math.abs(res).toLocaleString();
     }).catch(err => console.error("Summary error:", err));
 }
 
@@ -443,8 +453,8 @@ function loadMetrics(f, t) {
   fetch(`${API}/stats/metrics/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`)
   .then(r=>r.json())
   .then(d=>{
-    document.getElementById("mTotal").innerText = "$" + (d.total || 0).toLocaleString();
-    document.getElementById("mAvg").innerText = "$" + (Math.round(d.average) || 0).toLocaleString();
+    document.getElementById("mTotal").innerText = (d.total || 0).toLocaleString();
+    document.getElementById("mAvg").innerText = (Math.round(d.average) || 0).toLocaleString();
     document.getElementById("mCount").innerText = d.count || 0;
   }).catch(err => console.error("Metrics error:", err));
 }
@@ -458,9 +468,9 @@ function loadMonitoring() {
         const summary = d.summary || { total: 0, cash: 0, card: 0 };
         const total = summary.total || 0;
 
-        document.getElementById("monTotal").innerText = "$" + total.toLocaleString();
-        document.getElementById("monCash").innerText = "$" + (summary.cash || 0).toLocaleString();
-        document.getElementById("monCard").innerText = "$" + (summary.card || 0).toLocaleString();
+        document.getElementById("monTotal").innerText = total.toLocaleString();
+        document.getElementById("monCash").innerText = (summary.cash || 0).toLocaleString();
+        document.getElementById("monCard").innerText = (summary.card || 0).toLocaleString();
 
         document.getElementById("monCashPct").innerText = total > 0 ? Math.round(((summary.cash || 0) / total) * 100) + "%" : "0%";
         document.getElementById("monCardPct").innerText = total > 0 ? Math.round(((summary.card || 0) / total) * 100) + "%" : "0%";
@@ -469,7 +479,7 @@ function loadMonitoring() {
         monList.innerHTML = "";
         d.categories.forEach(c => {
             monList.innerHTML += `<li style="display:flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
-                <span>${c.source}</span> <b>$${c.total.toLocaleString()}</b>
+                <span>${c.source}</span> <b>${c.total.toLocaleString()}</b>
             </li>`;
         });
 
@@ -509,7 +519,7 @@ function loadReport() {
             tbody.innerHTML += `<tr style="border-bottom: 1px solid #eee;">
                 <td style="padding: 10px;">${row.date}</td>
                 <td style="padding: 10px;">${row.source} <br><small style="color:#7f8c8d">${row.payment_method}</small></td>
-                <td style="padding: 10px;"><b>$${row.amount.toLocaleString()}</b></td>
+                <td style="padding: 10px;"><b>${row.amount.toLocaleString()}</b></td>
                 <td style="padding: 10px; text-align: right;">
                     <button onclick="editTransaction('${currentType}', ${row.id}, ${row.amount}, '${row.source}', '${row.payment_method}', '${row.additional_info || ''}')" style="padding: 4px 8px; font-size: 10px; background: #3498db; color: #fff;">✏️</button>
                     <button onclick="deleteTransaction('${currentType}', ${row.id})" style="padding: 4px 8px; font-size: 10px; background: #e74c3c; color: #fff;">🗑</button>
@@ -566,7 +576,7 @@ function showBatafsilToday() {
             html += `<tr style="border-bottom:1px solid #eee; font-size:12px;">
                 <td style="padding:8px;">${r.date.split(' ')[1]}</td>
                 <td style="padding:8px;">${r.source} <br><small>${r.payment_method}</small></td>
-                <td style="padding:8px; text-align:right;"><b>$${r.amount.toLocaleString()}</b></td>
+                <td style="padding:8px; text-align:right;"><b>${r.amount.toLocaleString()}</b></td>
                 <td style="padding:8px; text-align:right;">
                     <button onclick="editTransaction('${currentType}', ${r.id}, ${r.amount}, '${r.source}', '${r.payment_method}', '${r.additional_info || ''}')" style="padding: 2px 5px; font-size: 10px; background: #3498db; color: #fff;">✏️</button>
                     <button onclick="deleteTransaction('${currentType}', ${r.id})" style="padding: 2px 5px; font-size: 10px; background: #e74c3c; color: #fff;">🗑</button>
@@ -660,6 +670,8 @@ function downloadReport(event) {
         btn.innerHTML = originalContent;
     });
 }
+// Call init on load
+document.addEventListener('DOMContentLoaded', initApp);
 </script>
 
 </body>
