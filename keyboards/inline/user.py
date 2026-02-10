@@ -3,8 +3,16 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from utils.formatter import CATEGORIES
 
+from database.db_query import db
+
 """<<<---------- USER MAIN MENU BUTTONS ---------->>>"""
-async def user_main_menu_buttons(lang:str)->InlineKeyboardMarkup:
+async def user_main_menu_buttons(lang:str, user_id: int = None)->InlineKeyboardMarkup:
+    input_mode = 'bot'
+    if user_id:
+        user_info = await db.get_user(user_id)
+        if user_info:
+            input_mode = user_info.get('input_mode', 'bot')
+
     callback_data = "user:main_menu:{mode}"
     add_income = {
         'en':"Add Income 💰",
@@ -37,16 +45,22 @@ async def user_main_menu_buttons(lang:str)->InlineKeyboardMarkup:
     }
 
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text=add_income[lang],
-                                     callback_data=callback_data.format(mode='add_income')),
-                InlineKeyboardButton(text=add_expense[lang],
-                                     callback_data=callback_data.format(mode='add_expense'))
-                )
+    if input_mode == 'web':
+        builder.row(
+            InlineKeyboardButton(text=add_income[lang], web_app=WebAppInfo(url='https://dottie-unbespoken-causatively.ngrok-free.dev?action=add_income')),
+            InlineKeyboardButton(text=add_expense[lang], web_app=WebAppInfo(url='https://dottie-unbespoken-causatively.ngrok-free.dev?action=add_expense'))
+        )
+    else:
+        builder.row(
+            InlineKeyboardButton(text=add_income[lang], callback_data=callback_data.format(mode='add_income')),
+            InlineKeyboardButton(text=add_expense[lang], callback_data=callback_data.format(mode='add_expense'))
+        )
 
     builder.row(
         InlineKeyboardButton(text=statistics[lang],
-                             web_app=WebAppInfo(url='https://dottie-unbespoken-causatively.ngrok-free.dev')),
-        InlineKeyboardButton(text=settings[lang], callback_data=callback_data.format(mode='settings')))
+                             web_app=WebAppInfo(url='https://dottie-unbespoken-causatively.ngrok-free.dev?page=dashboard')),
+        InlineKeyboardButton(text=settings[lang],
+                             web_app=WebAppInfo(url='https://dottie-unbespoken-causatively.ngrok-free.dev?page=settings')))
 
     builder.row(InlineKeyboardButton(text=contact_to_admin[lang], callback_data=callback_data.format(mode='contact')))
 
@@ -115,33 +129,26 @@ async def select_user_currency_buttons(lang:str)->InlineKeyboardMarkup:
     return builder.as_markup()
 
 """<---------- INCOME SOURCES ---------->"""
-async def select_income_source_buttons(lang:str, social_status:str)->InlineKeyboardMarkup:
-    sources = ['salary', 'business', 'rental_income', 'investment', 'gift', 'side_income', 'refund', 'other']
-    if social_status=='pupil':
-        sources.append('parents')
-    elif social_status=='student':
-        sources.append('scholarship')
-    elif social_status=='retired':
-        sources.append('pension')
-    elif social_status=='homemaker':
-        sources.append('husband')
+async def select_income_source_buttons(lang:str, user_id: int)->InlineKeyboardMarkup:
+    rows = await db.get_categories(user_id, 'income')
 
     builder = InlineKeyboardBuilder()
-    for key in sources:
-        if key in CATEGORIES:
-            builder.row(InlineKeyboardButton(text=CATEGORIES[key][lang], callback_data=f'user:add_income_select:{key}'))
+    for r in rows:
+        builder.row(InlineKeyboardButton(text=f"{r['emoji']} {r['name']}", callback_data=f"user:add_income_select:{r['name']}"))
 
+    builder.row(InlineKeyboardButton(text="✏️ Other" if lang=='en' else "✏️ Boshqa" if lang=='uz' else "✏️ Другое", callback_data="user:add_income_select:other"))
     return builder.as_markup()
 
 """<---------- EXPENSE SOURCES ---------->"""
-async def select_expense_source_buttons(lang:str)->InlineKeyboardMarkup:
-    keys = ['food', 'transport', 'shopping', 'health', 'entertainment', 'subscriptions', 'education', 'housing', 'utilities', 'personal_care', 'gifts', 'pets', 'travel', 'loans', 'other']
-    builder = InlineKeyboardBuilder()
-    builder.max_width=2
-    for key in keys:
-        if key in CATEGORIES:
-            builder.add(InlineKeyboardButton(text=CATEGORIES[key][lang], callback_data=f'user:add_expense_source:{key}'))
+async def select_expense_source_buttons(lang:str, user_id: int)->InlineKeyboardMarkup:
+    rows = await db.get_categories(user_id, 'expense')
 
+    builder = InlineKeyboardBuilder()
+    builder.max_width = 2
+    for r in rows:
+        builder.add(InlineKeyboardButton(text=f"{r['emoji']} {r['name']}", callback_data=f"user:add_expense_source:{r['name']}"))
+
+    builder.add(InlineKeyboardButton(text="🔧 Other" if lang=='en' else "🔧 Boshqa" if lang=='uz' else "🔧 Другое", callback_data="user:add_expense_source:other"))
     return builder.as_markup()
 
 async def select_payment_method_buttons(lang:str, type: Literal['income', 'expense'])->InlineKeyboardMarkup:

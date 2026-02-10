@@ -155,7 +155,7 @@ class Database:
     async def get_all_users_earnings(self):
         try:
             if self.pool is None:
-                self.pool = await asyncpg.create_pool(self.pool)
+                self.pool = await asyncpg.create_pool(self.url)
             async with self.pool.acquire() as conn:
                 query = "SELECT * FROM user_earnings WHERE TRUE"
                 all_incomes = await conn.fetch(query)
@@ -167,7 +167,7 @@ class Database:
     async def get_all_users_expenses(self):
         try:
             if self.pool is None:
-                self.pool = await asyncpg.create_pool(self.pool)
+                self.pool = await asyncpg.create_pool(self.url)
             async with self.pool.acquire() as conn:
                 query = "SELECT * FROM user_expenses WHERE TRUE"
                 all_expenses = await conn.fetch(query)
@@ -186,6 +186,30 @@ class Database:
         except Exception as er:
             print(f'DATABASE ERROR: Error with deleting from {table} --- ', str(er))
             return False
+
+    async def get_categories(self, user_id: int, type: str):
+        try:
+            if self.pool is None:
+                self.pool = await asyncpg.create_pool(self.url)
+            async with self.pool.acquire() as conn:
+                query = "SELECT name, emoji FROM custom_categories WHERE user_id = $1 AND type = $2"
+                rows = await conn.fetch(query, user_id, type)
+                if not rows:
+                    # Initialize defaults
+                    defaults = [
+                        ('income', 'salary', '💼'), ('income', 'business', '🏢'), ('income', 'gift', '🎁'),
+                        ('expense', 'food', '🍔'), ('expense', 'transport', '🚌'), ('expense', 'shopping', '🛍')
+                    ]
+                    for t, n, e in defaults:
+                        await conn.execute(
+                            "INSERT INTO custom_categories(user_id, type, name, emoji) VALUES($1, $2, $3, $4) ON CONFLICT DO NOTHING",
+                            user_id, t, n, e
+                        )
+                    rows = await conn.fetch(query, user_id, type)
+                return rows
+        except Exception as er:
+            print(f'DATABASE ERROR: Error with getting categories --- ', str(er))
+            return []
 
     async def update_transaction(self, table: Literal['user_earnings', 'user_expenses'], transaction_id: int, user_id: int, amount: float, source: str, payment_method: str, additional_info: str = None):
         try:

@@ -2,7 +2,8 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<title>Finance Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Finance Tracker Pro</title>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,98 +12,117 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-body{
+:root {
+  --bg: var(--tg-theme-bg-color, #f5f6fa);
+  --text: var(--tg-theme-text-color, #222);
+  --hint: var(--tg-theme-hint-color, #7f8c8d);
+  --secondary-bg: var(--tg-theme-secondary-bg-color, #fff);
+  --button: var(--tg-theme-button-color, #3498db);
+  --button-text: var(--tg-theme-button-text-color, #fff);
+}
+
+body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: var(--tg-theme-bg-color, #f5f6fa);
-  color: var(--tg-theme-text-color, #222);
-  padding:20px;
+  background: var(--bg);
+  color: var(--text);
+  padding: 0;
   margin: 0;
+  padding-bottom: 80px; /* Space for bottom nav */
 }
 
-.cards{
-  display:flex;
-  gap:15px;
-  flex-wrap:wrap;
+.container { padding: 20px; }
+
+.cards { display: flex; gap: 15px; flex-wrap: wrap; }
+.card {
+  flex: 1;
+  padding: 20px;
+  border-radius: 16px;
+  color: #fff;
+  text-align: center;
+  min-width: 150px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
+.income { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.expense { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.result { background: linear-gradient(135deg, #3498db, #2980b9); }
 
-.card{
-  flex:1;
-  padding:20px;
-  border-radius:14px;
-  color:#fff;
-  text-align:center;
-  min-width:200px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.income{background:#2ecc71}
-.expense{background:#e74c3c}
-.result{background:#3498db}
-
-button{
-  padding:10px 18px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:15px;
-  background: var(--tg-theme-secondary-bg-color, #eee);
-  color: var(--tg-theme-text-color, #222);
+button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--secondary-bg);
+  color: var(--text);
   transition: all 0.2s ease;
 }
+button.primary { background: var(--button); color: var(--button-text); }
+button.active { background: var(--button); color: var(--button-text); }
 
-button.active{
-  background: var(--tg-theme-button-color, #3498db);
-  color: var(--tg-theme-button-text-color, #fff);
-}
+.hidden { display: none !important; }
 
-hr{
-  margin:30px 0;
-  border: 0;
-  border-top: 1px solid var(--tg-theme-secondary-bg-color, #eee);
-}
-
-.hidden{display:none}
-
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin: 20px 0;
-}
-.metric-card {
-  background: var(--tg-theme-secondary-bg-color, #fff);
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  text-align: center;
-}
-.metric-card h4 { margin: 0; font-size: 10px; color: var(--tg-theme-hint-color, #7f8c8d); text-transform: uppercase; }
-.metric-card p { margin: 5px 0 0; font-size: 14px; font-weight: bold; color: var(--tg-theme-text-color, #2c3e50); }
-
-.tab-nav {
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--secondary-bg);
   display: flex;
-  background: var(--tg-theme-secondary-bg-color, #eee);
-  padding: 5px;
-  border-radius: 12px;
-  margin: 20px 0;
-  gap: 5px;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  z-index: 100;
+  backdrop-filter: blur(10px);
 }
-.tab-nav button {
-  flex: 1;
-  padding: 8px;
-  border-radius: 8px;
-  font-size: 13px;
-  background: transparent;
-  color: var(--tg-theme-hint-color, #7f8c8d);
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--hint);
+  text-decoration: none;
+  font-size: 11px;
 }
-.tab-nav button.active {
-  background: var(--tg-theme-bg-color, #fff);
-  color: var(--tg-theme-button-color, #3498db);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+.nav-item.active { color: var(--button); }
+.nav-item i { font-size: 20px; }
+
+/* Settings Styles */
+.settings-section {
+    background: var(--secondary-bg);
+    border-radius: 16px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.settings-item:last-child { border-bottom: none; }
+.settings-item label { font-weight: 500; }
+.settings-item select, .settings-item input {
+    background: transparent;
+    border: none;
+    color: var(--button);
+    font-weight: 600;
+    text-align: right;
+    font-size: 15px;
 }
 
-.tab-content { display: none; }
-.tab-content.active { display: block; }
+/* Category Management */
+.cat-list { list-style: none; padding: 0; }
+.cat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: var(--bg);
+    border-radius: 12px;
+    margin-bottom: 8px;
+}
 
 #modal {
     position: fixed;
@@ -113,198 +133,232 @@ hr{
     align-items: center;
     justify-content: center;
     padding: 20px;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
 }
-#modal.hidden { display: none; }
-
 .modal-content-wrapper {
-    background: var(--tg-theme-bg-color, #fff);
+    background: var(--bg);
     width: 100%;
-    max-width: 500px;
-    max-height: 90vh;
-    border-radius: 20px;
+    max-width: 400px;
+    border-radius: 24px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
-#list {
-  list-style: none;
-  padding: 0;
-}
-#list li {
-  background: var(--tg-theme-secondary-bg-color, #fff);
-  margin-bottom: 8px;
-  padding: 10px 15px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-between;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: var(--hint); }
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: var(--secondary-bg);
+    color: var(--text);
+    box-sizing: border-box;
 }
 
-input, select, textarea {
-    background: var(--tg-theme-secondary-bg-color, #fff);
-    color: var(--tg-theme-text-color, #222);
-    border: 1px solid var(--tg-theme-hint-color, #ddd);
-}
+/* Tab contents */
+.page { display: none; }
+.page.active { display: block; }
 </style>
 </head>
 
 <body>
 
-<!-- SUMMARY PAGE -->
-<div id="summaryPage">
-  <h2 data-i18n="currentMonth">📊 Joriy oy</h2>
+<div class="container">
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard" class="page active">
+        <h2 data-i18n="currentMonth">📊 Joriy oy</h2>
+        <div class="cards">
+            <div class="card income" onclick="openDetails('income')">
+                <p data-i18n="income">Kirim</p>
+                <h2 id="income">0</h2>
+                <div style="font-size: 10px; opacity: 0.8;">
+                    <span data-i18n="cash">Naqd</span>: <span id="income_cash">0</span> | <span data-i18n="card">Karta</span>: <span id="income_card">0</span>
+                </div>
+            </div>
+            <div class="card expense" onclick="openDetails('expenses')">
+                <p data-i18n="expense">Chiqim</p>
+                <h2 id="expense">0</h2>
+                <div style="font-size: 10px; opacity: 0.8;">
+                    <span data-i18n="cash">Naqd</span>: <span id="expense_cash">0</span> | <span data-i18n="card">Karta</span>: <span id="expense_card">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="card result" style="margin-top: 15px; width: 100%; min-width: 100%;">
+            <p data-i18n="result">Natija</p>
+            <h2 id="result">0</h2>
+        </div>
 
-  <div class="cards">
-    <div class="card income">
-      <p data-i18n="income">Kirim</p>
-      <h2 id="income">0</h2>
-      <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">
-        <span data-i18n="cash">Naqd</span>: <span id="income_cash">0</span> | <span data-i18n="card">Karta</span>: <span id="income_card">0</span>
-      </div>
+        <h2 style="margin-top:30px" data-i18n="trendTitle">📈 12 oylik trend</h2>
+        <canvas id="trend"></canvas>
     </div>
-    <div class="card expense">
-      <p data-i18n="expense">Chiqim</p>
-      <h2 id="expense">0</h2>
-      <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">
-        <span data-i18n="cash">Naqd</span>: <span id="expense_cash">0</span> | <span data-i18n="card">Karta</span>: <span id="expense_card">0</span>
-      </div>
+
+    <!-- DETAILS PAGE (Monitoring & Report) -->
+    <div id="page-details" class="page">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 id="distributionTitle" style="margin: 0;"></h3>
+            <button onclick="showPage('dashboard')" style="padding: 5px 12px; font-size: 12px;" data-i18n="back">⬅️ Orqaga</button>
+        </div>
+
+        <div style="margin:10px 0; display: flex; gap: 5px; align-items: center;">
+            <input type="date" id="from" style="flex:1; padding: 8px; border-radius: 8px; background: var(--secondary-bg); color: var(--text); border: 1px solid rgba(0,0,0,0.1);">
+            <input type="date" id="to" style="flex:1; padding: 8px; border-radius: 8px; background: var(--secondary-bg); color: var(--text); border: 1px solid rgba(0,0,0,0.1);">
+            <button onclick="loadDetails()" style="background: var(--button); color: #fff; padding: 8px 12px;">👁️</button>
+        </div>
+
+        <div class="tab-nav">
+            <button id="tabBtn-monitoring" onclick="showTab('monitoring')" class="active" data-i18n="monitoring">📊 Monitoring</button>
+            <button id="tabBtn-report" onclick="showTab('report')" data-i18n="report">📅 Hisobot</button>
+        </div>
+
+        <div id="tab-monitoring" class="tab-content active">
+            <canvas id="monPie" style="margin: 20px 0;"></canvas>
+            <ul id="monList" class="cat-list"></ul>
+            <button onclick="showBatafsilToday()" style="width: 100%; margin-top: 15px;" class="primary" data-i18n="detailed">🔍 Batafsil</button>
+        </div>
+
+        <div id="tab-report" class="tab-content">
+            <div class="settings-section" style="padding: 10px; margin-top: 10px;">
+                <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                    <select id="repSource" style="flex:1; font-size: 12px;"><option value="" data-i18n="allCategories">Hamma</option></select>
+                    <select id="repMethod" style="flex:1; font-size: 12px;">
+                        <option value="" data-i18n="allPayments">Hamma</option>
+                        <option value="cash" data-i18n="cash">Naqd</option>
+                        <option value="card" data-i18n="card">Karta</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <select id="repSort" style="flex:1; font-size: 12px;">
+                        <option value="inserted_at" data-i18n="byDate">Sana</option>
+                        <option value="amount" data-i18n="byAmount">Summa</option>
+                    </select>
+                    <button onclick="loadReport()" style="padding: 8px;">🔄</button>
+                    <button onclick="downloadReport(event)" style="padding: 8px;">📥</button>
+                </div>
+            </div>
+            <div id="reportTableContainer" style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                    <tbody id="reportTableBody"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <div class="card result">
-      <p data-i18n="result">Natija</p>
-      <h2 id="result">0</h2>
+
+    <!-- ADD TRANSACTION PAGE -->
+    <div id="page-add" class="page">
+        <h2 id="add-title">➕ Yangi qayd</h2>
+        <div class="settings-section">
+            <div class="form-group">
+                <label data-i18n="summa">Summa:</label>
+                <input type="number" id="add-amount" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label data-i18n="category">Kategoriya:</label>
+                <select id="add-category"></select>
+            </div>
+            <div class="form-group">
+                <label data-i18n="tMethod">To'lov usuli:</label>
+                <select id="add-method">
+                    <option value="cash" data-i18n="cash">Naqd</option>
+                    <option value="card" data-i18n="card">Karta</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label data-i18n="additional">Izoh:</label>
+                <textarea id="add-notes" rows="2"></textarea>
+            </div>
+            <button onclick="saveNewTransaction()" class="primary" style="width: 100%;" data-i18n="save">Saqlash</button>
+        </div>
     </div>
-  </div>
 
-  <h2 style="margin-top:30px" data-i18n="trendTitle">📈 12 oylik trend</h2>
-  <canvas id="trend"></canvas>
+    <!-- SETTINGS PAGE -->
+    <div id="page-settings" class="page">
+        <h2 data-i18n="settings">⚙️ Sozlamalar</h2>
 
-  <hr>
+        <div class="settings-section">
+            <h4 style="margin-top:0" data-i18n="personalInfo">👤 Shaxsiy ma'lumotlar</h4>
+            <div class="settings-item">
+                <label data-i18n="name">Ism</label>
+                <input type="text" id="set-fullname" onchange="updateSettings()">
+            </div>
+            <div class="settings-item">
+                <label data-i18n="sex">Jins</label>
+                <select id="set-sex" onchange="updateSettings()">
+                    <option value="male" data-i18n="male">Erkak</option>
+                    <option value="female" data-i18n="female">Ayol</option>
+                </select>
+            </div>
+            <div class="settings-item">
+                <label data-i18n="status">Status</label>
+                <input type="text" id="set-status" onchange="updateSettings()">
+            </div>
+        </div>
 
-  <!-- NAV BUTTONS -->
-  <div style="display: flex; gap: 10px;">
-    <button id="btnExpenses" onclick="openPage('expenses')" style="flex:1" data-i18n="btnExpenses">💸 Harajatlar</button>
-    <button id="btnIncome" onclick="openPage('income')" style="flex:1" data-i18n="btnIncome">💰 Kirimlar</button>
-  </div>
+        <div class="settings-section">
+            <h4 style="margin-top:0" data-i18n="appSettings">⚙️ Ilova sozlamalari</h4>
+            <div class="settings-item">
+                <label data-i18n="langLabel">Til</label>
+                <select id="set-lang" onchange="updateSettings()">
+                    <option value="uz">O'zbekcha</option>
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                </select>
+            </div>
+            <div class="settings-item">
+                <label data-i18n="currency">Valyuta</label>
+                <select id="set-currency" onchange="updateSettings()">
+                    <option value="uzs">UZS</option>
+                    <option value="usd">USD</option>
+                    <option value="eur">EUR</option>
+                    <option value="rub">RUB</option>
+                </select>
+            </div>
+            <div class="settings-item">
+                <label data-i18n="inputMode">Rejim</label>
+                <select id="set-mode" onchange="updateSettings()">
+                    <option value="bot">Bot</option>
+                    <option value="web">Web</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div style="display:flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin:0" data-i18n="categories">Kategoriyalar</h4>
+                <button onclick="openAddCategoryModal()" style="padding: 4px 8px; font-size: 12px;">➕</button>
+            </div>
+            <div class="tab-nav" style="margin-top:10px">
+                <button id="catTab-income" onclick="showCatTab('income')" class="active" data-i18n="income">Kirim</button>
+                <button id="catTab-expense" onclick="showCatTab('expense')" data-i18n="expense">Chiqim</button>
+            </div>
+            <ul id="settings-cat-list" class="cat-list" style="margin-top:10px"></ul>
+        </div>
+    </div>
 </div>
 
-<!-- DETAILS PAGE -->
-<div id="detailsPage" class="hidden">
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+    <a href="#" class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+        <i>📊</i> <span data-i18n="navDashboard">Asosiy</span>
+    </a>
+    <a href="#" class="nav-item" id="nav-add" onclick="showPage('add')">
+        <i>➕</i> <span data-i18n="navAdd">Qo'shish</span>
+    </a>
+    <a href="#" class="nav-item" id="nav-settings" onclick="showPage('settings')">
+        <i>⚙️</i> <span data-i18n="navSettings">Sozlamalar</span>
+    </a>
+</nav>
 
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <h3 id="distributionTitle" style="margin: 0;"></h3>
-    <button onclick="backToSummary()" style="background: #95a5a6; color: #fff;" data-i18n="back">⬅️ Orqaga</button>
-  </div>
-
-  <div style="margin:10px 0; display: flex; gap: 5px; align-items: center;">
-    <input type="date" id="from" style="flex:1; padding: 8px; border: 1px solid #ddd; border-radius: 8px;">
-    <input type="date" id="to" style="flex:1; padding: 8px; border: 1px solid #ddd; border-radius: 8px;">
-    <button onclick="loadDetails()" style="background: #3498db; color: #fff;">👁️</button>
-  </div>
-
-  <div class="metrics-grid">
-    <div class="metric-card">
-      <h4 data-i18n="total">Jami</h4>
-      <p id="mTotal">$0</p>
-    </div>
-    <div class="metric-card">
-      <h4 data-i18n="average">O‘rtacha</h4>
-      <p id="mAvg">$0</p>
-    </div>
-    <div class="metric-card">
-      <h4 data-i18n="count">Soni</h4>
-      <p id="mCount">0</p>
-    </div>
-  </div>
-
-  <div class="tab-nav">
-    <button id="tabBtn-monitoring" onclick="showTab('monitoring')" class="active" data-i18n="monitoring">📊 Monitoring</button>
-    <button id="tabBtn-report" onclick="showTab('report')" data-i18n="report">📅 Hisobot</button>
-  </div>
-
-  <!-- MONITORING TAB -->
-  <div id="tab-monitoring" class="tab-content active">
-    <div id="monitoringSummary" style="background: var(--tg-theme-secondary-bg-color, #fff); padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-around; text-align: center;">
-        <div>
-            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);" data-i18n="totalToday">Jami Bugun</p>
-            <b id="monTotal">$0</b>
-        </div>
-        <div>
-            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);" data-i18n="cash">Naqd</p>
-            <b id="monCash">$0</b>
-            <div id="monCashPct" style="font-size: 10px; color: var(--tg-theme-hint-color, #7f8c8d);">0%</div>
-        </div>
-        <div>
-            <p style="margin:0; font-size: 12px; color: var(--tg-theme-hint-color, #7f8c8d);" data-i18n="card">Karta</p>
-            <b id="monCard">$0</b>
-            <div id="monCardPct" style="font-size: 10px; color: var(--tg-theme-hint-color, #7f8c8d);">0%</div>
-        </div>
-    </div>
-
-    <canvas id="monPie"></canvas>
-
-    <div style="margin-top: 20px;">
-        <h4 style="margin-bottom: 10px;" data-i18n="categories">Kategoriyalar</h4>
-        <ul id="monList" style="list-style: none; padding: 0;"></ul>
-    </div>
-
-    <button onclick="showBatafsilToday()" style="width: 100%; background: #3498db; color: #fff; margin-top: 15px;" data-i18n="detailed">🔍 Batafsil</button>
-  </div>
-
-  <!-- REPORT TAB -->
-  <div id="tab-report" class="tab-content">
-    <div style="background: var(--tg-theme-secondary-bg-color, #fff); padding: 10px; border-radius: 12px; margin-bottom: 15px;">
-        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-            <select id="repSource" style="flex:1; padding: 8px; border-radius: 8px;">
-                <option value="" data-i18n="allCategories">Hamma kategoriyalar</option>
-            </select>
-            <select id="repMethod" style="flex:1; padding: 8px; border-radius: 8px;">
-                <option value="" data-i18n="allPayments">Hamma to‘lovlar</option>
-                <option value="cash" data-i18n="cash">Naqd</option>
-                <option value="card" data-i18n="card">Karta</option>
-            </select>
-        </div>
-        <div style="display: flex; gap: 5px;">
-            <select id="repSort" style="flex:1; padding: 8px; border-radius: 8px; border: 1px solid #ddd;">
-                <option value="inserted_at" data-i18n="byDate">Sana bo‘yicha</option>
-                <option value="amount" data-i18n="byAmount">Summa bo‘yicha</option>
-            </select>
-            <button onclick="loadReport()" style="background: #2ecc71; color: #fff; flex: 0.5;">🔄</button>
-            <button onclick="downloadReport(event)" style="background: #e67e22; color: #fff; flex: 0.5;">📥</button>
-        </div>
-    </div>
-
-    <canvas id="repPie" style="margin-bottom: 20px;"></canvas>
-
-    <div id="reportTableContainer" style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; background: var(--tg-theme-bg-color, #fff); border-radius: 12px;">
-            <thead>
-                <tr style="background: var(--tg-theme-secondary-bg-color, #eee); text-align: left; font-size: 12px;">
-                    <th style="padding: 10px;" data-i18n="date">Sana</th>
-                    <th style="padding: 10px;" data-i18n="category">Kategoriya</th>
-                    <th style="padding: 10px;" data-i18n="amount">Summa</th>
-                    <th style="padding: 10px;"></th>
-                </tr>
-            </thead>
-            <tbody id="reportTableBody" style="font-size: 13px;"></tbody>
-        </table>
-    </div>
-  </div>
-
-</div>
-
-<!-- MODAL FOR DETAILED LIST / EDIT -->
+<!-- MODAL -->
 <div id="modal" class="hidden">
     <div class="modal-content-wrapper">
-        <div style="padding: 15px; border-bottom: 1px solid var(--tg-theme-secondary-bg-color, #eee); display: flex; justify-content: space-between; align-items: center;">
-            <h3 id="modalTitle" style="margin:0;">Batafsil</h3>
-            <button onclick="closeModal()" style="padding: 5px 10px; background: transparent; color: var(--tg-theme-hint-color);">✖</button>
+        <div style="padding: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <h3 id="modalTitle" style="margin:0;"></h3>
+            <button onclick="closeModal()" style="background: transparent;">✖</button>
         </div>
-        <div id="modalContent" style="padding: 15px; overflow-y: auto; flex: 1;">
-            <!-- Table or Form will go here -->
-        </div>
+        <div id="modalContent" style="padding: 15px; overflow-y: auto;"></div>
     </div>
 </div>
 
@@ -313,10 +367,12 @@ input, select, textarea {
 var API = window.location.origin;
 var UID = null;
 var LANG = 'uz';
-var currentType = null;
+var currentType = 'expenses';
 var currentTab = 'monitoring';
+var currentCatTab = 'income';
 var monPieChart = null;
-var repPieChart = null;
+var trendChart = null;
+var USER_CATEGORIES = [];
 
 const translations = {
     uz: {
@@ -330,15 +386,11 @@ const translations = {
         deleteConfirm: "Haqiqatdan ham o'chirmoqchimisiz?",
         excelSuccess: "✅ Excel fayl yuborildi!", error: "❌ Xatolik yuz berdi",
         time: "Vaqt", additional: "Izoh", summa: "Summa:", tMethod: "To'lov usuli:", chooseSource: "Kategoriya:",
-        categoryMap: {
-            salary: '💼 Ish haqi', business: '🏢 Biznes', rental_income: '🏠 Ijara', investment: '📈 Investitsiya',
-            gift: '🎁 Sovg‘a', side_income: '💡 Qo‘shimcha', refund: '🔄 Qaytarish', parents: '👪 Ota-ona',
-            scholarship: '🎓 Stipendiya', pension: '💳 Pensiya', husband: '❤️ Turmush o‘rtog‘i',
-            food: '🍔 Ovqat', transport: '🚌 Transport', shopping: '🛍 Xarid', health: '💊 Sog‘liq',
-            entertainment: '🎮 Ko‘ngilochar', subscriptions: '📺 Obunalar', education: '📚 Ta’lim',
-            housing: '🏠 Uy-joy', utilities: '💡 Kommunal', personal_care: '🧴 Parvarish',
-            gifts: '🎁 Sovg‘alar', pets: '🐾 Hayvonlar', travel: '✈️ Sayohat', loans: '💳 To‘lovlar', other: '✏️ Boshqa'
-        }
+        settings: "Sozlamalar", name: "Ism", sex: "Jins", status: "Status", currency: "Valyuta", inputMode: "Rejim",
+        navDashboard: "Asosiy", navAdd: "Qo'shish", navSettings: "Sozlamalar",
+        addIncome: "💰 Kirim qo'shish", addExpense: "💸 Xarajat qo'shish",
+        personalInfo: "👤 Shaxsiy ma'lumotlar", appSettings: "⚙️ Ilova sozlamalari", langLabel: "Til",
+        male: "Erkak", female: "Ayol", success: "Muvaffaqiyatli!", enterAmount: "Summani kiriting"
     },
     en: {
         currentMonth: "📊 Current Month", income: "Income", expense: "Expense", result: "Result", cash: "Cash", card: "Card",
@@ -349,17 +401,13 @@ const translations = {
         byAmount: "By Amount", update: "Refresh", date: "Date", category: "Category", amount: "Amount",
         batafsilTitle: "Today's Detailed List", edit: "Edit", save: "Save",
         deleteConfirm: "Are you sure you want to delete this record?",
-        excelSuccess: "✅ Excel report sent to bot!", error: "❌ An error occurred",
+        excelSuccess: "✅ Excel report sent!", error: "❌ An error occurred",
         time: "Time", additional: "Notes", summa: "Amount:", tMethod: "Method:", chooseSource: "Category:",
-        categoryMap: {
-            salary: '💼 Salary', business: '🏢 Business', rental_income: '🏠 Rent', investment: '📈 Investment',
-            gift: '🎁 Gift', side_income: '💡 Side Income', refund: '🔄 Refund', parents: '👪 Parents',
-            scholarship: '🎓 Scholarship', pension: '💳 Pension', husband: '❤️ Husband',
-            food: '🍔 Food', transport: '🚌 Transport', shopping: '🛍 Shopping', health: '💊 Health',
-            entertainment: '🎮 Fun', subscriptions: '📺 Subs', education: '📚 Education',
-            housing: '🏠 Housing', utilities: '💡 Utilities', personal_care: '🧴 Care',
-            gifts: '🎁 Gifts', pets: '🐾 Pets', travel: '✈️ Travel', loans: '💳 Loans', other: '✏️ Other'
-        }
+        settings: "Settings", name: "Name", sex: "Gender", status: "Status", currency: "Currency", inputMode: "Mode",
+        navDashboard: "Main", navAdd: "Add", navSettings: "Settings",
+        addIncome: "💰 Add Income", addExpense: "💸 Add Expense",
+        personalInfo: "👤 Personal Info", appSettings: "⚙️ App Settings", langLabel: "Language",
+        male: "Male", female: "Female", success: "Success!", enterAmount: "Please enter amount"
     },
     ru: {
         currentMonth: "📊 Текущий месяц", income: "Доход", expense: "Расход", result: "Результат", cash: "Наличные", card: "Карта",
@@ -370,29 +418,23 @@ const translations = {
         byAmount: "По сумме", update: "Обновить", date: "Дата", category: "Категория", amount: "Сумма",
         batafsilTitle: "Детальный список за сегодня", edit: "Правка", save: "Сохранить",
         deleteConfirm: "Вы уверены, что хотите удалить эту запись?",
-        excelSuccess: "✅ Excel-отчет отправлен боту!", error: "❌ Произошла ошибка",
+        excelSuccess: "✅ Excel-отчет отправлен!", error: "❌ Произошла ошибка",
         time: "Время", additional: "Заметка", summa: "Сумма:", tMethod: "Способ:", chooseSource: "Категория:",
-        categoryMap: {
-            salary: '💼 Зарплата', business: '🏢 Бизнес', rental_income: '🏠 Аренда', investment: '📈 Инвестиции',
-            gift: '🎁 Подарок', side_income: '💡 Доп. доход', refund: '🔄 Возврат', parents: '👪 Родители',
-            scholarship: '🎓 Стипендия', pension: '💳 Пенсия', husband: '❤️ Муж',
-            food: '🍔 Еда', transport: '🚌 Транспорт', shopping: '🛍 Покупки', health: '💊 Здоровье',
-            entertainment: '🎮 Развлечения', subscriptions: '📺 Подписки', education: '📚 Обучение',
-            housing: '🏠 Жилье', utilities: '💡 Коммуналка', personal_care: '🧴 Уход',
-            gifts: '🎁 Подарки', pets: '🐾 Питомцы', travel: '✈️ Путешествия', loans: '💳 Кредиты', other: '✏️ Другое'
-        }
+        settings: "Настройки", name: "Имя", sex: "Пол", status: "Статус", currency: "Валюта", inputMode: "Режим",
+        navDashboard: "Главная", navAdd: "Добавить", navSettings: "Настройки",
+        addIncome: "💰 Добавить доход", addExpense: "💸 Добавить расход",
+        personalInfo: "👤 Личные данные", appSettings: "⚙️ Настройки приложения", langLabel: "Язык",
+        male: "Мужской", female: "Женский", success: "Успешно!", enterAmount: "Введите сумму"
     }
 };
 
-function getCategoryLabel(key) {
-    if (!key) return "";
-    const map = translations[LANG].categoryMap;
-    if (map[key]) return map[key];
+function getCategoryLabel(source) {
+    const cat = USER_CATEGORIES.find(c => c.name === source);
+    if (cat) return `${cat.emoji} ${cat.name}`;
 
-    // Capitalize and add random emoji for unknown categories
     const emojis = ["✨", "🏷️", "💎", "⭐", "🚀", "💡", "📌"];
     const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-    return `${emoji} ${key.charAt(0).toUpperCase() + key.slice(1)}`;
+    return `${emoji} ${source.charAt(0).toUpperCase() + source.slice(1)}`;
 }
 
 function applyTranslations() {
@@ -402,189 +444,169 @@ function applyTranslations() {
             el.innerText = translations[LANG][key];
         }
     });
-    // Update charts labels
-    trendChart.data.datasets[0].label = translations[LANG].income;
-    trendChart.data.datasets[1].label = translations[LANG].expense;
-    trendChart.update();
-}
-
-/* ================= TELEGRAM ================= */
-function initApp() {
-  try {
-    Telegram.WebApp.ready();
-
-    // Apply Telegram Theme to Chart.js
-    const tgStyle = getComputedStyle(document.body);
-    const textColor = tgStyle.getPropertyValue('--tg-theme-text-color') || '#222';
-
-    Chart.defaults.color = textColor;
-    Chart.defaults.borderColor = tgStyle.getPropertyValue('--tg-theme-secondary-bg-color') || '#eee';
-
-    const user = Telegram.WebApp.initDataUnsafe.user;
-    if(user) {
-      UID = user.id;
-      console.log("Authenticated User ID:", UID);
-
-      // Set default dates (current month)
-      const now = new Date();
-      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-      document.getElementById('from').value = firstDay;
-      document.getElementById('to').value = lastDay;
-
-      fetchSettings();
-    } else {
-      console.warn("Telegram user not found in initDataUnsafe.");
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-         UID = 7583610226;
-         fetchSettings();
-      }
+    if(trendChart) {
+        trendChart.data.datasets[0].label = translations[LANG].income;
+        trendChart.data.datasets[1].label = translations[LANG].expense;
+        trendChart.update();
     }
-  } catch (e) {
-    console.error("Telegram WebApp error:", e);
-  }
 }
 
-function fetchSettings() {
-    if(!UID) return;
-    fetch(`${API}/stats/settings/${UID}`)
-    .then(r => r.json())
-    .then(d => {
-        LANG = d.language || 'uz';
-        applyTranslations();
-        refreshData();
-    }).catch(err => {
-        console.error("Settings error:", err);
-        refreshData();
-    });
+/* ================= NAVIGATION ================= */
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(`page-${pageId}`).classList.add('active');
+
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(`nav-${pageId}`).classList.add('active');
+
+    if(pageId === 'dashboard') refreshData();
+    if(pageId === 'settings') loadSettingsPage();
+    if(pageId === 'add') setupAddPage();
+}
+
+function openDetails(type) {
+    currentType = type;
+    showPage('details');
+    document.getElementById("distributionTitle").innerText = (type === 'income' ? translations[LANG].btnIncome : translations[LANG].btnExpenses);
+    showTab('monitoring');
+    loadDetails();
+}
+
+function showTab(tabId) {
+    currentTab = tabId;
+    document.querySelectorAll('#page-details .tab-nav button').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`tabBtn-${tabId}`).classList.add('active');
+    document.querySelectorAll('#page-details .tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(`tab-${tabId}`).classList.add('active');
+}
+
+/* ================= INITIALIZATION ================= */
+function initApp() {
+    try {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
+        const tgStyle = getComputedStyle(document.body);
+        Chart.defaults.color = tgStyle.getPropertyValue('--text') || '#222';
+        Chart.defaults.borderColor = 'rgba(0,0,0,0.05)';
+
+        const user = Telegram.WebApp.initDataUnsafe.user;
+        if(user) {
+            UID = user.id;
+        } else {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                UID = 7583610226;
+            }
+        }
+
+        if(UID) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            const page = urlParams.get('page');
+
+            fetchSettings().then(() => {
+                if(action === 'add_income') {
+                    currentType = 'income';
+                    showPage('add');
+                } else if(action === 'add_expense') {
+                    currentType = 'expenses';
+                    showPage('add');
+                } else if(page) {
+                    showPage(page);
+                } else {
+                    showPage('dashboard');
+                }
+            });
+        }
+
+        // Default dates
+        const now = new Date();
+        document.getElementById('from').value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+        document.getElementById('to').value = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+    } catch (e) { console.error(e); }
+}
+
+async function fetchSettings() {
+    const r = await fetch(`${API}/stats/settings/${UID}`);
+    const d = await r.json();
+    LANG = d.language || 'uz';
+    document.getElementById('set-fullname').value = d.fullname || "";
+    document.getElementById('set-sex').value = d.sex || "male";
+    document.getElementById('set-status').value = d.social_status || "";
+    document.getElementById('set-lang').value = LANG;
+    document.getElementById('set-currency').value = d.currency || "uzs";
+    document.getElementById('set-mode').value = d.input_mode || "bot";
+
+    const catR = await fetch(`${API}/stats/categories/${UID}`);
+    USER_CATEGORIES = await catR.json();
+
+    applyTranslations();
 }
 
 /* ================= DATA LOADING ================= */
 function refreshData() {
-  if(!UID) return;
-  loadMonthlySummary();
-  loadTrend();
-  if(currentType) {
-    loadDetails();
-  }
-}
-
-/* ================= SUMMARY ================= */
-function loadMonthlySummary() {
     if(!UID) return;
-    console.log("Fetching summary for UID:", UID);
-    fetch(`${API}/stats/summary/${UID}`)
-    .then(r=>{
-      if(!r.ok) throw new Error("HTTP error " + r.status);
-      return r.json();
-    })
-    .then(d=>{
-      console.log("Summary data received:", d);
-      document.getElementById("income").innerText=(d.income || 0).toLocaleString();
-      document.getElementById("income_cash").innerText=(d.income_cash || 0).toLocaleString();
-      document.getElementById("income_card").innerText=(d.income_card || 0).toLocaleString();
-
-      document.getElementById("expense").innerText=(d.expense || 0).toLocaleString();
-      document.getElementById("expense_cash").innerText=(d.expense_cash || 0).toLocaleString();
-      document.getElementById("expense_card").innerText=(d.expense_card || 0).toLocaleString();
-
-      const res = d.result || 0;
-      document.getElementById("result").innerText=(res>=0?"+":"-")+Math.abs(res).toLocaleString();
-    }).catch(err => console.error("Summary error:", err));
+    loadMonthlySummary();
+    loadTrend();
 }
 
-/* ================= TREND ================= */
-const trendChart=new Chart(document.getElementById("trend"),{
-  type:"line",
-  data:{
-    labels:[],
-    datasets:[
-      {label:"Kirim",data:[]},
-      {label:"Chiqim",data:[]}
-    ]
-  }
-});
+function loadMonthlySummary() {
+    fetch(`${API}/stats/summary/${UID}`).then(r=>r.json()).then(d=>{
+        document.getElementById("income").innerText = d.income.toLocaleString();
+        document.getElementById("income_cash").innerText = d.income_cash.toLocaleString();
+        document.getElementById("income_card").innerText = d.income_card.toLocaleString();
+        document.getElementById("expense").innerText = d.expense.toLocaleString();
+        document.getElementById("expense_cash").innerText = d.expense_cash.toLocaleString();
+        document.getElementById("expense_card").innerText = d.expense_card.toLocaleString();
+        const res = d.result;
+        document.getElementById("result").innerText = (res >= 0 ? "+" : "") + res.toLocaleString() + " " + d.currency;
+    });
+}
 
 function loadTrend() {
-  if(!UID) return;
-  fetch(`${API}/stats/trend/${UID}`)
-  .then(r=>r.json())
-  .then(d=>{
-    trendChart.data.labels=d.map(i=>i.month);
-    trendChart.data.datasets[0].data=d.map(i=>i.income);
-    trendChart.data.datasets[1].data=d.map(i=>i.expense);
-    trendChart.update();
-  }).catch(err => console.error("Trend error:", err));
-}
-
-/* ================= DETAILS ================= */
-function openPage(type){
-  currentType = type;
-  document.getElementById("summaryPage").classList.add("hidden");
-  document.getElementById("detailsPage").classList.remove("hidden");
-  document.getElementById("distributionTitle").innerText = (type === 'income' ? translations[LANG].btnIncome : translations[LANG].btnExpenses);
-
-  showTab('monitoring');
-  loadDetails();
-}
-
-function backToSummary() {
-  document.getElementById("summaryPage").classList.remove("hidden");
-  document.getElementById("detailsPage").classList.add("hidden");
-  loadMonthlySummary();
+    fetch(`${API}/stats/trend/${UID}`).then(r=>r.json()).then(d=>{
+        if(!trendChart) {
+            trendChart = new Chart(document.getElementById("trend"), {
+                type: "line",
+                data: {
+                    labels: d.map(i=>i.month),
+                    datasets: [
+                        { label: translations[LANG].income, data: d.map(i=>i.income), borderColor: '#2ecc71', tension: 0.3 },
+                        { label: translations[LANG].expense, data: d.map(i=>i.expense), borderColor: '#e74c3c', tension: 0.3 }
+                    ]
+                }
+            });
+        } else {
+            trendChart.data.labels = d.map(i=>i.month);
+            trendChart.data.datasets[0].data = d.map(i=>i.income);
+            trendChart.data.datasets[1].data = d.map(i=>i.expense);
+            trendChart.update();
+        }
+    });
 }
 
 function loadDetails() {
-  const f = document.getElementById("from").value;
-  const t = document.getElementById("to").value;
+    const f = document.getElementById("from").value;
+    const t = document.getElementById("to").value;
 
-  loadMetrics(f, t);
-  loadMonitoring();
-  loadReport();
-}
+    fetch(`${API}/stats/metrics/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`).then(r=>r.json()).then(d=>{
+        document.getElementById("mTotal").innerText = d.total.toLocaleString();
+        document.getElementById("mAvg").innerText = Math.round(d.average).toLocaleString();
+        document.getElementById("mCount").innerText = d.count;
+    });
 
-function showTab(tabId) {
-  currentTab = tabId;
-  document.querySelectorAll('.tab-nav button').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(`tabBtn-${tabId}`).classList.add('active');
-  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-  document.getElementById(`tab-${tabId}`).classList.add('active');
-}
-
-function loadMetrics(f, t) {
-  if(!UID) return;
-  fetch(`${API}/stats/metrics/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`)
-  .then(r=>r.json())
-  .then(d=>{
-    document.getElementById("mTotal").innerText = (d.total || 0).toLocaleString();
-    document.getElementById("mAvg").innerText = (Math.round(d.average) || 0).toLocaleString();
-    document.getElementById("mCount").innerText = d.count || 0;
-  }).catch(err => console.error("Metrics error:", err));
+    loadMonitoring();
+    loadReport();
 }
 
 function loadMonitoring() {
-    if(!UID) return;
-    console.log(`Loading monitoring for ${currentType}`);
-    fetch(`${API}/stats/monitoring/${UID}?type=${currentType}`)
-    .then(r=>r.json())
-    .then(d=>{
-        const summary = d.summary || { total: 0, cash: 0, card: 0 };
-        const total = summary.total || 0;
-
-        document.getElementById("monTotal").innerText = total.toLocaleString();
-        document.getElementById("monCash").innerText = (summary.cash || 0).toLocaleString();
-        document.getElementById("monCard").innerText = (summary.card || 0).toLocaleString();
-
-        document.getElementById("monCashPct").innerText = total > 0 ? Math.round(((summary.cash || 0) / total) * 100) + "%" : "0%";
-        document.getElementById("monCardPct").innerText = total > 0 ? Math.round(((summary.card || 0) / total) * 100) + "%" : "0%";
-
+    fetch(`${API}/stats/monitoring/${UID}?type=${currentType}`).then(r=>r.json()).then(d=>{
         const monList = document.getElementById("monList");
         monList.innerHTML = "";
         d.categories.forEach(c => {
             const label = getCategoryLabel(c.source);
-            monList.innerHTML += `<li style="display:flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
-                <span>${label}</span> <b>${c.total.toLocaleString()}</b>
-            </li>`;
+            monList.innerHTML += `<li class="cat-item"><span>${label}</span> <b>${c.total.toLocaleString()}</b></li>`;
         });
 
         if(monPieChart) monPieChart.destroy();
@@ -592,72 +614,38 @@ function loadMonitoring() {
             type: 'doughnut',
             data: {
                 labels: d.categories.map(c => getCategoryLabel(c.source)),
-                datasets: [{
-                    data: d.categories.map(c => c.total),
-                    backgroundColor: d.categories.map((_, i) => `hsl(${(i * 50) % 360}, 70%, 60%)`)
-                }]
+                datasets: [{ data: d.categories.map(c => c.total), backgroundColor: d.categories.map((_,i)=>`hsl(${i*60},70%,60%)`) }]
             },
-            options: { plugins: { legend: { position: 'bottom' } }, cutout: '70%' }
+            options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
         });
     });
 }
 
 function loadReport() {
-    if(!UID) return;
-    console.log(`Loading report for ${currentType}`);
     const f = document.getElementById("from").value;
     const t = document.getElementById("to").value;
+    const srt = document.getElementById("repSort").value;
     const src = document.getElementById("repSource").value;
     const met = document.getElementById("repMethod").value;
-    const srt = document.getElementById("repSort").value;
 
     let url = `${API}/stats/report/${UID}?type=${currentType}&date_from=${f}&date_to=${t}&sort_by=${srt}`;
     if(src) url += `&source=${encodeURIComponent(src)}`;
     if(met) url += `&payment_method=${met}`;
 
     fetch(url).then(r=>r.json()).then(rows => {
-        // Populate Table
         const tbody = document.getElementById("reportTableBody");
         tbody.innerHTML = "";
-        rows.forEach(row => {
-            const label = getCategoryLabel(row.source);
-            const methodLabel = translations[LANG][row.payment_method] || row.payment_method;
-            tbody.innerHTML += `<tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px;">${row.date}</td>
-                <td style="padding: 10px;">${label} <br><small style="color:#7f8c8d">${methodLabel}</small></td>
-                <td style="padding: 10px;"><b>${row.amount.toLocaleString()}</b></td>
-                <td style="padding: 10px; text-align: right;">
-                    <button onclick="editTransaction('${currentType}', ${row.id}, ${row.amount}, '${row.source}', '${row.payment_method}', '${row.additional_info || ''}')" style="padding: 4px 8px; font-size: 10px; background: #3498db; color: #fff;">✏️</button>
-                    <button onclick="deleteTransaction('${currentType}', ${row.id})" style="padding: 4px 8px; font-size: 10px; background: #e74c3c; color: #fff;">🗑</button>
-                </td>
+        rows.forEach(r => {
+            tbody.innerHTML += `<tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                <td style="padding: 10px;">${r.date}<br><small style="color:var(--hint)">${translations[LANG][r.payment_method] || r.payment_method}</small></td>
+                <td style="padding: 10px;">${getCategoryLabel(r.source)}</td>
+                <td style="padding: 10px; text-align: right;"><b>${r.amount.toLocaleString()}</b></td>
             </tr>`;
         });
 
-        // Update Pie for Report
-        const catData = {};
-        rows.forEach(r => {
-            catData[r.source] = (catData[r.source] || 0) + r.amount;
-        });
-        const labels = Object.keys(catData).map(k => getCategoryLabel(k));
-        const values = Object.values(catData);
-
-        if(repPieChart) repPieChart.destroy();
-        repPieChart = new Chart(document.getElementById("repPie"), {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: values,
-                    backgroundColor: labels.map((_, i) => `hsl(${(i * 60) % 360}, 70%, 60%)`)
-                }]
-            }
-        });
-
-        // Update repSource dropdown if it's empty
         const repSrcSel = document.getElementById("repSource");
         if(repSrcSel.options.length <= 1) {
-            const sources = [...new Set(rows.map(r => r.source))];
-            sources.forEach(s => {
+            [...new Set(rows.map(r=>r.source))].forEach(s => {
                 const opt = document.createElement("option");
                 opt.value = s; opt.innerText = getCategoryLabel(s);
                 repSrcSel.appendChild(opt);
@@ -666,119 +654,142 @@ function loadReport() {
     });
 }
 
-function showBatafsilToday() {
-    if(!UID) return;
-    fetch(`${API}/stats/report/${UID}?type=${currentType}&date_from=${new Date().toISOString().split('T')[0]}&date_to=${new Date().toISOString().split('T')[0]}`)
-    .then(r=>r.json())
-    .then(rows => {
-        document.getElementById("modalTitle").innerText = translations[LANG].batafsilTitle;
-        let html = `<table style="width:100%; border-collapse:collapse;">
-            <tr style="background:#f8f9fa; font-size:12px;">
-                <th style="padding:8px; text-align:left;">${translations[LANG].time}</th>
-                <th style="padding:8px; text-align:left;">${translations[LANG].category}</th>
-                <th style="padding:8px; text-align:right;">${translations[LANG].amount}</th>
-            </tr>`;
-        rows.forEach(r => {
-            const label = getCategoryLabel(r.source);
-            const methodLabel = translations[LANG][r.payment_method] || r.payment_method;
-            html += `<tr style="border-bottom:1px solid #eee; font-size:12px;">
-                <td style="padding:8px;">${r.date.split(' ')[1]}</td>
-                <td style="padding:8px;">${label} <br><small>${methodLabel}</small></td>
-                <td style="padding:8px; text-align:right;"><b>${r.amount.toLocaleString()}</b></td>
-                <td style="padding:8px; text-align:right;">
-                    <button onclick="editTransaction('${currentType}', ${r.id}, ${r.amount}, '${r.source}', '${r.payment_method}', '${r.additional_info || ''}')" style="padding: 2px 5px; font-size: 10px; background: #3498db; color: #fff;">✏️</button>
-                    <button onclick="deleteTransaction('${currentType}', ${r.id})" style="padding: 2px 5px; font-size: 10px; background: #e74c3c; color: #fff;">🗑</button>
-                </td>
-            </tr>`;
-        });
-        html += `</table>`;
-        document.getElementById("modalContent").innerHTML = html;
-        document.getElementById("modal").classList.remove("hidden");
+/* ================= SETTINGS ================= */
+function loadSettingsPage() {
+    renderSettingsCategories();
+}
+
+function updateSettings() {
+    const data = {
+        fullname: document.getElementById('set-fullname').value,
+        sex: document.getElementById('set-sex').value,
+        social_status: document.getElementById('set-status').value,
+        language: document.getElementById('set-lang').value,
+        currency: document.getElementById('set-currency').value,
+        input_mode: document.getElementById('set-mode').value
+    };
+    fetch(`${API}/stats/settings/${UID}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).then(() => {
+        LANG = data.language;
+        applyTranslations();
     });
 }
 
-function editTransaction(type, id, amount, source, method, info) {
-    document.getElementById("modalTitle").innerText = translations[LANG].edit;
-    document.getElementById("modalContent").innerHTML = `
-        <div style="display:flex; flex-direction:column; gap:10px;">
-            <label>${translations[LANG].summa}</label>
-            <input type="number" id="editAmount" value="${amount}" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
-            <label>${translations[LANG].chooseSource}</label>
-            <input type="text" id="editSource" value="${source}" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
-            <label>${translations[LANG].tMethod}</label>
-            <select id="editMethod" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
-                <option value="cash" ${method==='cash'?'selected':''}>${translations[LANG].cash}</option>
-                <option value="card" ${method==='card'?'selected':''}>${translations[LANG].card}</option>
-            </select>
-            <label>${translations[LANG].additional}:</label>
-            <textarea id="editInfo" style="padding:10px; border-radius:8px; border:1px solid #ddd;">${info}</textarea>
-            <button onclick="saveEdit('${type}', ${id})" style="background:#2ecc71; color:#fff; padding:12px; margin-top:10px;">${translations[LANG].save}</button>
-        </div>
-    `;
-    document.getElementById("modal").classList.remove("hidden");
+function showCatTab(type) {
+    currentCatTab = type;
+    document.querySelectorAll('#catTab-income, #catTab-expense').forEach(b=>b.classList.remove('active'));
+    document.getElementById(`catTab-${type}`).classList.add('active');
+    renderSettingsCategories();
 }
 
-function saveEdit(type, id) {
-    const amount = parseFloat(document.getElementById("editAmount").value);
-    const source = document.getElementById("editSource").value;
-    const payment_method = document.getElementById("editMethod").value;
-    const additional_info = document.getElementById("editInfo").value;
+function renderSettingsCategories() {
+    const list = document.getElementById('settings-cat-list');
+    list.innerHTML = "";
+    USER_CATEGORIES.filter(c => c.type === (currentCatTab === 'income' ? 'income' : 'expense')).forEach(c => {
+        list.innerHTML += `<li class="cat-item">
+            <span>${c.emoji} ${c.name}</span>
+            <div>
+                <button onclick="openEditCategoryModal(${c.id}, '${c.name}', '${c.emoji}')" style="padding: 4px; background: transparent;">✏️</button>
+                <button onclick="deleteCategory(${c.id})" style="padding: 4px; background: transparent;">🗑</button>
+            </div>
+        </li>`;
+    });
+}
 
-    fetch(`${API}/stats/transaction/${UID}/${type}/${id}`, {
+function openEditCategoryModal(id, name, emoji) {
+    document.getElementById('modalTitle').innerText = translations[LANG].edit;
+    document.getElementById('modalContent').innerHTML = `
+        <div class="form-group"><label>Name:</label><input id="edit-cat-name" type="text" value="${name}"></div>
+        <div class="form-group"><label>Emoji:</label><input id="edit-cat-emoji" type="text" maxlength="2" value="${emoji}"></div>
+        <button onclick="saveEditedCategory(${id})" class="primary" style="width: 100%">${translations[LANG].save}</button>
+    `;
+    openModal();
+}
+
+function saveEditedCategory(id) {
+    const name = document.getElementById('edit-cat-name').value;
+    const emoji = document.getElementById('edit-cat-emoji').value;
+    fetch(`${API}/stats/categories/${UID}/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, source, payment_method, additional_info })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name, emoji})
+    }).then(r => {
+        if(r.ok) { closeModal(); fetchSettings().then(renderSettingsCategories); }
+        else r.json().then(d => alert(d.detail));
+    });
+}
+
+function openAddCategoryModal() {
+    document.getElementById('modalTitle').innerText = translations[LANG].categories;
+    document.getElementById('modalContent').innerHTML = `
+        <div class="form-group"><label>Name:</label><input id="new-cat-name" type="text"></div>
+        <div class="form-group"><label>Emoji:</label><input id="new-cat-emoji" type="text" maxlength="2"></div>
+        <button onclick="saveCategory()" class="primary" style="width: 100%">${translations[LANG].save}</button>
+    `;
+    openModal();
+}
+
+function saveCategory() {
+    const name = document.getElementById('new-cat-name').value;
+    const emoji = document.getElementById('new-cat-emoji').value;
+    fetch(`${API}/stats/categories/${UID}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({type: currentCatTab === 'income' ? 'income' : 'expense', name, emoji})
+    }).then(r => {
+        if(r.ok) { closeModal(); fetchSettings().then(renderSettingsCategories); }
+        else r.json().then(d => alert(d.detail));
+    });
+}
+
+function deleteCategory(id) {
+    if(!confirm(translations[LANG].deleteConfirm)) return;
+    fetch(`${API}/stats/categories/${UID}/${id}`, { method: 'DELETE' }).then(r => {
+        if(r.ok) fetchSettings().then(renderSettingsCategories);
+        else r.json().then(d => alert(d.detail));
+    });
+}
+
+/* ================= ADD TRANSACTION ================= */
+function setupAddPage() {
+    document.getElementById('add-title').innerText = currentType === 'income' ? translations[LANG].addIncome : translations[LANG].addExpense;
+    const sel = document.getElementById('add-category');
+    sel.innerHTML = "";
+    USER_CATEGORIES.filter(c => c.type === (currentType === 'income' ? 'income' : 'expense')).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.name; opt.innerText = `${c.emoji} ${c.name}`;
+        sel.appendChild(opt);
+    });
+}
+
+function saveNewTransaction() {
+    const amount = document.getElementById('add-amount').value;
+    const source = document.getElementById('add-category').value;
+    const payment_method = document.getElementById('add-method').value;
+    const additional_info = document.getElementById('add-notes').value;
+
+    if(!amount) return alert(translations[LANG].enterAmount);
+
+    const type = currentType === 'income' ? 'income' : 'expenses';
+    fetch(`${API}/stats/transaction/${UID}/${type}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ amount, source, payment_method, additional_info, currency: document.getElementById('set-currency').value })
     }).then(r => {
         if(r.ok) {
-            closeModal();
-            loadDetails();
+            alert(translations[LANG].success);
+            showPage('dashboard');
         }
     });
 }
 
-function deleteTransaction(type, id) {
-    if(!confirm(translations[LANG].deleteConfirm)) return;
-    fetch(`${API}/stats/transaction/${UID}/${type}/${id}`, {
-        method: 'DELETE'
-    }).then(r => {
-        if(r.ok) loadDetails();
-    });
-}
+/* ================= UTILS ================= */
+function openModal() { document.getElementById('modal').classList.remove('hidden'); }
+function closeModal() { document.getElementById('modal').classList.add('hidden'); }
 
-function closeModal() {
-    document.getElementById("modal").classList.add("hidden");
-}
-
-function downloadReport(event) {
-    if(!UID) return;
-    const f = document.getElementById("from").value;
-    const t = document.getElementById("to").value;
-
-    // Disable button during export
-    const btn = event.currentTarget;
-    const originalContent = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = "⏳";
-
-    fetch(`${API}/stats/export/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`)
-    .then(r => r.json())
-    .then(d => {
-        if(d.status === 'success') {
-            Telegram.WebApp.showAlert(translations[LANG].excelSuccess);
-        } else {
-            Telegram.WebApp.showAlert(translations[LANG].error + ": " + (d.detail || ""));
-        }
-    })
-    .catch(err => {
-        console.error("Export error:", err);
-        Telegram.WebApp.showAlert(translations[LANG].error);
-    })
-    .finally(() => {
-        btn.disabled = false;
-        btn.innerHTML = originalContent;
-    });
-}
-// Call init on load
 document.addEventListener('DOMContentLoaded', initApp);
 </script>
 

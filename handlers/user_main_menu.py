@@ -78,10 +78,7 @@ async def get_income_amount(message:Message, state:FSMContext):
             await state.set_state(AddIncomeState.get_amount)
             return
     data['amount'] = amount
-    social_status = await db.execute("SELECT social_status FROM users WHERE telegram_id = $1", message.from_user.id, fetchval=True)
-    if not social_status:
-        social_status = 'worker'
-    await message.answer(add_income_states['get_source'][lang], reply_markup=await select_income_source_buttons(lang=lang, social_status=social_status))
+    await message.answer(add_income_states['get_source'][lang], reply_markup=await select_income_source_buttons(lang=lang, user_id=message.from_user.id))
     await state.update_data(data=data)
     await state.set_state(AddIncomeState.get_source)
     return
@@ -134,7 +131,7 @@ async def get_income_payment_method(callback:CallbackQuery, state:FSMContext):
     user_currency = await db.execute("SELECT currency FROM users WHERE telegram_id = $1", callback.from_user.id, fetchval=True)
     income_id = await db.add_income(user_id=callback.from_user.id, amount=amount, source=source, payment_method=payment_method)
     if income_id is None:
-        await callback.message.answer(add_income_states['failed_to_add'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await callback.message.answer(add_income_states['failed_to_add'][lang], reply_markup=await user_main_menu_buttons(lang=lang, user_id=callback.from_user.id))
         await state.clear()
         return
 
@@ -173,11 +170,11 @@ async def get_income_additional_info(message:Message, state:FSMContext):
     lang = data.get('lang', 'en')
     await db.set_income_additional_info(income_id, additional_info)
     try:
-        await message.answer(add_income_states['additional_info_added'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await message.answer(add_income_states['additional_info_added'][lang], reply_markup=await user_main_menu_buttons(lang=lang, user_id=message.from_user.id))
         await state.clear()
         return
     except Exception as er:
-        await message.answer(add_income_states['additional_info_not_added'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await message.answer(add_income_states['additional_info_not_added'][lang], reply_markup=await user_main_menu_buttons(lang=lang, user_id=message.from_user.id))
         await state.clear()
         return
 
@@ -201,7 +198,7 @@ async def expense_add_amount(message:Message, state:FSMContext):
     data['amount'] = amount
     data['user_language']=lang
     await state.update_data(data=data)
-    await message.answer(add_expense_states['get_source'][lang], reply_markup=await select_expense_source_buttons(lang=lang))
+    await message.answer(add_expense_states['get_source'][lang], reply_markup=await select_expense_source_buttons(lang=lang, user_id=message.from_user.id))
     await state.set_state(AddExpenseState.get_source)
     return
 
@@ -252,7 +249,7 @@ async def get_expense_payment_method(callback:CallbackQuery, state:FSMContext):
     user_currency = await db.execute("SELECT currency FROM users WHERE telegram_id = $1", callback.from_user.id, fetchval=True)
     expense_id = await db.add_expense(user_id=callback.from_user.id, amount=amount, source=source, payment_method=payment_method)
     if expense_id is None:
-        await callback.message.answer(add_expense_states['failed_to_save'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await callback.message.answer(add_expense_states['failed_to_save'][lang], reply_markup=await user_main_menu_buttons(lang=lang, user_id=callback.from_user.id))
         await state.clear()
         return
 
@@ -291,10 +288,10 @@ async def get_expense_additional_info(message:Message, state:FSMContext):
     lang = data.get('lang', 'en')
     await db.set_income_additional_info(income_id, additional_info)
     try:
-        await message.answer(add_expense_states['additional_info_added'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await message.answer(add_expense_states['additional_info_added'][lang], reply_markup=await user_main_menu_buttons(lang=lang, user_id=message.from_user.id))
         await state.clear()
         return
     except Exception as er:
-        await message.answer(add_expense_states['additional_info_not_added'][lang], reply_markup=await user_main_menu_buttons(lang=lang))
+        await message.answer(add_expense_states['additional_info_not_added'][lang], reply_markup=await user_main_menu_buttons(lang=lang, user_id=message.from_user.id))
         await state.clear()
         return
