@@ -7,12 +7,6 @@ from database.db_query import db
 
 """<<<---------- USER MAIN MENU BUTTONS ---------->>>"""
 async def user_main_menu_buttons(lang:str, user_id: int = None)->InlineKeyboardMarkup:
-    input_mode = 'bot'
-    if user_id:
-        user_info = await db.get_user(user_id)
-        if user_info:
-            input_mode = user_info.get('input_mode', 'bot')
-
     callback_data = "user:main_menu:{mode}"
     add_income = {
         'en':"Add Income 💰",
@@ -45,16 +39,10 @@ async def user_main_menu_buttons(lang:str, user_id: int = None)->InlineKeyboardM
     }
 
     builder = InlineKeyboardBuilder()
-    if input_mode == 'web':
-        builder.row(
-            InlineKeyboardButton(text=add_income[lang], web_app=WebAppInfo(url='https://dottie-unbespoken-causatively.ngrok-free.dev?action=add_income')),
-            InlineKeyboardButton(text=add_expense[lang], web_app=WebAppInfo(url='https://dottie-unbespoken-causatively.ngrok-free.dev?action=add_expense'))
-        )
-    else:
-        builder.row(
-            InlineKeyboardButton(text=add_income[lang], callback_data=callback_data.format(mode='add_income')),
-            InlineKeyboardButton(text=add_expense[lang], callback_data=callback_data.format(mode='add_expense'))
-        )
+    builder.row(
+        InlineKeyboardButton(text=add_income[lang], callback_data=callback_data.format(mode='add_income')),
+        InlineKeyboardButton(text=add_expense[lang], callback_data=callback_data.format(mode='add_expense'))
+    )
 
     builder.row(
         InlineKeyboardButton(text=statistics[lang],

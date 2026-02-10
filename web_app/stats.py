@@ -16,10 +16,10 @@ router = APIRouter(prefix="/stats", tags=["Stats"])
 
 @router.get("/settings/{telegram_id}")
 async def get_user_settings(telegram_id: int, db: AsyncSession = Depends(get_db)):
-    q = text("SELECT fullname, sex, social_status, language, currency, input_mode FROM users WHERE telegram_id = :uid")
+    q = text("SELECT fullname, sex, social_status, language, currency FROM users WHERE telegram_id = :uid")
     r = (await db.execute(q, {"uid": telegram_id})).mappings().first()
     if not r:
-        return {"fullname": "", "sex": "male", "social_status": "other", "language": "uz", "currency": "uzs", "input_mode": "bot"}
+        return {"fullname": "", "sex": "male", "social_status": "other", "language": "uz", "currency": "uzs"}
     return dict(r)
 
 @router.post("/settings/{telegram_id}")
@@ -31,7 +31,7 @@ async def update_user_settings(
     q = text("""
         UPDATE users
         SET fullname = :fullname, sex = :sex, social_status = :social_status,
-            language = :language, currency = :currency, input_mode = :input_mode
+            language = :language, currency = :currency
         WHERE telegram_id = :uid
     """)
     await db.execute(q, {
@@ -40,8 +40,7 @@ async def update_user_settings(
         "sex": data.get("sex"),
         "social_status": data.get("social_status"),
         "language": data.get("language"),
-        "currency": data.get("currency"),
-        "input_mode": data.get("input_mode")
+        "currency": data.get("currency")
     })
     await db.commit()
     return {"status": "success"}
@@ -119,12 +118,20 @@ async def get_user_currency(telegram_id: int, db: AsyncSession) -> str:
     return val or "usd"
 
 @router.get("/summary/{telegram_id}")
-async def monthly_summary(telegram_id: int, db: AsyncSession = Depends(get_db)):
+async def monthly_summary(
+    telegram_id: int,
+    period: str = Query("month", pattern="^(day|month)$"),
+    db: AsyncSession = Depends(get_db)
+):
     target_curr = await get_user_currency(telegram_id, db)
 
     # We need to fetch sums grouped by currency
     async def get_converted_sum(table, payment_method=None):
-        where = "user_id=:uid AND inserted_at >= date_trunc('month', now())"
+        if period == "day":
+            where = "user_id=:uid AND inserted_at::date = now()::date"
+        else:
+            where = "user_id=:uid AND inserted_at >= date_trunc('month', now())"
+
         if payment_method:
             where += f" AND payment_method='{payment_method}'"
 
@@ -276,9 +283,23 @@ async def monitoring(
     categories = [{"source": k, "total": v} for k, v in cat_totals.items()]
     categories.sort(key=lambda x: x['total'], reverse=True)
 
+    q_trans = text(f"""
+        SELECT amount, currency, source, payment_method, additional_info, to_char(inserted_at, 'HH24:MI') as time
+        FROM {table}
+        WHERE user_id = :uid AND inserted_at::date = now()::date
+        ORDER BY inserted_at DESC
+    """)
+    trans_rows = (await db.execute(q_trans, {"uid": telegram_id})).mappings().all()
+    transactions = []
+    for r in trans_rows:
+        d = dict(r)
+        d['amount'] = await convert_currency(float(r['amount']), r['currency'], target_curr)
+        transactions.append(d)
+
     return {
         "summary": {"total": total, "cash": cash, "card": card},
-        "categories": categories
+        "categories": categories,
+        "transactions": transactions
     }
 
 @router.get("/report/{telegram_id}")

@@ -13,12 +13,14 @@
 
 <style>
 :root {
-  --bg: var(--tg-theme-bg-color, #f5f6fa);
-  --text: var(--tg-theme-text-color, #222);
-  --hint: var(--tg-theme-hint-color, #7f8c8d);
-  --secondary-bg: var(--tg-theme-secondary-bg-color, #fff);
-  --button: var(--tg-theme-button-color, #3498db);
-  --button-text: var(--tg-theme-button-text-color, #fff);
+  --bg: var(--tg-theme-bg-color, #f0f2f5);
+  --text: var(--tg-theme-text-color, #1a1a1a);
+  --hint: var(--tg-theme-hint-color, #5a6268);
+  --secondary-bg: var(--tg-theme-secondary-bg-color, #ffffff);
+  --button: var(--tg-theme-button-color, #007bff);
+  --button-text: var(--tg-theme-button-text-color, #ffffff);
+  --success: #28a745;
+  --danger: #dc3545;
 }
 
 body {
@@ -27,7 +29,8 @@ body {
   color: var(--text);
   padding: 0;
   margin: 0;
-  padding-bottom: 80px; /* Space for bottom nav */
+  padding-bottom: 90px; /* Space for bottom nav */
+  line-height: 1.5;
 }
 
 .container { padding: 20px; }
@@ -36,12 +39,14 @@ body {
 .card {
   flex: 1;
   padding: 20px;
-  border-radius: 16px;
+  border-radius: 20px;
   color: #fff;
   text-align: center;
-  min-width: 150px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  min-width: 140px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
 }
+.card:active { transform: scale(0.98); }
 .income { background: linear-gradient(135deg, #2ecc71, #27ae60); }
 .expense { background: linear-gradient(135deg, #e74c3c, #c0392b); }
 .result { background: linear-gradient(135deg, #3498db, #2980b9); }
@@ -59,6 +64,9 @@ button {
 }
 button.primary { background: var(--button); color: var(--button-text); }
 button.active { background: var(--button); color: var(--button-text); }
+
+h2 { font-size: 24px; font-weight: 800; margin-bottom: 20px; }
+h3 { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
 
 .hidden { display: none !important; }
 
@@ -85,6 +93,31 @@ button.active { background: var(--button); color: var(--button-text); }
 }
 .nav-item.active { color: var(--button); }
 .nav-item i { font-size: 20px; }
+
+/* Tab contents */
+.page { display: none; }
+.page.active { display: block; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.tab-nav {
+    display: flex;
+    background: var(--secondary-bg);
+    padding: 5px;
+    border-radius: 12px;
+    gap: 5px;
+}
+.tab-nav button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.tab-nav button.active {
+    background: var(--button);
+    color: var(--button-text);
+}
 
 /* Settings Styles */
 .settings-section {
@@ -157,10 +190,6 @@ button.active { background: var(--button); color: var(--button-text); }
     color: var(--text);
     box-sizing: border-box;
 }
-
-/* Tab contents */
-.page { display: none; }
-.page.active { display: block; }
 </style>
 </head>
 
@@ -169,7 +198,13 @@ button.active { background: var(--button); color: var(--button-text); }
 <div class="container">
     <!-- DASHBOARD PAGE -->
     <div id="page-dashboard" class="page active">
-        <h2 data-i18n="currentMonth">📊 Joriy oy</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 id="dashboard-title" style="margin:0" data-i18n="currentMonth">📊 Joriy oy</h2>
+            <div class="tab-nav" style="width: auto; padding: 3px; gap: 2px;">
+                <button id="dash-day" onclick="switchDashPeriod('day')" style="padding: 5px 10px; font-size: 12px;" data-i18n="day">Bugun</button>
+                <button id="dash-month" onclick="switchDashPeriod('month')" class="active" style="padding: 5px 10px; font-size: 12px;" data-i18n="month">Oy</button>
+            </div>
+        </div>
         <div class="cards">
             <div class="card income" onclick="openDetails('income')">
                 <p data-i18n="income">Kirim</p>
@@ -186,9 +221,9 @@ button.active { background: var(--button); color: var(--button-text); }
                 </div>
             </div>
         </div>
-        <div class="card result" style="margin-top: 15px; width: 100%; min-width: 100%;">
-            <p data-i18n="result">Natija</p>
-            <h2 id="result">0</h2>
+        <div class="card result" style="margin-top: 15px; width: 100%; min-width: 100%; background: linear-gradient(135deg, #34495e, #2c3e50);">
+            <p data-i18n="result" style="text-transform: uppercase; letter-spacing: 1px; font-size: 12px; margin-bottom: 5px; opacity: 0.9;">Natija</p>
+            <h2 id="result" style="margin: 0; font-size: 32px;">0</h2>
         </div>
 
         <h2 style="margin-top:30px" data-i18n="trendTitle">📈 12 oylik trend</h2>
@@ -215,6 +250,11 @@ button.active { background: var(--button); color: var(--button-text); }
 
         <div id="tab-monitoring" class="tab-content active">
             <canvas id="monPie" style="margin: 20px 0;"></canvas>
+
+            <h4 data-i18n="todayRecords" style="margin: 20px 0 10px; border-left: 4px solid var(--button); padding-left: 10px;">Bugungi yozuvlar</h4>
+            <div id="todayTransList" style="margin-bottom: 20px;"></div>
+
+            <h4 data-i18n="categories" style="margin: 20px 0 10px; border-left: 4px solid var(--button); padding-left: 10px;">Kategoriyalar</h4>
             <ul id="monList" class="cat-list"></ul>
             <button onclick="showBatafsilToday()" style="width: 100%; margin-top: 15px;" class="primary" data-i18n="detailed">🔍 Batafsil</button>
         </div>
@@ -248,7 +288,15 @@ button.active { background: var(--button); color: var(--button-text); }
 
     <!-- ADD TRANSACTION PAGE -->
     <div id="page-add" class="page">
-        <h2 id="add-title">➕ Yangi qayd</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 id="add-title" style="margin:0">➕ Yangi qayd</h2>
+        </div>
+
+        <div class="tab-nav" style="margin-bottom: 20px;">
+            <button id="addTab-income" onclick="switchAddType('income')" data-i18n="income">Kirim</button>
+            <button id="addTab-expense" onclick="switchAddType('expenses')" data-i18n="expense">Chiqim</button>
+        </div>
+
         <div class="settings-section">
             <div class="form-group">
                 <label data-i18n="summa">Summa:</label>
@@ -315,13 +363,6 @@ button.active { background: var(--button); color: var(--button-text); }
                     <option value="rub">RUB</option>
                 </select>
             </div>
-            <div class="settings-item">
-                <label data-i18n="inputMode">Rejim</label>
-                <select id="set-mode" onchange="updateSettings()">
-                    <option value="bot">Bot</option>
-                    <option value="web">Web</option>
-                </select>
-            </div>
         </div>
 
         <div class="settings-section">
@@ -367,6 +408,7 @@ button.active { background: var(--button); color: var(--button-text); }
 var API = window.location.origin;
 var UID = null;
 var LANG = 'uz';
+var dashPeriod = 'month';
 var currentType = 'expenses';
 var currentTab = 'monitoring';
 var currentCatTab = 'income';
@@ -376,51 +418,54 @@ var USER_CATEGORIES = [];
 
 const translations = {
     uz: {
-        currentMonth: "📊 Joriy oy", income: "Kirim", expense: "Chiqim", result: "Natija", cash: "Naqd", card: "Karta",
+        currentMonth: "📊 Joriy oy", currentDay: "📊 Bugun", day: "Bugun", month: "Oy",
+        income: "Kirim", expense: "Chiqim", result: "Natija", cash: "Naqd", card: "Karta",
         trendTitle: "📈 12 oylik trend", btnExpenses: "💸 Xarajatlar", btnIncome: "💰 Kirimlar", back: "⬅️ Orqaga",
         total: "Jami", average: "O‘rtacha", count: "Soni", monitoring: "📊 Monitoring", report: "📅 Hisobot",
-        totalToday: "Jami Bugun", categories: "Kategoriyalar", detailed: "🔍 Batafsil",
+        totalToday: "Jami Bugun", todayRecords: "Bugungi yozuvlar", categories: "Kategoriyalar", detailed: "🔍 Batafsil",
         allCategories: "Hamma kategoriyalar", allPayments: "Hamma to‘lovlar", byDate: "Sana bo‘yicha",
         byAmount: "Summa bo‘yicha", update: "Yangilash", date: "Sana", category: "Kategoriya", amount: "Summa",
         batafsilTitle: "Bugungi batafsil ro'yxat", edit: "Tahrirlash", save: "Saqlash",
         deleteConfirm: "Haqiqatdan ham o'chirmoqchimisiz?",
         excelSuccess: "✅ Excel fayl yuborildi!", error: "❌ Xatolik yuz berdi",
         time: "Vaqt", additional: "Izoh", summa: "Summa:", tMethod: "To'lov usuli:", chooseSource: "Kategoriya:",
-        settings: "Sozlamalar", name: "Ism", sex: "Jins", status: "Status", currency: "Valyuta", inputMode: "Rejim",
+        settings: "Sozlamalar", name: "Ism", sex: "Jins", status: "Status", currency: "Valyuta",
         navDashboard: "Asosiy", navAdd: "Qo'shish", navSettings: "Sozlamalar",
         addIncome: "💰 Kirim qo'shish", addExpense: "💸 Xarajat qo'shish",
         personalInfo: "👤 Shaxsiy ma'lumotlar", appSettings: "⚙️ Ilova sozlamalari", langLabel: "Til",
         male: "Erkak", female: "Ayol", success: "Muvaffaqiyatli!", enterAmount: "Summani kiriting"
     },
     en: {
-        currentMonth: "📊 Current Month", income: "Income", expense: "Expense", result: "Result", cash: "Cash", card: "Card",
+        currentMonth: "📊 Current Month", currentDay: "📊 Today", day: "Day", month: "Month",
+        income: "Income", expense: "Expense", result: "Result", cash: "Cash", card: "Card",
         trendTitle: "📈 12-Month Trend", btnExpenses: "💸 Expenses", btnIncome: "💰 Incomes", back: "⬅️ Back",
         total: "Total", average: "Average", count: "Count", monitoring: "📊 Monitoring", report: "📅 Report",
-        totalToday: "Total Today", categories: "Categories", detailed: "🔍 Detailed",
+        totalToday: "Total Today", todayRecords: "Today's Records", categories: "Categories", detailed: "🔍 Detailed",
         allCategories: "All Categories", allPayments: "All Payments", byDate: "By Date",
         byAmount: "By Amount", update: "Refresh", date: "Date", category: "Category", amount: "Amount",
         batafsilTitle: "Today's Detailed List", edit: "Edit", save: "Save",
         deleteConfirm: "Are you sure you want to delete this record?",
         excelSuccess: "✅ Excel report sent!", error: "❌ An error occurred",
         time: "Time", additional: "Notes", summa: "Amount:", tMethod: "Method:", chooseSource: "Category:",
-        settings: "Settings", name: "Name", sex: "Gender", status: "Status", currency: "Currency", inputMode: "Mode",
+        settings: "Settings", name: "Name", sex: "Gender", status: "Status", currency: "Currency",
         navDashboard: "Main", navAdd: "Add", navSettings: "Settings",
         addIncome: "💰 Add Income", addExpense: "💸 Add Expense",
         personalInfo: "👤 Personal Info", appSettings: "⚙️ App Settings", langLabel: "Language",
         male: "Male", female: "Female", success: "Success!", enterAmount: "Please enter amount"
     },
     ru: {
-        currentMonth: "📊 Текущий месяц", income: "Доход", expense: "Расход", result: "Результат", cash: "Наличные", card: "Карта",
+        currentMonth: "📊 Текущий месяц", currentDay: "📊 Сегодня", day: "День", month: "Месяц",
+        income: "Доход", expense: "Расход", result: "Результат", cash: "Наличные", card: "Карта",
         trendTitle: "📈 Тренд за 12 месяцев", btnExpenses: "💸 Расходы", btnIncome: "💰 Доходы", back: "⬅️ Назад",
         total: "Итого", average: "Среднее", count: "Кол-во", monitoring: "📊 Мониторинг", report: "📅 Отчет",
-        totalToday: "Итого сегодня", categories: "Категории", detailed: "🔍 Детали",
+        totalToday: "Итого сегодня", todayRecords: "Записи за сегодня", categories: "Категории", detailed: "🔍 Детали",
         allCategories: "Все категории", allPayments: "Все способы", byDate: "По дате",
         byAmount: "По сумме", update: "Обновить", date: "Дата", category: "Категория", amount: "Сумма",
         batafsilTitle: "Детальный список за сегодня", edit: "Правка", save: "Сохранить",
         deleteConfirm: "Вы уверены, что хотите удалить эту запись?",
         excelSuccess: "✅ Excel-отчет отправлен!", error: "❌ Произошла ошибка",
         time: "Время", additional: "Заметка", summa: "Сумма:", tMethod: "Способ:", chooseSource: "Категория:",
-        settings: "Настройки", name: "Имя", sex: "Пол", status: "Статус", currency: "Валюта", inputMode: "Режим",
+        settings: "Настройки", name: "Имя", sex: "Пол", status: "Статус", currency: "Валюта",
         navDashboard: "Главная", navAdd: "Добавить", navSettings: "Настройки",
         addIncome: "💰 Добавить доход", addExpense: "💸 Добавить расход",
         personalInfo: "👤 Личные данные", appSettings: "⚙️ Настройки приложения", langLabel: "Язык",
@@ -462,6 +507,11 @@ function showPage(pageId) {
     if(pageId === 'dashboard') refreshData();
     if(pageId === 'settings') loadSettingsPage();
     if(pageId === 'add') setupAddPage();
+}
+
+function switchAddType(type) {
+    currentType = type;
+    setupAddPage();
 }
 
 function openDetails(type) {
@@ -536,7 +586,6 @@ async function fetchSettings() {
     document.getElementById('set-status').value = d.social_status || "";
     document.getElementById('set-lang').value = LANG;
     document.getElementById('set-currency').value = d.currency || "uzs";
-    document.getElementById('set-mode').value = d.input_mode || "bot";
 
     const catR = await fetch(`${API}/stats/categories/${UID}`);
     USER_CATEGORIES = await catR.json();
@@ -547,12 +596,24 @@ async function fetchSettings() {
 /* ================= DATA LOADING ================= */
 function refreshData() {
     if(!UID) return;
-    loadMonthlySummary();
+    loadDashboardSummary();
     loadTrend();
 }
 
-function loadMonthlySummary() {
-    fetch(`${API}/stats/summary/${UID}`).then(r=>r.json()).then(d=>{
+function switchDashPeriod(p) {
+    dashPeriod = p;
+    document.getElementById('dash-day').classList.toggle('active', p === 'day');
+    document.getElementById('dash-month').classList.toggle('active', p === 'month');
+
+    const title = document.getElementById('dashboard-title');
+    title.setAttribute('data-i18n', p === 'day' ? 'currentDay' : 'currentMonth');
+    applyTranslations();
+
+    loadDashboardSummary();
+}
+
+function loadDashboardSummary() {
+    fetch(`${API}/stats/summary/${UID}?period=${dashPeriod}`).then(r=>r.json()).then(d=>{
         const inP = d.income > 0 ? ` (${Math.round(d.income_cash/d.income*100)}% | ${Math.round(d.income_card/d.income*100)}%)` : "";
         document.getElementById("income").innerText = d.income.toLocaleString();
         document.getElementById("income_cash").innerText = d.income_cash.toLocaleString();
@@ -595,9 +656,9 @@ function loadDetails() {
     const t = document.getElementById("to").value;
 
     fetch(`${API}/stats/metrics/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`).then(r=>r.json()).then(d=>{
-        document.getElementById("mTotal").innerText = d.total.toLocaleString();
-        document.getElementById("mAvg").innerText = Math.round(d.average).toLocaleString();
-        document.getElementById("mCount").innerText = d.count;
+        document.getElementById("mTotal").innerText = (d.total || 0).toLocaleString();
+        document.getElementById("mAvg").innerText = Math.round(d.average || 0).toLocaleString();
+        document.getElementById("mCount").innerText = d.count || 0;
     });
 
     loadMonitoring();
@@ -612,6 +673,22 @@ function loadMonitoring() {
             const label = getCategoryLabel(c.source);
             monList.innerHTML += `<li class="cat-item"><span>${label}</span> <b>${c.total.toLocaleString()}</b></li>`;
         });
+
+        const transList = document.getElementById("todayTransList");
+        transList.innerHTML = "";
+        if (!d.transactions || d.transactions.length === 0) {
+            transList.innerHTML = `<p style="color: var(--hint); text-align: center; font-size: 13px;">Bugun hali yozuvlar yo'q</p>`;
+        } else {
+            d.transactions.forEach(t => {
+                transList.innerHTML += `<div class="settings-item" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 8px 0;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-weight: 600; font-size: 14px;">${getCategoryLabel(t.source)}</span>
+                        <span style="font-size: 11px; color: var(--hint);">${t.time} • ${translations[LANG][t.payment_method]}</span>
+                    </div>
+                    <span style="font-weight: 700; color: ${currentType === 'income' ? 'var(--success)' : 'var(--danger)'};">${t.amount.toLocaleString()}</span>
+                </div>`;
+            });
+        }
 
         if(monPieChart) monPieChart.destroy();
         monPieChart = new Chart(document.getElementById("monPie"), {
@@ -683,8 +760,7 @@ function updateSettings() {
         sex: document.getElementById('set-sex').value,
         social_status: document.getElementById('set-status').value,
         language: document.getElementById('set-lang').value,
-        currency: document.getElementById('set-currency').value,
-        input_mode: document.getElementById('set-mode').value
+        currency: document.getElementById('set-currency').value
     };
     fetch(`${API}/stats/settings/${UID}`, {
         method: 'POST',
@@ -774,6 +850,10 @@ function deleteCategory(id) {
 /* ================= ADD TRANSACTION ================= */
 function setupAddPage() {
     document.getElementById('add-title').innerText = currentType === 'income' ? translations[LANG].addIncome : translations[LANG].addExpense;
+
+    document.getElementById('addTab-income').classList.toggle('active', currentType === 'income');
+    document.getElementById('addTab-expense').classList.toggle('active', currentType === 'expenses');
+
     const sel = document.getElementById('add-category');
     sel.innerHTML = "";
     USER_CATEGORIES.filter(c => c.type === (currentType === 'income' ? 'income' : 'expense')).forEach(c => {
