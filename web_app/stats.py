@@ -190,8 +190,11 @@ async def trend(telegram_id: int, db: AsyncSession = Depends(get_db)):
                 total += await convert_currency(float(r['total']), r['currency'], target_curr)
             return total
 
-        income = await get_monthly_sum("user_earnings", m['month_date'])
-        expense = await get_monthly_sum("user_expenses", m['month_date'])
+        m_date = m['month_date']
+        if hasattr(m_date, 'replace'):
+            m_date = m_date.replace(tzinfo=None)
+        income = await get_monthly_sum("user_earnings", m_date)
+        expense = await get_monthly_sum("user_expenses", m_date)
 
         result.append({
             "month": m['month_name'],
