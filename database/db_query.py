@@ -139,7 +139,7 @@ class Database:
         except asyncpg.exceptions.PostgresError as e:
             raise RuntimeError(f"Database query failed: {str(e)}")
 
-    async def set_income_additional_info(self, income_id:str, additional_info:str):
+    async def set_income_additional_info(self, income_id: int, additional_info: str):
         try:
             if self.pool is None:
                 self.pool = await asyncpg.create_pool(self.url)
@@ -149,6 +149,17 @@ class Database:
                 print(f'DATABASE SUCCESS: Additional info is set to income[{income_id}]')
         except Exception as er:
             print(f'DATABASE ERROR: Error with setting additional info to income[{income_id}] --- ', str(er))
+
+    async def set_expense_additional_info(self, expense_id: int, additional_info: str):
+        try:
+            if self.pool is None:
+                self.pool = await asyncpg.create_pool(self.url)
+            async with self.pool.acquire() as connection:
+                query = "UPDATE user_expenses SET additional_info = $1 WHERE id = $2"
+                await connection.execute(query, additional_info, expense_id)
+                print(f'DATABASE SUCCESS: Additional info is set to expense[{expense_id}]')
+        except Exception as er:
+            print(f'DATABASE ERROR: Error with setting additional info to expense[{expense_id}] --- ', str(er))
 
     """<---------- Fetching all users incomes ---------->"""
 

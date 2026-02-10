@@ -144,8 +144,7 @@ async def get_income_payment_method(callback:CallbackQuery, state:FSMContext):
         amount=f"{amount:,}",
         currency=user_currency.upper() if user_currency else "",
         source=source_label,
-        method=method_label,
-        notes="-"
+        method=method_label
     )
 
     button = await add_additional_info_button(lang=lang, income_id=income_id)
@@ -262,8 +261,7 @@ async def get_expense_payment_method(callback:CallbackQuery, state:FSMContext):
         amount=f"{amount:,}",
         currency=user_currency.upper() if user_currency else "",
         source=source_label,
-        method=method_label,
-        notes="-"
+        method=method_label
     )
 
     await callback.message.answer(success_msg, reply_markup=await get_expense_additional_info_buttons(lang=lang, expense_id=expense_id))
@@ -284,9 +282,9 @@ async def get_user_expense_additional_info(callback:CallbackQuery, state:FSMCont
 async def get_expense_additional_info(message:Message, state:FSMContext):
     additional_info = message.text
     data = await state.get_data()
-    income_id = data.get('expense_id')
+    expense_id = data.get('expense_id')
     lang = data.get('lang', 'en')
-    await db.set_income_additional_info(income_id, additional_info)
+    await db.set_expense_additional_info(expense_id, additional_info)
     try:
         await message.answer(add_expense_states['additional_info_added'][lang], reply_markup=await user_main_menu_buttons(lang=lang, user_id=message.from_user.id))
         await state.clear()

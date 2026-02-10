@@ -164,7 +164,7 @@ async def trend(telegram_id: int, db: AsyncSession = Depends(get_db)):
 
     # Generate series of months
     q_months = text("""
-        SELECT to_char(m,'Mon') AS month_name, date_trunc('month', m) as month_date
+        SELECT to_char(m,'Mon') AS month_name, CAST(date_trunc('month', m) AS TIMESTAMP) as month_date
         FROM generate_series(
             date_trunc('month', now()) - interval '11 months',
             date_trunc('month', now()),
@@ -207,22 +207,30 @@ async def expenses_pie(
         date_to: date,
         db: AsyncSession = Depends(get_db)
 ):
+    target_curr = await get_user_currency(telegram_id, db)
     dt_plus_one = date_to + timedelta(days=1)
     q = text("""
-        SELECT source, SUM(amount)::FLOAT total
+        SELECT source, currency, SUM(amount) total
         FROM user_expenses
         WHERE user_id = :uid
           AND inserted_at >= :df
           AND inserted_at < :dt
-        GROUP BY source
-        ORDER BY total DESC
+        GROUP BY source, currency
     """)
     rows = (await db.execute(q, {
         "uid": telegram_id,
         "df": date_from,
         "dt": dt_plus_one
     })).mappings().all()
-    return [dict(r) for r in rows]
+
+    cat_totals = {}
+    for r in rows:
+        converted = await convert_currency(float(r['total']), r['currency'], target_curr)
+        cat_totals[r['source']] = cat_totals.get(r['source'], 0.0) + converted
+
+    res = [{"source": k, "total": v} for k, v in cat_totals.items()]
+    res.sort(key=lambda x: x['total'], reverse=True)
+    return res
 
 @router.get("/monitoring/{telegram_id}")
 async def monitoring(
@@ -469,31 +477,29 @@ async def weekly_stats(
     date_to: date,
     db: AsyncSession = Depends(get_db)
 ):
+    target_curr = await get_user_currency(telegram_id, db)
     table = "user_earnings" if type == "income" else "user_expenses"
     dt_plus_one = date_to + timedelta(days=1)
 
-    # DOW: 0 is Sunday, 1 is Monday, ..., 6 is Saturday
-    # We want to return them in order starting from Monday (1)
     q = text(f"""
-        SELECT
-            CASE dow
-                WHEN 0 THEN 'Yak' WHEN 1 THEN 'Dush' WHEN 2 THEN 'Sesh'
-                WHEN 3 THEN 'Chor' WHEN 4 THEN 'Pay' WHEN 5 THEN 'Jum' WHEN 6 THEN 'Shan'
-            END as day,
-            (SELECT COALESCE(SUM(amount), 0)
-             FROM {table}
-             WHERE user_id = :uid
-               AND inserted_at >= :df AND inserted_at < :dt
-               AND EXTRACT(DOW FROM inserted_at) = dow)::FLOAT as total
-        FROM generate_series(0, 6) as dow
-        ORDER BY (dow + 6) % 7
+        SELECT EXTRACT(DOW FROM inserted_at) as dow, currency, SUM(amount) as total
+        FROM {table}
+        WHERE user_id = :uid AND inserted_at >= :df AND inserted_at < :dt
+        GROUP BY dow, currency
     """)
-    rows = (await db.execute(q, {
-        "uid": telegram_id,
-        "df": date_from,
-        "dt": dt_plus_one
-    })).mappings().all()
-    return [dict(r) for r in rows]
+    rows = (await db.execute(q, {"uid": telegram_id, "df": date_from, "dt": dt_plus_one})).mappings().all()
+
+    day_totals = {float(i): 0.0 for i in range(7)}
+    for r in rows:
+        converted = await convert_currency(float(r['total']), r['currency'], target_curr)
+        day_totals[float(r['dow'])] += converted
+
+    days_map = {0: 'Yak', 1: 'Dush', 2: 'Sesh', 3: 'Chor', 4: 'Pay', 5: 'Jum', 6: 'Shan'}
+    res = []
+    # Order: Mon (1) to Sun (0)
+    for i in [1, 2, 3, 4, 5, 6, 0]:
+        res.append({"day": days_map[i], "total": day_totals[float(i)]})
+    return res
 
 @router.get("/daily/{telegram_id}")
 async def daily_stats(
@@ -503,19 +509,30 @@ async def daily_stats(
     date_to: date,
     db: AsyncSession = Depends(get_db)
 ):
+    target_curr = await get_user_currency(telegram_id, db)
     table = "user_earnings" if type == "income" else "user_expenses"
+
     q = text(f"""
-        SELECT
-            gs.day::date as day,
-            (SELECT COALESCE(SUM(amount), 0)
-             FROM {table}
-             WHERE inserted_at::date = gs.day::date
-               AND user_id = :uid)::FLOAT as total
-        FROM generate_series(CAST(:df AS timestamp), CAST(:dt AS timestamp), interval '1 day') AS gs(day)
-        ORDER BY gs.day
+        SELECT inserted_at::date as day, currency, SUM(amount) as total
+        FROM {table}
+        WHERE user_id = :uid AND inserted_at::date >= :df AND inserted_at::date <= :dt
+        GROUP BY day, currency
     """)
     rows = (await db.execute(q, {"uid": telegram_id, "df": date_from, "dt": date_to})).mappings().all()
-    return [dict(r) for r in rows]
+
+    daily_map = {}
+    for r in rows:
+        day_str = r['day'].isoformat()
+        converted = await convert_currency(float(r['total']), r['currency'], target_curr)
+        daily_map[day_str] = daily_map.get(day_str, 0.0) + converted
+
+    res = []
+    curr = date_from
+    while curr <= date_to:
+        d_str = curr.isoformat()
+        res.append({"day": d_str, "total": daily_map.get(d_str, 0.0)})
+        curr += timedelta(days=1)
+    return res
 
 @router.get("/metrics/{telegram_id}")
 async def metrics(
@@ -553,19 +570,27 @@ async def income_pie(
         date_to: date,
         db: AsyncSession = Depends(get_db)
 ):
+    target_curr = await get_user_currency(telegram_id, db)
     dt_plus_one = date_to + timedelta(days=1)
     q = text("""
-        SELECT source, SUM(amount)::FLOAT total
+        SELECT source, currency, SUM(amount) total
         FROM user_earnings
         WHERE user_id = :uid
           AND inserted_at >= :df
           AND inserted_at < :dt
-        GROUP BY source
-        ORDER BY total DESC
+        GROUP BY source, currency
     """)
     rows = (await db.execute(q, {
         "uid": telegram_id,
         "df": date_from,
         "dt": dt_plus_one
     })).mappings().all()
-    return [dict(r) for r in rows]
+
+    cat_totals = {}
+    for r in rows:
+        converted = await convert_currency(float(r['total']), r['currency'], target_curr)
+        cat_totals[r['source']] = cat_totals.get(r['source'], 0.0) + converted
+
+    res = [{"source": k, "total": v} for k, v in cat_totals.items()]
+    res.sort(key=lambda x: x['total'], reverse=True)
+    return res

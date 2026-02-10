@@ -115,20 +115,17 @@ add_income_states = {
 
 💰 **Amount**: {amount} {currency}
 📂 **Source**: {source}
-💳 **Method**: {method}
-📝 **Notes**: {notes}""",
+💳 **Method**: {method}""",
         'uz': """✅ **Daromad muvaffaqiyatli qayd etildi!**
 
 💰 **Miqdor**: {amount} {currency}
 📂 **Manba**: {source}
-💳 **Usul**: {method}
-📝 **Izoh**: {notes}""",
+💳 **Usul**: {method}""",
         'ru': """✅ **Доход успешно записан!**
 
 💰 **Сумма**: {amount} {currency}
 📂 **Источник**: {source}
-💳 **Способ**: {method}
-📝 **Заметки**: {notes}"""
+💳 **Способ**: {method}"""
     },
     'failed_to_add': {
         'en': "⚠️ **Error.** Failed to record the income. Please check your data and try again.",
@@ -139,6 +136,16 @@ add_income_states = {
         'en': "📝 Enter optional notes:",
         'uz': "📝 Qo'shimcha izoh kiriting (ixtiyoriy):",
         'ru': "📝 Введите примечание (необязательно):"
+    },
+    'additional_info_added': {
+        'en': "✅ Notes updated successfully!",
+        'uz': "✅ Izohlar muvaffaqiyatli saqlandi!",
+        'ru': "✅ Заметки успешно обновлены!"
+    },
+    'additional_info_not_added': {
+        'en': "⚠️ Failed to update notes.",
+        'uz': "⚠️ Izohni saqlab bo'lmadi.",
+        'ru': "⚠️ Не удалось сохранить заметку."
     }
 }
 
@@ -178,24 +185,31 @@ add_expense_states = {
 
 💰 **Amount**: {amount} {currency}
 📂 **Category**: {source}
-💳 **Method**: {method}
-📝 **Notes**: {notes}""",
+💳 **Method**: {method}""",
         'uz': """✅ **Xarajat muvaffaqiyatli qayd etildi!**
 
 💰 **Miqdor**: {amount} {currency}
 📂 **Toifa**: {source}
-💳 **Usul**: {method}
-📝 **Izoh**: {notes}""",
+💳 **Usul**: {method}""",
         'ru': """✅ **Расход успешно записан!**
 
 💰 **Сумма**: {amount} {currency}
 📂 **Категория**: {source}
-💳 **Способ**: {method}
-📝 **Заметки**: {notes}"""
+💳 **Способ**: {method}"""
     },
     'failed_to_save': {
         'en': "⚠️ **Error.** Failed to record the expense. Please try again.",
         'uz': "⚠️ **Xato.** Xarajatni qayd etib bo'lmadi. Iltimos, qayta urinib ko'ring.",
         'ru': "⚠️ **Ошибка.** Не удалось записать расход. Пожалуйста, попробуйте снова."
+    },
+    'additional_info_added': {
+        'en': "✅ Notes updated successfully!",
+        'uz': "✅ Izohlar muvaffaqiyatli saqlandi!",
+        'ru': "✅ Заметки успешно обновлены!"
+    },
+    'additional_info_not_added': {
+        'en': "⚠️ Failed to update notes.",
+        'uz': "⚠️ Izohni saqlab bo'lmadi.",
+        'ru': "⚠️ Не удалось сохранить заметку."
     }
 }

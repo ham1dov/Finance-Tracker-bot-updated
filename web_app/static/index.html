@@ -553,12 +553,16 @@ function refreshData() {
 
 function loadMonthlySummary() {
     fetch(`${API}/stats/summary/${UID}`).then(r=>r.json()).then(d=>{
+        const inP = d.income > 0 ? ` (${Math.round(d.income_cash/d.income*100)}% | ${Math.round(d.income_card/d.income*100)}%)` : "";
         document.getElementById("income").innerText = d.income.toLocaleString();
         document.getElementById("income_cash").innerText = d.income_cash.toLocaleString();
-        document.getElementById("income_card").innerText = d.income_card.toLocaleString();
+        document.getElementById("income_card").innerText = d.income_card.toLocaleString() + inP;
+
+        const exP = d.expense > 0 ? ` (${Math.round(d.expense_cash/d.expense*100)}% | ${Math.round(d.expense_card/d.expense*100)}%)` : "";
         document.getElementById("expense").innerText = d.expense.toLocaleString();
         document.getElementById("expense_cash").innerText = d.expense_cash.toLocaleString();
-        document.getElementById("expense_card").innerText = d.expense_card.toLocaleString();
+        document.getElementById("expense_card").innerText = d.expense_card.toLocaleString() + exP;
+
         const res = d.result;
         document.getElementById("result").innerText = (res >= 0 ? "+" : "") + res.toLocaleString() + " " + d.currency;
     });
@@ -618,6 +622,20 @@ function loadMonitoring() {
             },
             options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
         });
+    });
+}
+
+function showBatafsilToday() {
+    showTab('report');
+}
+
+function downloadReport(e) {
+    if(e) e.preventDefault();
+    const f = document.getElementById("from").value;
+    const t = document.getElementById("to").value;
+    fetch(`${API}/stats/export/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`).then(r => {
+        if(r.ok) alert(translations[LANG].excelSuccess);
+        else alert(translations[LANG].error);
     });
 }
 
