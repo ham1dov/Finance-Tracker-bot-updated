@@ -399,10 +399,7 @@ async def update_transaction(
     telegram_id: int,
     type: str,
     transaction_id: int,
-    amount: float = Body(...),
-    source: str = Body(...),
-    payment_method: str = Body(...),
-    additional_info: Optional[str] = Body(None),
+    data: dict = Body(...),
     db: AsyncSession = Depends(get_db)
 ):
     table = "user_earnings" if type == "income" else "user_expenses"
@@ -412,10 +409,10 @@ async def update_transaction(
         WHERE id = :tid AND user_id = :uid
     """)
     await db.execute(q, {
-        "amount": amount,
-        "source": source,
-        "pm": payment_method,
-        "info": additional_info,
+        "amount": float(data.get("amount")),
+        "source": data.get("source"),
+        "pm": data.get("payment_method"),
+        "info": data.get("additional_info"),
         "tid": transaction_id,
         "uid": telegram_id
     })

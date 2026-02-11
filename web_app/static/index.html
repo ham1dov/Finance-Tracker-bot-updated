@@ -278,7 +278,17 @@ h3 { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
                     <button onclick="downloadReport(event)" style="padding: 8px;">📥</button>
                 </div>
             </div>
-            <canvas id="repChart" style="margin: 20px 0;"></canvas>
+            <div style="display: flex; flex-direction: column; gap: 30px; margin: 20px 0;">
+                <div style="background: var(--secondary-bg); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <canvas id="repChart"></canvas>
+                </div>
+                <div style="background: var(--secondary-bg); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <canvas id="repCatChart"></canvas>
+                </div>
+                <div style="background: var(--secondary-bg); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <canvas id="repMethodChart"></canvas>
+                </div>
+            </div>
             <div id="reportTableContainer" style="overflow-x: auto; margin-top: 20px;">
                 <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                     <tbody id="reportTableBody"></tbody>
@@ -415,6 +425,8 @@ var currentTab = 'monitoring';
 var currentCatTab = 'income';
 var monPieChart = null;
 var repBarChart = null;
+var repCatChart = null;
+var repMethodChart = null;
 var trendChart = null;
 var USER_CATEGORIES = [];
 
@@ -697,11 +709,17 @@ function loadMonitoring() {
         } else {
             d.transactions.forEach(t => {
                 transList.innerHTML += `<div class="settings-item" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 8px 0;">
-                    <div style="display: flex; flex-direction: column;">
+                    <div style="display: flex; flex-direction: column; flex: 1;">
                         <span style="font-weight: 600; font-size: 14px;">${getCategoryLabel(t.source)}</span>
                         <span style="font-size: 11px; color: var(--hint);">${t.time} • ${translations[LANG][t.payment_method]}</span>
                     </div>
-                    <span style="font-weight: 700; color: ${currentType === 'income' ? 'var(--success)' : 'var(--danger)'};">${t.amount.toLocaleString()}</span>
+                    <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+                        <span style="font-weight: 700; color: ${currentType === 'income' ? 'var(--success)' : 'var(--danger)'};">${t.amount.toLocaleString()}</span>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="openEditTransactionModal(${t.id}, '${currentType}', ${t.amount}, '${t.source}', '${t.payment_method}', '${t.additional_info || ''}')" style="padding: 2px; background: transparent; font-size: 12px;">✏️</button>
+                            <button onclick="deleteTransaction(${t.id}, '${currentType}')" style="padding: 2px; background: transparent; font-size: 12px;">🗑</button>
+                        </div>
+                    </div>
                 </div>`;
             });
         }
@@ -753,15 +771,25 @@ function loadReport() {
         const tbody = document.getElementById("reportTableBody");
         tbody.innerHTML = "";
         const dailyData = {};
+        const catData = {};
+        const methodData = { cash: 0, card: 0 };
 
         rows.forEach(r => {
             tbody.innerHTML += `<tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
                 <td style="padding: 10px;">${r.date}<br><small style="color:var(--hint)">${translations[LANG][r.payment_method] || r.payment_method}</small></td>
                 <td style="padding: 10px;">${getCategoryLabel(r.source)}</td>
-                <td style="padding: 10px; text-align: right;"><b>${r.amount.toLocaleString()}</b></td>
+                <td style="padding: 10px; text-align: right;">
+                    <b>${r.amount.toLocaleString()}</b>
+                    <div style="margin-top: 5px; display: flex; gap: 8px; justify-content: flex-end;">
+                        <button onclick="openEditTransactionModal(${r.id}, '${currentType}', ${r.amount}, '${r.source}', '${r.payment_method}', '${r.additional_info || ''}')" style="padding: 2px; background: transparent; font-size: 11px;">✏️</button>
+                        <button onclick="deleteTransaction(${r.id}, '${currentType}')" style="padding: 2px; background: transparent; font-size: 11px;">🗑</button>
+                    </div>
+                </td>
             </tr>`;
             const dStr = r.date.split(' ')[0];
             dailyData[dStr] = (dailyData[dStr] || 0) + r.amount;
+            catData[r.source] = (catData[r.source] || 0) + r.amount;
+            methodData[r.payment_method] = (methodData[r.payment_method] || 0) + r.amount;
         });
 
         const repSrcSel = document.getElementById("repSource");
@@ -773,26 +801,68 @@ function loadReport() {
             });
         }
 
-        const ctx = document.getElementById("repChart");
-        if(!ctx) return;
-        if(repBarChart) repBarChart.destroy();
-        const sortedDates = Object.keys(dailyData).sort();
-        repBarChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: sortedDates,
-                datasets: [{
-                    label: currentType === 'income' ? translations[LANG].income : translations[LANG].expense,
-                    data: sortedDates.map(d => dailyData[d]),
-                    backgroundColor: currentType === 'income' ? '#2ecc71' : '#e74c3c',
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
-            }
-        });
+        // 1. Daily Bar Chart
+        const ctxBar = document.getElementById("repChart");
+        if(ctxBar) {
+            if(repBarChart) repBarChart.destroy();
+            const sortedDates = Object.keys(dailyData).sort();
+            repBarChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: sortedDates,
+                    datasets: [{
+                        label: currentType === 'income' ? translations[LANG].income : translations[LANG].expense,
+                        data: sortedDates.map(d => dailyData[d]),
+                        backgroundColor: currentType === 'income' ? '#2ecc71' : '#e74c3c',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false }, title: { display: true, text: translations[LANG].trendTitle, font: { size: 10 } } },
+                    scales: { y: { beginAtZero: true, grid: { display: false }, ticks: { font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 8 } } } }
+                }
+            });
+        }
+
+        // 2. Category Doughnut Chart
+        const ctxCat = document.getElementById("repCatChart");
+        if(ctxCat) {
+            if(repCatChart) repCatChart.destroy();
+            const catLabels = Object.keys(catData);
+            repCatChart = new Chart(ctxCat, {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels.map(s => getCategoryLabel(s)),
+                    datasets: [{
+                        data: catLabels.map(l => catData[l]),
+                        backgroundColor: catLabels.map((_,i) => `hsl(${i*60}, 70%, 60%)`)
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: true, position: 'bottom' }, title: { display: true, text: translations[LANG].categories, font: { size: 12, weight: 'bold' } } },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        // 3. Payment Method Pie Chart
+        const ctxMethod = document.getElementById("repMethodChart");
+        if(ctxMethod) {
+            if(repMethodChart) repMethodChart.destroy();
+            repMethodChart = new Chart(ctxMethod, {
+                type: 'pie',
+                data: {
+                    labels: [translations[LANG].cash, translations[LANG].card],
+                    datasets: [{
+                        data: [methodData.cash, methodData.card],
+                        backgroundColor: ['#f1c40f', '#3498db']
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: true, position: 'bottom' }, title: { display: true, text: translations[LANG].tMethod.replace(':',''), font: { size: 12, weight: 'bold' } } }
+                }
+            });
+        }
     });
 }
 
@@ -891,6 +961,59 @@ function deleteCategory(id) {
     fetch(`${API}/stats/categories/${UID}/${id}`, { method: 'DELETE' }).then(r => {
         if(r.ok) fetchSettings().then(renderSettingsCategories);
         else r.json().then(d => alert(d.detail));
+    });
+}
+
+/* ================= EDIT / DELETE TRANSACTION ================= */
+function openEditTransactionModal(id, type, amount, source, method, notes) {
+    document.getElementById('modalTitle').innerText = translations[LANG].edit;
+
+    let catOptions = "";
+    USER_CATEGORIES.filter(c => c.type === (type === 'income' ? 'income' : 'expense')).forEach(c => {
+        catOptions += `<option value="${c.name}" ${c.name === source ? 'selected' : ''}>${c.emoji} ${c.name}</option>`;
+    });
+
+    document.getElementById('modalContent').innerHTML = `
+        <div class="form-group"><label>${translations[LANG].summa}</label><input id="edit-trans-amount" type="number" value="${amount}"></div>
+        <div class="form-group">
+            <label>${translations[LANG].category}</label>
+            <select id="edit-trans-category">${catOptions}</select>
+        </div>
+        <div class="form-group">
+            <label>${translations[LANG].tMethod}</label>
+            <select id="edit-trans-method">
+                <option value="cash" ${method === 'cash' ? 'selected' : ''}>${translations[LANG].cash}</option>
+                <option value="card" ${method === 'card' ? 'selected' : ''}>${translations[LANG].card}</option>
+            </select>
+        </div>
+        <div class="form-group"><label>${translations[LANG].additional}</label><textarea id="edit-trans-notes" rows="2">${notes}</textarea></div>
+        <button onclick="saveEditedTransaction(${id}, '${type}')" class="primary" style="width: 100%">${translations[LANG].save}</button>
+    `;
+    openModal();
+}
+
+function saveEditedTransaction(id, type) {
+    const data = {
+        amount: document.getElementById('edit-trans-amount').value,
+        source: document.getElementById('edit-trans-category').value,
+        payment_method: document.getElementById('edit-trans-method').value,
+        additional_info: document.getElementById('edit-trans-notes').value
+    };
+    fetch(`${API}/stats/transaction/${UID}/${type}/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).then(r => {
+        if(r.ok) { closeModal(); loadDetails(); refreshData(); }
+        else alert(translations[LANG].error);
+    });
+}
+
+function deleteTransaction(id, type) {
+    if(!confirm(translations[LANG].deleteConfirm)) return;
+    fetch(`${API}/stats/transaction/${UID}/${type}/${id}`, { method: 'DELETE' }).then(r => {
+        if(r.ok) { loadDetails(); refreshData(); }
+        else alert(translations[LANG].error);
     });
 }
 
