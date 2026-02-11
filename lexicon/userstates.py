@@ -39,7 +39,7 @@ Keling, moliyaviy murakkablikni aniqlikka aylantiramiz. Moliyaviy erkinlik sari 
     'get_user_name': {
         'en': "Excellent! Please enter your name so I can personalize your experience.",
         'ru': "Отлично! Пожалуйста, введите ваше имя, чтобы я мог обращаться к вам лично.",
-        'uz': "Ajoyib! Sizga qanday murojaat qilishimni xohlasangiz, ismingizni kiriting."
+        'uz': "Ajoyib! Iltimos ismingizni kiriting."
     },
     'get_user_sex': {
         'en': "Please select your gender:",
