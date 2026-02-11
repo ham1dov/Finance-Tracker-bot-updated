@@ -240,7 +240,7 @@ h3 { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
         <div style="margin:10px 0; display: flex; gap: 5px; align-items: center;">
             <input type="date" id="from" style="flex:1; padding: 8px; border-radius: 8px; background: var(--secondary-bg); color: var(--text); border: 1px solid rgba(0,0,0,0.1);">
             <input type="date" id="to" style="flex:1; padding: 8px; border-radius: 8px; background: var(--secondary-bg); color: var(--text); border: 1px solid rgba(0,0,0,0.1);">
-            <button onclick="loadDetails()" style="background: var(--button); color: #fff; padding: 8px 12px;">👁️</button>
+            <button onclick="loadDetails()" style="background: var(--button); color: #fff; padding: 8px 12px;">🔍</button>
         </div>
 
         <div class="tab-nav">
@@ -278,7 +278,8 @@ h3 { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
                     <button onclick="downloadReport(event)" style="padding: 8px;">📥</button>
                 </div>
             </div>
-            <div id="reportTableContainer" style="overflow-x: auto;">
+            <canvas id="repChart" style="margin: 20px 0;"></canvas>
+            <div id="reportTableContainer" style="overflow-x: auto; margin-top: 20px;">
                 <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                     <tbody id="reportTableBody"></tbody>
                 </table>
@@ -413,6 +414,7 @@ var currentType = 'expenses';
 var currentTab = 'monitoring';
 var currentCatTab = 'income';
 var monPieChart = null;
+var repBarChart = null;
 var trendChart = null;
 var USER_CATEGORIES = [];
 
@@ -422,7 +424,8 @@ const translations = {
         income: "Kirim", expense: "Chiqim", result: "Natija", cash: "Naqd", card: "Karta",
         trendTitle: "📈 12 oylik trend", btnExpenses: "💸 Xarajatlar", btnIncome: "💰 Kirimlar", back: "⬅️ Orqaga",
         total: "Jami", average: "O‘rtacha", count: "Soni", monitoring: "📊 Monitoring", report: "📅 Hisobot",
-        totalToday: "Jami Bugun", todayRecords: "Bugungi yozuvlar", categories: "Kategoriyalar", detailed: "🔍 Batafsil",
+        totalToday: "Jami Bugun", todayRecords: "Bugungi yozuvlar", noTodayRecords: "Bugun hali yozuvlar yo'q", categories: "Kategoriyalar", detailed: "🔍 Batafsil",
+        incomeStats: "💰 Kirim statistikasi", expenseStats: "💸 Chiqim statistikasi",
         allCategories: "Hamma kategoriyalar", allPayments: "Hamma to‘lovlar", byDate: "Sana bo‘yicha",
         byAmount: "Summa bo‘yicha", update: "Yangilash", date: "Sana", category: "Kategoriya", amount: "Summa",
         batafsilTitle: "Bugungi batafsil ro'yxat", edit: "Tahrirlash", save: "Saqlash",
@@ -440,7 +443,8 @@ const translations = {
         income: "Income", expense: "Expense", result: "Result", cash: "Cash", card: "Card",
         trendTitle: "📈 12-Month Trend", btnExpenses: "💸 Expenses", btnIncome: "💰 Incomes", back: "⬅️ Back",
         total: "Total", average: "Average", count: "Count", monitoring: "📊 Monitoring", report: "📅 Report",
-        totalToday: "Total Today", todayRecords: "Today's Records", categories: "Categories", detailed: "🔍 Detailed",
+        totalToday: "Total Today", todayRecords: "Today's Records", noTodayRecords: "No records today yet", categories: "Categories", detailed: "🔍 Detailed",
+        incomeStats: "💰 Income Statistics", expenseStats: "💸 Expense Statistics",
         allCategories: "All Categories", allPayments: "All Payments", byDate: "By Date",
         byAmount: "By Amount", update: "Refresh", date: "Date", category: "Category", amount: "Amount",
         batafsilTitle: "Today's Detailed List", edit: "Edit", save: "Save",
@@ -458,7 +462,8 @@ const translations = {
         income: "Доход", expense: "Расход", result: "Результат", cash: "Наличные", card: "Карта",
         trendTitle: "📈 Тренд за 12 месяцев", btnExpenses: "💸 Расходы", btnIncome: "💰 Доходы", back: "⬅️ Назад",
         total: "Итого", average: "Среднее", count: "Кол-во", monitoring: "📊 Мониторинг", report: "📅 Отчет",
-        totalToday: "Итого сегодня", todayRecords: "Записи за сегодня", categories: "Категории", detailed: "🔍 Детали",
+        totalToday: "Итого сегодня", todayRecords: "Записи за сегодня", noTodayRecords: "Сегодня записей еще нет", categories: "Категории", detailed: "🔍 Детали",
+        incomeStats: "💰 Статистика доходов", expenseStats: "💸 Статистика расходов",
         allCategories: "Все категории", allPayments: "Все способы", byDate: "По дате",
         byAmount: "По сумме", update: "Обновить", date: "Дата", category: "Категория", amount: "Сумма",
         batafsilTitle: "Детальный список за сегодня", edit: "Правка", save: "Сохранить",
@@ -502,7 +507,8 @@ function showPage(pageId) {
     document.getElementById(`page-${pageId}`).classList.add('active');
 
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById(`nav-${pageId}`).classList.add('active');
+    const navItem = document.getElementById(`nav-${pageId}`);
+    if(navItem) navItem.classList.add('active');
 
     if(pageId === 'dashboard') refreshData();
     if(pageId === 'settings') loadSettingsPage();
@@ -517,8 +523,11 @@ function switchAddType(type) {
 function openDetails(type) {
     currentType = type;
     showPage('details');
-    document.getElementById("distributionTitle").innerText = (type === 'income' ? translations[LANG].btnIncome : translations[LANG].btnExpenses);
+    document.getElementById("distributionTitle").innerText = (type === 'income' ? translations[LANG].incomeStats : translations[LANG].expenseStats);
     showTab('monitoring');
+    // loadDetails() is called by showTab if tab changes, but here we want to ensure data is loaded
+    // but showTab already calls loadMonitoring/loadReport.
+    // loadDetails also updates metrics.
     loadDetails();
 }
 
@@ -528,6 +537,9 @@ function showTab(tabId) {
     document.getElementById(`tabBtn-${tabId}`).classList.add('active');
     document.querySelectorAll('#page-details .tab-content').forEach(c => c.classList.remove('active'));
     document.getElementById(`tab-${tabId}`).classList.add('active');
+
+    if(tabId === 'monitoring') loadMonitoring();
+    if(tabId === 'report') loadReport();
 }
 
 /* ================= INITIALIZATION ================= */
@@ -661,11 +673,15 @@ function loadDetails() {
         document.getElementById("mCount").innerText = d.count || 0;
     });
 
-    loadMonitoring();
-    loadReport();
+    if(currentTab === 'monitoring') loadMonitoring();
+    else loadReport();
 }
 
+let lastMonLoad = 0;
 function loadMonitoring() {
+    const now = Date.now();
+    if(now - lastMonLoad < 300) return; // Debounce
+    lastMonLoad = now;
     fetch(`${API}/stats/monitoring/${UID}?type=${currentType}`).then(r=>r.json()).then(d=>{
         const monList = document.getElementById("monList");
         monList.innerHTML = "";
@@ -677,7 +693,7 @@ function loadMonitoring() {
         const transList = document.getElementById("todayTransList");
         transList.innerHTML = "";
         if (!d.transactions || d.transactions.length === 0) {
-            transList.innerHTML = `<p style="color: var(--hint); text-align: center; font-size: 13px;">Bugun hali yozuvlar yo'q</p>`;
+            transList.innerHTML = `<p style="color: var(--hint); text-align: center; font-size: 13px;">${translations[LANG].noTodayRecords}</p>`;
         } else {
             d.transactions.forEach(t => {
                 transList.innerHTML += `<div class="settings-item" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 8px 0;">
@@ -690,8 +706,10 @@ function loadMonitoring() {
             });
         }
 
+        const ctx = document.getElementById("monPie");
+        if(!ctx) return;
         if(monPieChart) monPieChart.destroy();
-        monPieChart = new Chart(document.getElementById("monPie"), {
+        monPieChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: d.categories.map(c => getCategoryLabel(c.source)),
@@ -716,7 +734,11 @@ function downloadReport(e) {
     });
 }
 
+let lastRepLoad = 0;
 function loadReport() {
+    const now = Date.now();
+    if(now - lastRepLoad < 300) return; // Debounce
+    lastRepLoad = now;
     const f = document.getElementById("from").value;
     const t = document.getElementById("to").value;
     const srt = document.getElementById("repSort").value;
@@ -730,12 +752,16 @@ function loadReport() {
     fetch(url).then(r=>r.json()).then(rows => {
         const tbody = document.getElementById("reportTableBody");
         tbody.innerHTML = "";
+        const dailyData = {};
+
         rows.forEach(r => {
             tbody.innerHTML += `<tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
                 <td style="padding: 10px;">${r.date}<br><small style="color:var(--hint)">${translations[LANG][r.payment_method] || r.payment_method}</small></td>
                 <td style="padding: 10px;">${getCategoryLabel(r.source)}</td>
                 <td style="padding: 10px; text-align: right;"><b>${r.amount.toLocaleString()}</b></td>
             </tr>`;
+            const dStr = r.date.split(' ')[0];
+            dailyData[dStr] = (dailyData[dStr] || 0) + r.amount;
         });
 
         const repSrcSel = document.getElementById("repSource");
@@ -746,6 +772,27 @@ function loadReport() {
                 repSrcSel.appendChild(opt);
             });
         }
+
+        const ctx = document.getElementById("repChart");
+        if(!ctx) return;
+        if(repBarChart) repBarChart.destroy();
+        const sortedDates = Object.keys(dailyData).sort();
+        repBarChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sortedDates,
+                datasets: [{
+                    label: currentType === 'income' ? translations[LANG].income : translations[LANG].expense,
+                    data: sortedDates.map(d => dailyData[d]),
+                    backgroundColor: currentType === 'income' ? '#2ecc71' : '#e74c3c',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+            }
+        });
     });
 }
 
