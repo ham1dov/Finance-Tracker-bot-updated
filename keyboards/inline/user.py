@@ -2,6 +2,7 @@ from typing import Literal
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from utils.formatter import CATEGORIES
+from config import WEBAPP_URL
 
 from database.db_query import db
 
@@ -46,9 +47,9 @@ async def user_main_menu_buttons(lang:str, user_id: int = None)->InlineKeyboardM
 
     builder.row(
         InlineKeyboardButton(text=statistics[lang],
-                             web_app=WebAppInfo(url='https://dottie-unbespoken-causatively.ngrok-free.dev?page=dashboard')),
+                             web_app=WebAppInfo(url=f'{WEBAPP_URL}?page=dashboard')),
         InlineKeyboardButton(text=settings[lang],
-                             web_app=WebAppInfo(url='https://dottie-unbespoken-causatively.ngrok-free.dev?page=settings')))
+                             web_app=WebAppInfo(url=f'{WEBAPP_URL}?page=settings')))
 
     builder.row(InlineKeyboardButton(text=contact_to_admin[lang], callback_data=callback_data.format(mode='contact')))
 

@@ -46,12 +46,12 @@ async def user_main_menu_handler(callback:CallbackQuery, state:FSMContext):
     if option == 'add_income':
         await callback.message.answer(add_income_states['get_amount'][lang])
         await state.set_state(AddIncomeState.get_amount)
-        await state.update_data(user_language=lang)
+        await state.update_data(lang=lang)
         return
     elif option == 'add_expense':
         await callback.message.answer(add_expense_states['get_amount'][lang])
         await state.set_state(AddExpenseState.get_amount)
-        await state.update_data(user_language=lang)
+        await state.update_data(lang=lang)
         return
     elif option == 'statistics':
         pass
@@ -66,7 +66,7 @@ async def user_main_menu_handler(callback:CallbackQuery, state:FSMContext):
 @user_router.message(F.content_type==ContentType.TEXT, AddIncomeState.get_amount)
 async def get_income_amount(message:Message, state:FSMContext):
     data = await state.get_data()
-    lang = data.get('user_language', 'en')
+    lang = data.get('lang', 'en')
     user_text = message.text
     try:
         amount = int(user_text)
@@ -87,7 +87,7 @@ async def get_income_amount(message:Message, state:FSMContext):
 async def get_income_source(callback:CallbackQuery, state:FSMContext):
     source = callback.data.split(':')[-1]
     data = await state.get_data()
-    lang = data.get('user_language', 'en')
+    lang = data.get('lang', 'en')
     try:
         await callback.message.delete()
     except:
@@ -109,7 +109,7 @@ async def get_source_manually(message:Message, state:FSMContext):
     source = message.text
     data = await state.get_data()
     data['source'] = source
-    lang = data.get('user_language', 'en')
+    lang = data.get('lang', 'en')
     await state.update_data(data=data)
     await message.answer(add_income_states['get_payment_method'][lang], reply_markup=await select_payment_method_buttons(lang=lang, type='income'))
     await state.set_state(AddIncomeState.get_payment_method)
@@ -119,7 +119,7 @@ async def get_source_manually(message:Message, state:FSMContext):
 async def get_income_payment_method(callback:CallbackQuery, state:FSMContext):
     payment_method = callback.data.split(':')[-1]
     data = await state.get_data()
-    lang = data.get('user_language', 'en')
+    lang = data.get('lang', 'en')
     amount = data.get('amount')
     source = data.get('source')
 
@@ -183,7 +183,7 @@ async def get_income_additional_info(message:Message, state:FSMContext):
 async def expense_add_amount(message:Message, state:FSMContext):
     user_text = message.text
     data = await state.get_data()
-    lang = data.get('user_language', 'en')
+    lang = data.get('lang', 'en')
     try:
         amount = int(user_text)
     except:
@@ -205,7 +205,7 @@ async def expense_add_amount(message:Message, state:FSMContext):
 async def get_expense_source(callback:CallbackQuery, state:FSMContext):
     source = callback.data.split(':')[-1]
     data = await state.get_data()
-    lang = data.get('user_language', 'en')
+    lang = data.get('lang', 'en')
     try:
         await callback.message.delete()
     except:
@@ -226,7 +226,7 @@ async def get_expense_source_manually(message:Message, state:FSMContext):
     source = message.text.strip()
     data = await state.get_data()
     data['source'] = source
-    lang = data.get('user_language', 'en')
+    lang = data.get('lang', 'en')
     await state.update_data(data=data)
     await message.answer(add_expense_states['get_payment_method'][lang], reply_markup=await select_payment_method_buttons(lang=lang, type='expense'))
     await state.set_state(AddExpenseState.get_payment_method)
@@ -236,7 +236,7 @@ async def get_expense_source_manually(message:Message, state:FSMContext):
 async def get_expense_payment_method(callback:CallbackQuery, state:FSMContext):
     payment_method = callback.data.split(':')[-1]
     data = await state.get_data()
-    lang = data.get('user_language', 'en')
+    lang = data.get('lang', 'en')
     amount = data.get('amount')
     source = data.get('source')
 
