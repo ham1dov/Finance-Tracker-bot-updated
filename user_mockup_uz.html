@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Market - User Mini App Mockup (Uzbek)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .iphone-frame {
+            width: 375px;
+            height: 812px;
+            border: 12px solid #333;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            background: white;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+        .status-bar { height: 44px; background: white; display: flex; justify-content: space-between; padding: 0 30px; align-items: center; font-size: 14px; font-weight: 600; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="p-10 flex flex-wrap gap-10 justify-center">
+
+    <!-- CATALOG SCREEN (UZBEK) -->
+    <div class="flex flex-col items-center">
+        <h2 class="mb-4 font-bold text-xl">1. Katalog Ekran</h2>
+        <div class="iphone-frame">
+            <div class="status-bar">
+                <span>9:41</span>
+                <div class="space-x-1">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <header class="p-4 flex justify-between items-center border-b">
+                <h1 class="text-xl font-bold text-brown-800">☕ Coffee Market</h1>
+                <div class="relative">
+                    <i class="fas fa-shopping-basket text-2xl text-blue-500"></i>
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">2</span>
+                </div>
+            </header>
+
+            <div class="p-4">
+                <div class="bg-gray-100 p-2 rounded-lg flex items-center mb-4">
+                    <i class="fas fa-search text-gray-400 mr-2"></i>
+                    <input type="text" placeholder="Qidirish..." class="bg-transparent outline-none w-full text-sm">
+                </div>
+
+                <div class="flex space-x-2 overflow-x-auto pb-2 no-scrollbar">
+                    <button class="px-4 py-1 bg-blue-500 text-white rounded-full text-sm">Hammasi</button>
+                    <button class="px-4 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">Kofe</button>
+                    <button class="px-4 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">Choy</button>
+                    <button class="px-4 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">Taomlar</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="bg-white rounded-xl shadow-sm border p-2">
+                        <div class="h-24 bg-orange-100 rounded-lg mb-2 flex items-center justify-center">
+                            <span class="text-4xl">☕</span>
+                        </div>
+                        <h3 class="font-bold text-sm">Kapuchino</h3>
+                        <p class="text-xs text-gray-500">250ml</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold text-blue-600 text-sm">25,000 so'm</span>
+                            <button class="bg-blue-500 text-white p-1 px-2 rounded-lg text-xs">+</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border p-2">
+                        <div class="h-24 bg-blue-100 rounded-lg mb-2 flex items-center justify-center">
+                            <span class="text-4xl">🥤</span>
+                        </div>
+                        <h3 class="font-bold text-sm">Muzli Latte</h3>
+                        <p class="text-xs text-gray-500">350ml</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold text-blue-600 text-sm">28,000 so'm</span>
+                            <button class="bg-blue-500 text-white p-1 px-2 rounded-lg text-xs">+</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border p-2">
+                        <div class="h-24 bg-green-100 rounded-lg mb-2 flex items-center justify-center">
+                            <span class="text-4xl">🍵</span>
+                        </div>
+                        <h3 class="font-bold text-sm">Ko'k choy</h3>
+                        <p class="text-xs text-gray-500">300ml</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold text-blue-600 text-sm">15,000 so'm</span>
+                            <button class="bg-blue-500 text-white p-1 px-2 rounded-lg text-xs">+</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border p-2">
+                        <div class="h-24 bg-yellow-100 rounded-lg mb-2 flex items-center justify-center">
+                            <span class="text-4xl">🥐</span>
+                        </div>
+                        <h3 class="font-bold text-sm">Kruassan</h3>
+                        <p class="text-xs text-gray-500">Sariyog'li</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold text-blue-600 text-sm">18,000 so'm</span>
+                            <button class="bg-blue-500 text-white p-1 px-2 rounded-lg text-xs">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="absolute bottom-0 w-full bg-white border-t flex justify-around py-4">
+                <i class="fas fa-home text-blue-500"></i>
+                <i class="fas fa-history text-gray-400"></i>
+                <i class="fas fa-user text-gray-400"></i>
+            </nav>
+        </div>
+    </div>
+
+    <!-- CART SCREEN (UZBEK) -->
+    <div class="flex flex-col items-center">
+        <h2 class="mb-4 font-bold text-xl">2. Savatcha (Korzinka)</h2>
+        <div class="iphone-frame">
+            <div class="status-bar">
+                <span>9:41</span>
+                <div class="space-x-1">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <header class="p-4 flex items-center border-b">
+                <i class="fas fa-arrow-left mr-4 text-blue-500"></i>
+                <h1 class="text-xl font-bold">Sizning savatchangiz</h1>
+            </header>
+
+            <div class="p-4 space-y-4">
+                <div class="flex items-center space-x-4 border-b pb-4">
+                    <div class="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center text-2xl">☕</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm">Kapuchino</h3>
+                        <p class="text-blue-600 font-bold text-sm">25,000 so'm</p>
+                    </div>
+                    <div class="flex items-center space-x-3 bg-gray-100 rounded-lg px-2 py-1">
+                        <button class="text-blue-500 font-bold">-</button>
+                        <span class="font-bold text-sm">1</span>
+                        <button class="text-blue-500 font-bold">+</button>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4 border-b pb-4">
+                    <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">🥤</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm">Muzli Latte</h3>
+                        <p class="text-blue-600 font-bold text-sm">28,000 so'm</p>
+                    </div>
+                    <div class="flex items-center space-x-3 bg-gray-100 rounded-lg px-2 py-1">
+                        <button class="text-blue-500 font-bold">-</button>
+                        <span class="font-bold text-sm">1</span>
+                        <button class="text-blue-500 font-bold">+</button>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-500">Jami</span>
+                        <span class="font-bold">53,000 so'm</span>
+                    </div>
+                    <div class="flex justify-between mb-4">
+                        <span class="text-gray-500">Yetkazib berish</span>
+                        <span class="font-bold">10,000 so'm</span>
+                    </div>
+                    <div class="flex justify-between text-xl font-bold border-t pt-4">
+                        <span>Umumiy</span>
+                        <span class="text-blue-600">63,000 so'm</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-10 w-full px-4">
+                <button class="w-full bg-blue-500 text-white py-4 rounded-2xl font-bold shadow-lg">BUYURTMA BERISH</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHECKOUT SCREEN (UZBEK) -->
+    <div class="flex flex-col items-center">
+        <h2 class="mb-4 font-bold text-xl">3. Rasmiylashtirish</h2>
+        <div class="iphone-frame">
+            <div class="status-bar">
+                <span>9:41</span>
+                <div class="space-x-1">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <header class="p-4 flex items-center border-b">
+                <i class="fas fa-arrow-left mr-4 text-blue-500"></i>
+                <h1 class="text-xl font-bold">Rasmiylashtirish</h1>
+            </header>
+
+            <div class="p-4 space-y-6">
+                <div>
+                    <h3 class="font-bold text-gray-700 mb-3">Shaxsiy ma'lumotlar</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-500 ml-1">To'liq ism</label>
+                            <input type="text" value="Azizbek Aliyev" class="w-full border rounded-xl p-3 text-sm focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 ml-1">Telefon raqami</label>
+                            <input type="text" value="+998 90 123 45 67" class="w-full border rounded-xl p-3 text-sm focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 ml-1">Yetkazib berish manzili</label>
+                            <textarea class="w-full border rounded-xl p-3 text-sm focus:border-blue-500 outline-none">Toshkent sh., Chilonzor tumani, 1-mavze</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-gray-700 mb-3">To'lov usuli</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="border-2 border-blue-500 rounded-xl p-3 flex flex-col items-center bg-blue-50">
+                            <span class="font-bold text-blue-600">CLICK</span>
+                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                        </div>
+                        <div class="border rounded-xl p-3 flex flex-col items-center grayscale">
+                            <span class="font-bold text-gray-400">PAYME</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-10 w-full px-4">
+                <button class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold shadow-lg uppercase">Tasdiqlash va To'lash 63k</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

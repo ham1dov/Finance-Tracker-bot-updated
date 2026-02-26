@@ -1,0 +1,233 @@
+INFO:     Started server process [9779]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): [errno 98] address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:54222 - "GET / HTTP/1.1" 200 OK
+2026-02-26 19:06:50,888 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+INFO:sqlalchemy.engine.Engine:BEGIN (implicit)
+2026-02-26 19:06:50,888 INFO sqlalchemy.engine.Engine SELECT catalogs.id, catalogs.name, catalogs.father_id, catalogs.created_at, catalogs.created_by
+FROM catalogs
+INFO:sqlalchemy.engine.Engine:SELECT catalogs.id, catalogs.name, catalogs.father_id, catalogs.created_at, catalogs.created_by
+FROM catalogs
+2026-02-26 19:06:50,889 INFO sqlalchemy.engine.Engine [cached since 223.2s ago] ()
+INFO:sqlalchemy.engine.Engine:[cached since 223.2s ago] ()
+2026-02-26 19:06:50,891 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+INFO:sqlalchemy.engine.Engine:BEGIN (implicit)
+2026-02-26 19:06:50,891 INFO sqlalchemy.engine.Engine SELECT products.id, products.name, products.description, products.price, products.catalog_id, products.created_at, products.created_by
+FROM products
+INFO:sqlalchemy.engine.Engine:SELECT products.id, products.name, products.description, products.price, products.catalog_id, products.created_at, products.created_by
+FROM products
+2026-02-26 19:06:50,891 INFO sqlalchemy.engine.Engine [cached since 223.2s ago] ()
+INFO:sqlalchemy.engine.Engine:[cached since 223.2s ago] ()
+INFO:     127.0.0.1:54222 - "GET /market/categories HTTP/1.1" 200 OK
+2026-02-26 19:06:51,329 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:sqlalchemy.engine.Engine:ROLLBACK
+2026-02-26 19:06:51,646 INFO sqlalchemy.engine.Engine SELECT product_stocks.product_id, product_stocks.count
+FROM product_stocks
+WHERE product_stocks.product_id = $1::INTEGER
+INFO:sqlalchemy.engine.Engine:SELECT product_stocks.product_id, product_stocks.count
+FROM product_stocks
+WHERE product_stocks.product_id = $1::INTEGER
+2026-02-26 19:06:51,646 INFO sqlalchemy.engine.Engine [cached since 223s ago] (1,)
+INFO:sqlalchemy.engine.Engine:[cached since 223s ago] (1,)
+2026-02-26 19:06:51,903 INFO sqlalchemy.engine.Engine SELECT product_stocks.product_id, product_stocks.count
+FROM product_stocks
+WHERE product_stocks.product_id = $1::INTEGER
+INFO:sqlalchemy.engine.Engine:SELECT product_stocks.product_id, product_stocks.count
+FROM product_stocks
+WHERE product_stocks.product_id = $1::INTEGER
+2026-02-26 19:06:51,903 INFO sqlalchemy.engine.Engine [cached since 223.3s ago] (2,)
+INFO:sqlalchemy.engine.Engine:[cached since 223.3s ago] (2,)
+2026-02-26 19:06:52,151 INFO sqlalchemy.engine.Engine SELECT product_stocks.product_id, product_stocks.count
+FROM product_stocks
+WHERE product_stocks.product_id = $1::INTEGER
+INFO:sqlalchemy.engine.Engine:SELECT product_stocks.product_id, product_stocks.count
+FROM product_stocks
+WHERE product_stocks.product_id = $1::INTEGER
+2026-02-26 19:06:52,151 INFO sqlalchemy.engine.Engine [cached since 223.5s ago] (3,)
+INFO:sqlalchemy.engine.Engine:[cached since 223.5s ago] (3,)
+2026-02-26 19:06:52,418 INFO sqlalchemy.engine.Engine SELECT product_stocks.product_id, product_stocks.count
+FROM product_stocks
+WHERE product_stocks.product_id = $1::INTEGER
+INFO:sqlalchemy.engine.Engine:SELECT product_stocks.product_id, product_stocks.count
+FROM product_stocks
+WHERE product_stocks.product_id = $1::INTEGER
+2026-02-26 19:06:52,419 INFO sqlalchemy.engine.Engine [cached since 223.8s ago] (4,)
+INFO:sqlalchemy.engine.Engine:[cached since 223.8s ago] (4,)
+2026-02-26 19:06:52,896 INFO sqlalchemy.engine.Engine SELECT product_stocks.product_id, product_stocks.count
+FROM product_stocks
+WHERE product_stocks.product_id = $1::INTEGER
+INFO:sqlalchemy.engine.Engine:SELECT product_stocks.product_id, product_stocks.count
+FROM product_stocks
+WHERE product_stocks.product_id = $1::INTEGER
+2026-02-26 19:06:52,896 INFO sqlalchemy.engine.Engine [cached since 224.3s ago] (5,)
+INFO:sqlalchemy.engine.Engine:[cached since 224.3s ago] (5,)
+INFO:     127.0.0.1:54236 - "GET /market/products HTTP/1.1" 200 OK
+2026-02-26 19:06:53,222 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:sqlalchemy.engine.Engine:ROLLBACK
+2026-02-26 19:06:53,583 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+INFO:sqlalchemy.engine.Engine:BEGIN (implicit)
+2026-02-26 19:06:53,583 INFO sqlalchemy.engine.Engine SELECT client_carts.id, client_carts.user_id, client_carts.status
+FROM client_carts
+WHERE client_carts.user_id = $1::BIGINT AND client_carts.status = $2::cartstatus
+INFO:sqlalchemy.engine.Engine:SELECT client_carts.id, client_carts.user_id, client_carts.status
+FROM client_carts
+WHERE client_carts.user_id = $1::BIGINT AND client_carts.status = $2::cartstatus
+2026-02-26 19:06:53,583 INFO sqlalchemy.engine.Engine [cached since 222.8s ago] (7583610226, 'active')
+INFO:sqlalchemy.engine.Engine:[cached since 222.8s ago] (7583610226, 'active')
+2026-02-26 19:06:54,023 INFO sqlalchemy.engine.Engine SELECT products.id, products.name, products.description, products.price, products.catalog_id, products.created_at, products.created_by
+FROM products
+WHERE products.id = $1::INTEGER
+INFO:sqlalchemy.engine.Engine:SELECT products.id, products.name, products.description, products.price, products.catalog_id, products.created_at, products.created_by
+FROM products
+WHERE products.id = $1::INTEGER
+2026-02-26 19:06:54,023 INFO sqlalchemy.engine.Engine [cached since 220.6s ago] (1,)
+INFO:sqlalchemy.engine.Engine:[cached since 220.6s ago] (1,)
+2026-02-26 19:06:54,243 INFO sqlalchemy.engine.Engine SELECT cart_items.id, cart_items.cart_id, cart_items.product_id, cart_items.quantity, cart_items.price
+FROM cart_items
+WHERE cart_items.cart_id = $1::INTEGER AND cart_items.product_id = $2::INTEGER
+INFO:sqlalchemy.engine.Engine:SELECT cart_items.id, cart_items.cart_id, cart_items.product_id, cart_items.quantity, cart_items.price
+FROM cart_items
+WHERE cart_items.cart_id = $1::INTEGER AND cart_items.product_id = $2::INTEGER
+2026-02-26 19:06:54,243 INFO sqlalchemy.engine.Engine [cached since 220.4s ago] (1, 1)
+INFO:sqlalchemy.engine.Engine:[cached since 220.4s ago] (1, 1)
+2026-02-26 19:06:54,463 INFO sqlalchemy.engine.Engine UPDATE cart_items SET quantity=$1::INTEGER WHERE cart_items.id = $2::INTEGER
+INFO:sqlalchemy.engine.Engine:UPDATE cart_items SET quantity=$1::INTEGER WHERE cart_items.id = $2::INTEGER
+2026-02-26 19:06:54,463 INFO sqlalchemy.engine.Engine [cached since 107.3s ago] (3, 1)
+INFO:sqlalchemy.engine.Engine:[cached since 107.3s ago] (3, 1)
+2026-02-26 19:06:54,683 INFO sqlalchemy.engine.Engine COMMIT
+INFO:sqlalchemy.engine.Engine:COMMIT
+2026-02-26 19:06:54,904 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+INFO:sqlalchemy.engine.Engine:BEGIN (implicit)
+2026-02-26 19:06:54,905 INFO sqlalchemy.engine.Engine SELECT client_carts.id, client_carts.user_id, client_carts.status
+FROM client_carts
+WHERE client_carts.id = $1::INTEGER
+INFO:sqlalchemy.engine.Engine:SELECT client_carts.id, client_carts.user_id, client_carts.status
+FROM client_carts
+WHERE client_carts.id = $1::INTEGER
+2026-02-26 19:06:54,905 INFO sqlalchemy.engine.Engine [cached since 220s ago] (1,)
+INFO:sqlalchemy.engine.Engine:[cached since 220s ago] (1,)
+2026-02-26 19:06:55,540 INFO sqlalchemy.engine.Engine SELECT cart_items.id, cart_items.cart_id, cart_items.product_id, cart_items.quantity, cart_items.price
+FROM cart_items
+WHERE cart_items.cart_id = $1::INTEGER
+INFO:sqlalchemy.engine.Engine:SELECT cart_items.id, cart_items.cart_id, cart_items.product_id, cart_items.quantity, cart_items.price
+FROM cart_items
+WHERE cart_items.cart_id = $1::INTEGER
+2026-02-26 19:06:55,540 INFO sqlalchemy.engine.Engine [cached since 217.5s ago] (1,)
+INFO:sqlalchemy.engine.Engine:[cached since 217.5s ago] (1,)
+2026-02-26 19:06:55,808 INFO sqlalchemy.engine.Engine SELECT cart_items.id AS cart_items_id, cart_items.cart_id AS cart_items_cart_id, cart_items.product_id AS cart_items_product_id, cart_items.quantity AS cart_items_quantity, cart_items.price AS cart_items_price
+FROM cart_items
+WHERE $1::INTEGER = cart_items.cart_id
+INFO:sqlalchemy.engine.Engine:SELECT cart_items.id AS cart_items_id, cart_items.cart_id AS cart_items_cart_id, cart_items.product_id AS cart_items_product_id, cart_items.quantity AS cart_items_quantity, cart_items.price AS cart_items_price
+FROM cart_items
+WHERE $1::INTEGER = cart_items.cart_id
+2026-02-26 19:06:55,808 INFO sqlalchemy.engine.Engine [cached since 217.2s ago] (1,)
+INFO:sqlalchemy.engine.Engine:[cached since 217.2s ago] (1,)
+2026-02-26 19:06:55,809 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:sqlalchemy.engine.Engine:ROLLBACK
+INFO:     127.0.0.1:54236 - "POST /market/cart/7583610226/add HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/fastapi/applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/middleware/cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/middleware/cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/fastapi/routing.py", line 119, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/fastapi/routing.py", line 105, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/fastapi/routing.py", line 431, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/fastapi/routing.py", line 313, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/web_app/market.py", line 131, in add_to_cart
+    result = await db.execute(select(ClientCart).options(selectinload(ClientCart.items)).where(ClientCart.id == cart.id))
+    ^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/orm/attributes.py", line 540, in __set__
+    self.impl.set(
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/orm/attributes.py", line 1976, in set
+    old = self.get(
+          ^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/orm/attributes.py", line 1096, in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/orm/attributes.py", line 1131, in _fire_loader_callables
+    return self.callable_(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/orm/strategies.py", line 978, in _load_for_state
+    return self._emit_lazyload(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/orm/strategies.py", line 1141, in _emit_lazyload
+    result = session.execute(
+             ^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2249, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+           ^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2366, in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 585, in execute
+    self._adapt_connection.await_(
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 123, in await_only
+    raise exc.MissingGreenlet(
+sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
