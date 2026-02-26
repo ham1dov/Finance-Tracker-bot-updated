@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Market - User Mini App Mockup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .tg-theme-bg { background-color: #ffffff; }
+        .tg-theme-text { color: #000000; }
+        .tg-theme-button { background-color: #2481cc; color: #ffffff; }
+        .iphone-frame {
+            width: 375px;
+            height: 812px;
+            border: 12px solid #333;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            background: white;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+        .status-bar { height: 44px; background: white; display: flex; justify-content: space-between; padding: 0 30px; align-items: center; font-size: 14px; font-weight: 600; }
+    </style>
+</head>
+<body class="p-10 flex flex-wrap gap-10 justify-center">
+
+    <!-- CATALOG SCREEN -->
+    <div class="flex flex-col items-center">
+        <h2 class="mb-4 font-bold text-xl">1. Catalog Screen</h2>
+        <div class="iphone-frame">
+            <div class="status-bar">
+                <span>9:41</span>
+                <div class="space-x-1">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <header class="p-4 flex justify-between items-center border-b">
+                <h1 class="text-xl font-bold text-brown-800">☕ Coffee Market</h1>
+                <div class="relative">
+                    <i class="fas fa-shopping-basket text-2xl text-blue-500"></i>
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">2</span>
+                </div>
+            </header>
+
+            <div class="p-4">
+                <div class="bg-gray-100 p-2 rounded-lg flex items-center mb-4">
+                    <i class="fas fa-search text-gray-400 mr-2"></i>
+                    <input type="text" placeholder="Search coffee..." class="bg-transparent outline-none w-full text-sm">
+                </div>
+
+                <div class="flex space-x-2 overflow-x-auto pb-2 no-scrollbar">
+                    <button class="px-4 py-1 bg-blue-500 text-white rounded-full text-sm">All</button>
+                    <button class="px-4 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">Coffee</button>
+                    <button class="px-4 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">Tea</button>
+                    <button class="px-4 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">Food</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="bg-white rounded-xl shadow-sm border p-2">
+                        <div class="h-24 bg-orange-100 rounded-lg mb-2 flex items-center justify-center">
+                            <span class="text-4xl">☕</span>
+                        </div>
+                        <h3 class="font-bold text-sm">Cappuccino</h3>
+                        <p class="text-xs text-gray-500">250ml</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold text-blue-600 text-sm">25,000 UZS</span>
+                            <button class="bg-blue-500 text-white p-1 px-2 rounded-lg text-xs">+</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border p-2">
+                        <div class="h-24 bg-blue-100 rounded-lg mb-2 flex items-center justify-center">
+                            <span class="text-4xl">🥤</span>
+                        </div>
+                        <h3 class="font-bold text-sm">Iced Latte</h3>
+                        <p class="text-xs text-gray-500">350ml</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold text-blue-600 text-sm">28,000 UZS</span>
+                            <button class="bg-blue-500 text-white p-1 px-2 rounded-lg text-xs">+</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border p-2">
+                        <div class="h-24 bg-green-100 rounded-lg mb-2 flex items-center justify-center">
+                            <span class="text-4xl">🍵</span>
+                        </div>
+                        <h3 class="font-bold text-sm">Green Tea</h3>
+                        <p class="text-xs text-gray-500">300ml</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold text-blue-600 text-sm">15,000 UZS</span>
+                            <button class="bg-blue-500 text-white p-1 px-2 rounded-lg text-xs">+</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border p-2">
+                        <div class="h-24 bg-yellow-100 rounded-lg mb-2 flex items-center justify-center">
+                            <span class="text-4xl">🥐</span>
+                        </div>
+                        <h3 class="font-bold text-sm">Croissant</h3>
+                        <p class="text-xs text-gray-500">Butter</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold text-blue-600 text-sm">18,000 UZS</span>
+                            <button class="bg-blue-500 text-white p-1 px-2 rounded-lg text-xs">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="absolute bottom-0 w-full bg-white border-t flex justify-around py-4">
+                <i class="fas fa-home text-blue-500"></i>
+                <i class="fas fa-history text-gray-400"></i>
+                <i class="fas fa-user text-gray-400"></i>
+            </nav>
+        </div>
+    </div>
+
+    <!-- CART SCREEN -->
+    <div class="flex flex-col items-center">
+        <h2 class="mb-4 font-bold text-xl">2. Korzinka (Cart)</h2>
+        <div class="iphone-frame">
+            <div class="status-bar">
+                <span>9:41</span>
+                <div class="space-x-1">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <header class="p-4 flex items-center border-b">
+                <i class="fas fa-arrow-left mr-4 text-blue-500"></i>
+                <h1 class="text-xl font-bold">Your Korzinka</h1>
+            </header>
+
+            <div class="p-4 space-y-4">
+                <div class="flex items-center space-x-4 border-b pb-4">
+                    <div class="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center text-2xl">☕</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm">Cappuccino</h3>
+                        <p class="text-blue-600 font-bold text-sm">25,000 UZS</p>
+                    </div>
+                    <div class="flex items-center space-x-3 bg-gray-100 rounded-lg px-2 py-1">
+                        <button class="text-blue-500 font-bold">-</button>
+                        <span class="font-bold text-sm">1</span>
+                        <button class="text-blue-500 font-bold">+</button>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4 border-b pb-4">
+                    <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">🥤</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm">Iced Latte</h3>
+                        <p class="text-blue-600 font-bold text-sm">28,000 UZS</p>
+                    </div>
+                    <div class="flex items-center space-x-3 bg-gray-100 rounded-lg px-2 py-1">
+                        <button class="text-blue-500 font-bold">-</button>
+                        <span class="font-bold text-sm">1</span>
+                        <button class="text-blue-500 font-bold">+</button>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-500">Subtotal</span>
+                        <span class="font-bold">53,000 UZS</span>
+                    </div>
+                    <div class="flex justify-between mb-4">
+                        <span class="text-gray-500">Delivery</span>
+                        <span class="font-bold">10,000 UZS</span>
+                    </div>
+                    <div class="flex justify-between text-xl font-bold border-t pt-4">
+                        <span>Total</span>
+                        <span class="text-blue-600">63,000 UZS</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-10 w-full px-4">
+                <button class="w-full bg-blue-500 text-white py-4 rounded-2xl font-bold shadow-lg">PROCEED TO CHECKOUT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHECKOUT SCREEN -->
+    <div class="flex flex-col items-center">
+        <h2 class="mb-4 font-bold text-xl">3. Checkout</h2>
+        <div class="iphone-frame">
+            <div class="status-bar">
+                <span>9:41</span>
+                <div class="space-x-1">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <header class="p-4 flex items-center border-b">
+                <i class="fas fa-arrow-left mr-4 text-blue-500"></i>
+                <h1 class="text-xl font-bold">Checkout</h1>
+            </header>
+
+            <div class="p-4 space-y-6">
+                <div>
+                    <h3 class="font-bold text-gray-700 mb-3">Personal Information</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-500 ml-1">Full Name</label>
+                            <input type="text" value="John Doe" class="w-full border rounded-xl p-3 text-sm focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 ml-1">Phone Number</label>
+                            <input type="text" value="+998 90 123 45 67" class="w-full border rounded-xl p-3 text-sm focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 ml-1">Delivery Address</label>
+                            <textarea class="w-full border rounded-xl p-3 text-sm focus:border-blue-500 outline-none">123 Coffee St, Tashkent, Uzbekistan</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-gray-700 mb-3">Payment Method</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="border-2 border-blue-500 rounded-xl p-3 flex flex-col items-center bg-blue-50">
+                            <span class="font-bold text-blue-600">CLICK</span>
+                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                        </div>
+                        <div class="border rounded-xl p-3 flex flex-col items-center grayscale">
+                            <span class="font-bold text-gray-400">PAYME</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-10 w-full px-4">
+                <button class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold shadow-lg uppercase">Confirm and Pay 63k</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

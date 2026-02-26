@@ -6,22 +6,17 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 """<<<---------- USER MAIN MENU BUTTONS ---------->>>"""
 async def user_main_menu_buttons(lang:str)->InlineKeyboardMarkup:
     callback_data = "user:main_menu:{mode}"
-    add_income = {
-        'en':"Add Income 💰",
-        'ru':"Добавить доход 💰",
-        'uz':"Daromad qo‘shish 💰"
+
+    open_market = {
+        'en': "☕ Open Market",
+        'ru': "☕ Открыть магазин",
+        'uz': "☕ Do‘konni ochish"
     }
 
-    add_expense = {
-        'en': "Add Expense 💸",
-        'ru': "Добавить расход 💸",
-        'uz': "Xarajat qo‘shish 💸"
-    }
-
-    statistics = {
-        'en': "Statistics 📊",
-        'ru': "Статистика 📊",
-        'uz': "Statistika 📊"
+    admin_panel = {
+        'en': "👨‍💻 Admin Panel",
+        'ru': "👨‍💻 Админ панель",
+        'uz': "👨‍💻 Admin panel"
     }
 
     contact_to_admin = {
@@ -37,15 +32,17 @@ async def user_main_menu_buttons(lang:str)->InlineKeyboardMarkup:
     }
 
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text=add_income[lang],
-                                     callback_data=callback_data.format(mode='add_income')),
-                InlineKeyboardButton(text=add_expense[lang],
-                                     callback_data=callback_data.format(mode='add_expense'))
-                )
+
+    # Get base URL from environment or fallback
+    import os
+    base_url = os.getenv('WEB_APP_URL', 'https://dottie-unbespoken-causatively.ngrok-free.dev')
+
+    builder.row(InlineKeyboardButton(text=open_market[lang],
+                                     web_app=WebAppInfo(url=f"{base_url}")))
 
     builder.row(
-        InlineKeyboardButton(text=statistics[lang],
-                             web_app=WebAppInfo(url='https://dottie-unbespoken-causatively.ngrok-free.dev')),
+        InlineKeyboardButton(text=admin_panel[lang],
+                             web_app=WebAppInfo(url=f"{base_url}/static/admin_mockup_uz.html")),
         InlineKeyboardButton(text=settings[lang], callback_data=callback_data.format(mode='settings')))
 
     builder.row(InlineKeyboardButton(text=contact_to_admin[lang], callback_data=callback_data.format(mode='contact')))

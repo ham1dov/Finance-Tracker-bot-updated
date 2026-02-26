@@ -84,13 +84,13 @@ Iltimos, jinsingizni tanlang:""",
     },
     'successful_registration':{
         'en':"""Your registration is complete! We’re happy to welcome you 😊
-You can now easily track your income and expenses.
+You can now easily order our coffee products through the Mini App.
 Please choose a section from the menu to get started 📋""",
         'uz':"""Ro‘yxatdan o‘tish muvaffaqiyatli yakunlandi! Botimizga xush kelibsiz 😊
-Endi daromad va xarajatlaringizni qulay boshqarishingiz mumkin.
+Endi Mini App orqali kofe mahsulotlarimizga oson buyurtma berishingiz mumkin.
 Boshlash uchun menyudan bo‘limni tanlang 📋""",
         'ru':"""Регистрация прошла успешно! Мы рады приветствовать вас в нашем боте 😊
-Теперь вы можете удобно отслеживать свои доходы и расходы.
+Теперь вы можете удобно заказывать наши кофейные продукты через Mini App.
 Чтобы начать, выберите подходящий раздел в меню 📋"""
     },
     'registration_failed':{
