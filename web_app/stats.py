@@ -284,7 +284,7 @@ async def monitoring(
     categories.sort(key=lambda x: x['total'], reverse=True)
 
     q_trans = text(f"""
-        SELECT amount, currency, source, payment_method, additional_info, to_char(inserted_at, 'HH24:MI') as time
+        SELECT id, amount, currency, source, payment_method, additional_info, to_char(inserted_at, 'HH24:MI') as time
         FROM {table}
         WHERE user_id = :uid AND inserted_at::date = now()::date
         ORDER BY inserted_at DESC
