@@ -2,7 +2,8 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<title>Finance Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Finance Tracker Pro</title>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,190 +12,1053 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f5f6fa;
-  padding:20px;
+:root {
+  --bg: var(--tg-theme-bg-color, #f0f2f5);
+  --text: var(--tg-theme-text-color, #1a1a1a);
+  --hint: var(--tg-theme-hint-color, #5a6268);
+  --secondary-bg: var(--tg-theme-secondary-bg-color, #ffffff);
+  --button: var(--tg-theme-button-color, #007bff);
+  --button-text: var(--tg-theme-button-text-color, #ffffff);
+  --success: #28a745;
+  --danger: #dc3545;
 }
 
-.cards{
-  display:flex;
-  gap:15px;
-  flex-wrap:wrap;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 0;
+  margin: 0;
+  padding-bottom: 90px; /* Space for bottom nav */
+  line-height: 1.5;
 }
 
-.card{
-  flex:1;
-  padding:20px;
-  border-radius:14px;
-  color:#fff;
-  text-align:center;
-  min-width:200px;
+.container { padding: 20px; }
+
+.cards { display: flex; gap: 15px; flex-wrap: wrap; }
+.card {
+  flex: 1;
+  padding: 20px;
+  border-radius: 20px;
+  color: #fff;
+  text-align: center;
+  min-width: 140px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
+}
+.card:active { transform: scale(0.98); }
+.income { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.expense { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.result { background: linear-gradient(135deg, #3498db, #2980b9); }
+
+button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--secondary-bg);
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+button.primary { background: var(--button); color: var(--button-text); }
+button.active { background: var(--button); color: var(--button-text); }
+
+h2 { font-size: 24px; font-weight: 800; margin-bottom: 20px; }
+h3 { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
+
+.hidden { display: none !important; }
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--secondary-bg);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--hint);
+  text-decoration: none;
+  font-size: 11px;
+}
+.nav-item.active { color: var(--button); }
+.nav-item i { font-size: 20px; }
+
+/* Tab contents */
+.page { display: none; }
+.page.active { display: block; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.tab-nav {
+    display: flex;
+    background: var(--secondary-bg);
+    padding: 5px;
+    border-radius: 12px;
+    gap: 5px;
+}
+.tab-nav button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.tab-nav button.active {
+    background: var(--button);
+    color: var(--button-text);
 }
 
-.income{background:#2ecc71}
-.expense{background:#e74c3c}
-.result{background:#3498db}
-
-button{
-  padding:10px 18px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:15px;
-  background:#eee;
+/* Settings Styles */
+.settings-section {
+    background: var(--secondary-bg);
+    border-radius: 16px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.settings-item:last-child { border-bottom: none; }
+.settings-item label { font-weight: 500; }
+.settings-item select, .settings-item input {
+    background: transparent;
+    border: none;
+    color: var(--button);
+    font-weight: 600;
+    text-align: right;
+    font-size: 15px;
 }
 
-button.active{
-  background:#3498db;
-  color:#fff;
+/* Category Management */
+.cat-list { list-style: none; padding: 0; }
+.cat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: var(--bg);
+    border-radius: 12px;
+    margin-bottom: 8px;
 }
 
-hr{margin:30px 0}
+#modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+}
+.modal-content-wrapper {
+    background: var(--bg);
+    width: 100%;
+    max-width: 400px;
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
 
-.hidden{display:none}
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: var(--hint); }
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: var(--secondary-bg);
+    color: var(--text);
+    box-sizing: border-box;
+}
 </style>
 </head>
 
 <body>
 
-<h2>📊 Joriy oy</h2>
+<div class="container">
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard" class="page active">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 id="dashboard-title" style="margin:0" data-i18n="currentMonth">📊 Joriy oy</h2>
+            <div class="tab-nav" style="width: auto; padding: 3px; gap: 2px;">
+                <button id="dash-day" onclick="switchDashPeriod('day')" style="padding: 5px 10px; font-size: 12px;" data-i18n="day">Bugun</button>
+                <button id="dash-month" onclick="switchDashPeriod('month')" class="active" style="padding: 5px 10px; font-size: 12px;" data-i18n="month">Oy</button>
+            </div>
+        </div>
+        <div class="cards">
+            <div class="card income" onclick="openDetails('income')">
+                <p data-i18n="income">Kirim</p>
+                <h2 id="income">0</h2>
+                <div style="font-size: 10px; opacity: 0.8;">
+                    <span data-i18n="cash">Naqd</span>: <span id="income_cash">0</span> | <span data-i18n="card">Karta</span>: <span id="income_card">0</span>
+                </div>
+            </div>
+            <div class="card expense" onclick="openDetails('expenses')">
+                <p data-i18n="expense">Chiqim</p>
+                <h2 id="expense">0</h2>
+                <div style="font-size: 10px; opacity: 0.8;">
+                    <span data-i18n="cash">Naqd</span>: <span id="expense_cash">0</span> | <span data-i18n="card">Karta</span>: <span id="expense_card">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="card result" style="margin-top: 15px; width: 100%; min-width: 100%; background: linear-gradient(135deg, #34495e, #2c3e50);">
+            <p data-i18n="result" style="text-transform: uppercase; letter-spacing: 1px; font-size: 12px; margin-bottom: 5px; opacity: 0.9;">Natija</p>
+            <h2 id="result" style="margin: 0; font-size: 32px;">0</h2>
+        </div>
 
-<div class="cards">
-  <div class="card income">
-    <p>Kirim</p>
-    <h2 id="income">0</h2>
-  </div>
-  <div class="card expense">
-    <p>Chiqim</p>
-    <h2 id="expense">0</h2>
-  </div>
-  <div class="card result">
-    <p>Natija</p>
-    <h2 id="result">0</h2>
-  </div>
+        <h2 style="margin-top:30px" data-i18n="trendTitle">📈 12 oylik trend</h2>
+        <canvas id="trend"></canvas>
+    </div>
+
+    <!-- DETAILS PAGE (Monitoring & Report) -->
+    <div id="page-details" class="page">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 id="distributionTitle" style="margin: 0;"></h3>
+            <button onclick="showPage('dashboard')" style="padding: 5px 12px; font-size: 12px;" data-i18n="back">⬅️ Orqaga</button>
+        </div>
+
+        <div style="margin:10px 0; display: flex; gap: 5px; align-items: center;">
+            <input type="date" id="from" style="flex:1; padding: 8px; border-radius: 8px; background: var(--secondary-bg); color: var(--text); border: 1px solid rgba(0,0,0,0.1);">
+            <input type="date" id="to" style="flex:1; padding: 8px; border-radius: 8px; background: var(--secondary-bg); color: var(--text); border: 1px solid rgba(0,0,0,0.1);">
+            <button onclick="loadDetails()" style="background: var(--button); color: #fff; padding: 8px 12px;">🔍</button>
+        </div>
+
+        <div class="tab-nav">
+            <button id="tabBtn-monitoring" onclick="showTab('monitoring')" class="active" data-i18n="monitoring">📊 Monitoring</button>
+            <button id="tabBtn-report" onclick="showTab('report')" data-i18n="report">📅 Hisobot</button>
+        </div>
+
+        <div id="tab-monitoring" class="tab-content active">
+            <canvas id="monPie" style="margin: 20px 0;"></canvas>
+
+            <h4 data-i18n="todayRecords" style="margin: 20px 0 10px; border-left: 4px solid var(--button); padding-left: 10px;">Bugungi yozuvlar</h4>
+            <div id="todayTransList" style="margin-bottom: 20px;"></div>
+
+            <h4 data-i18n="categories" style="margin: 20px 0 10px; border-left: 4px solid var(--button); padding-left: 10px;">Kategoriyalar</h4>
+            <ul id="monList" class="cat-list"></ul>
+            <button onclick="showBatafsilToday()" style="width: 100%; margin-top: 15px;" class="primary" data-i18n="detailed">🔍 Batafsil</button>
+        </div>
+
+        <div id="tab-report" class="tab-content">
+            <div class="settings-section" style="padding: 10px; margin-top: 10px;">
+                <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                    <select id="repSource" style="flex:1; font-size: 12px;"><option value="" data-i18n="allCategories">Hamma</option></select>
+                    <select id="repMethod" style="flex:1; font-size: 12px;">
+                        <option value="" data-i18n="allPayments">Hamma</option>
+                        <option value="cash" data-i18n="cash">Naqd</option>
+                        <option value="card" data-i18n="card">Karta</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <select id="repSort" style="flex:1; font-size: 12px;">
+                        <option value="inserted_at" data-i18n="byDate">Sana</option>
+                        <option value="amount" data-i18n="byAmount">Summa</option>
+                    </select>
+                    <button onclick="loadReport()" style="padding: 8px;">🔄</button>
+                    <button onclick="downloadReport(event)" style="padding: 8px;">📥</button>
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 30px; margin: 20px 0;">
+                <div style="background: var(--secondary-bg); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <canvas id="repChart"></canvas>
+                </div>
+                <div style="background: var(--secondary-bg); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <canvas id="repCatChart"></canvas>
+                </div>
+                <div style="background: var(--secondary-bg); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <canvas id="repMethodChart"></canvas>
+                </div>
+            </div>
+            <div id="reportTableContainer" style="overflow-x: auto; margin-top: 20px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                    <tbody id="reportTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD TRANSACTION PAGE -->
+    <div id="page-add" class="page">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 id="add-title" style="margin:0">➕ Yangi qayd</h2>
+        </div>
+
+        <div class="tab-nav" style="margin-bottom: 20px;">
+            <button id="addTab-income" onclick="switchAddType('income')" data-i18n="income">Kirim</button>
+            <button id="addTab-expense" onclick="switchAddType('expenses')" data-i18n="expense">Chiqim</button>
+        </div>
+
+        <div class="settings-section">
+            <div class="form-group">
+                <label data-i18n="summa">Summa:</label>
+                <input type="number" id="add-amount" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label data-i18n="category">Kategoriya:</label>
+                <select id="add-category"></select>
+            </div>
+            <div class="form-group">
+                <label data-i18n="tMethod">To'lov usuli:</label>
+                <select id="add-method">
+                    <option value="cash" data-i18n="cash">Naqd</option>
+                    <option value="card" data-i18n="card">Karta</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label data-i18n="additional">Izoh:</label>
+                <textarea id="add-notes" rows="2"></textarea>
+            </div>
+            <button onclick="saveNewTransaction()" class="primary" style="width: 100%;" data-i18n="save">Saqlash</button>
+        </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div id="page-settings" class="page">
+        <h2 data-i18n="settings">⚙️ Sozlamalar</h2>
+
+        <div class="settings-section">
+            <h4 style="margin-top:0" data-i18n="personalInfo">👤 Shaxsiy ma'lumotlar</h4>
+            <div class="settings-item">
+                <label data-i18n="name">Ism</label>
+                <input type="text" id="set-fullname" onchange="updateSettings()">
+            </div>
+            <div class="settings-item">
+                <label data-i18n="sex">Jins</label>
+                <select id="set-sex" onchange="updateSettings()">
+                    <option value="male" data-i18n="male">Erkak</option>
+                    <option value="female" data-i18n="female">Ayol</option>
+                </select>
+            </div>
+            <div class="settings-item">
+                <label data-i18n="status">Status</label>
+                <input type="text" id="set-status" onchange="updateSettings()">
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h4 style="margin-top:0" data-i18n="appSettings">⚙️ Ilova sozlamalari</h4>
+            <div class="settings-item">
+                <label data-i18n="langLabel">Til</label>
+                <select id="set-lang" onchange="updateSettings()">
+                    <option value="uz">O'zbekcha</option>
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                </select>
+            </div>
+            <div class="settings-item">
+                <label data-i18n="currency">Valyuta</label>
+                <select id="set-currency" onchange="updateSettings()">
+                    <option value="uzs">UZS</option>
+                    <option value="usd">USD</option>
+                    <option value="eur">EUR</option>
+                    <option value="rub">RUB</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div style="display:flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin:0" data-i18n="categories">Kategoriyalar</h4>
+                <button onclick="openAddCategoryModal()" style="padding: 4px 8px; font-size: 12px;">➕</button>
+            </div>
+            <div class="tab-nav" style="margin-top:10px">
+                <button id="catTab-income" onclick="showCatTab('income')" class="active" data-i18n="income">Kirim</button>
+                <button id="catTab-expense" onclick="showCatTab('expense')" data-i18n="expense">Chiqim</button>
+            </div>
+            <ul id="settings-cat-list" class="cat-list" style="margin-top:10px"></ul>
+        </div>
+    </div>
 </div>
 
-<h2 style="margin-top:30px">📈 12 oylik trend</h2>
-<canvas id="trend"></canvas>
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+    <a href="#" class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+        <i>📊</i> <span data-i18n="navDashboard">Asosiy</span>
+    </a>
+    <a href="#" class="nav-item" id="nav-add" onclick="showPage('add')">
+        <i>➕</i> <span data-i18n="navAdd">Qo'shish</span>
+    </a>
+    <a href="#" class="nav-item" id="nav-settings" onclick="showPage('settings')">
+        <i>⚙️</i> <span data-i18n="navSettings">Sozlamalar</span>
+    </a>
+</nav>
 
-<hr>
-
-<!-- NAV BUTTONS -->
-<button id="btnExpenses" onclick="openPage('expenses')">💸 Harajatlar</button>
-<button id="btnIncome" onclick="openPage('income')">💰 Kirimlar</button>
-
-<!-- DETAILS PAGE -->
-<div id="detailsPage" class="hidden">
-
-  <h3 id="distributionTitle"></h3>
-
-  <div style="margin:10px 0">
-    <input type="date" id="from">
-    <input type="date" id="to">
-    <button onclick="loadPie()">Ko‘rsat</button>
-  </div>
-
-  <canvas id="pie"></canvas>
-  <ul id="list"></ul>
-
+<!-- MODAL -->
+<div id="modal" class="hidden">
+    <div class="modal-content-wrapper">
+        <div style="padding: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <h3 id="modalTitle" style="margin:0;"></h3>
+            <button onclick="closeModal()" style="background: transparent;">✖</button>
+        </div>
+        <div id="modalContent" style="padding: 15px; overflow-y: auto;"></div>
+    </div>
 </div>
 
 <script>
-/* ================= CONFIG ================= */
-const API = "https://dottie-unbespoken-causatively.ngrok-free.dev";
+/* ================= CONFIG & STATE ================= */
+var API = window.location.origin;
+var UID = null;
+var LANG = 'uz';
+var dashPeriod = 'month';
+var currentType = 'expenses';
+var currentTab = 'monitoring';
+var currentCatTab = 'income';
+var monPieChart = null;
+var repBarChart = null;
+var repCatChart = null;
+var repMethodChart = null;
+var trendChart = null;
+var USER_CATEGORIES = [];
 
-/* ================= TELEGRAM ================= */
-Telegram.WebApp.ready();
-const user = Telegram.WebApp.initDataUnsafe.user;
-if(!user){
-  alert("Telegram user not found");
-  throw new Error("Telegram user not found");
+const translations = {
+    uz: {
+        currentMonth: "📊 Joriy oy", currentDay: "📊 Bugun", day: "Bugun", month: "Oy",
+        income: "Kirim", expense: "Chiqim", result: "Natija", cash: "Naqd", card: "Karta",
+        trendTitle: "📈 12 oylik trend", btnExpenses: "💸 Xarajatlar", btnIncome: "💰 Kirimlar", back: "⬅️ Orqaga",
+        total: "Jami", average: "O‘rtacha", count: "Soni", monitoring: "📊 Monitoring", report: "📅 Hisobot",
+        totalToday: "Jami Bugun", todayRecords: "Bugungi yozuvlar", noTodayRecords: "Bugun hali yozuvlar yo'q", categories: "Kategoriyalar", detailed: "🔍 Batafsil",
+        incomeStats: "💰 Kirim statistikasi", expenseStats: "💸 Chiqim statistikasi",
+        allCategories: "Hamma kategoriyalar", allPayments: "Hamma to‘lovlar", byDate: "Sana bo‘yicha",
+        byAmount: "Summa bo‘yicha", update: "Yangilash", date: "Sana", category: "Kategoriya", amount: "Summa",
+        batafsilTitle: "Bugungi batafsil ro'yxat", edit: "Tahrirlash", save: "Saqlash",
+        deleteConfirm: "Haqiqatdan ham o'chirmoqchimisiz?",
+        excelSuccess: "✅ Excel fayl yuborildi!", error: "❌ Xatolik yuz berdi",
+        time: "Vaqt", additional: "Izoh", summa: "Summa:", tMethod: "To'lov usuli:", chooseSource: "Kategoriya:",
+        settings: "Sozlamalar", name: "Ism", sex: "Jins", status: "Status", currency: "Valyuta",
+        navDashboard: "Asosiy", navAdd: "Qo'shish", navSettings: "Sozlamalar",
+        addIncome: "💰 Kirim qo'shish", addExpense: "💸 Xarajat qo'shish",
+        personalInfo: "👤 Shaxsiy ma'lumotlar", appSettings: "⚙️ Ilova sozlamalari", langLabel: "Til",
+        male: "Erkak", female: "Ayol", success: "Muvaffaqiyatli!", enterAmount: "Summani kiriting"
+    },
+    en: {
+        currentMonth: "📊 Current Month", currentDay: "📊 Today", day: "Day", month: "Month",
+        income: "Income", expense: "Expense", result: "Result", cash: "Cash", card: "Card",
+        trendTitle: "📈 12-Month Trend", btnExpenses: "💸 Expenses", btnIncome: "💰 Incomes", back: "⬅️ Back",
+        total: "Total", average: "Average", count: "Count", monitoring: "📊 Monitoring", report: "📅 Report",
+        totalToday: "Total Today", todayRecords: "Today's Records", noTodayRecords: "No records today yet", categories: "Categories", detailed: "🔍 Detailed",
+        incomeStats: "💰 Income Statistics", expenseStats: "💸 Expense Statistics",
+        allCategories: "All Categories", allPayments: "All Payments", byDate: "By Date",
+        byAmount: "By Amount", update: "Refresh", date: "Date", category: "Category", amount: "Amount",
+        batafsilTitle: "Today's Detailed List", edit: "Edit", save: "Save",
+        deleteConfirm: "Are you sure you want to delete this record?",
+        excelSuccess: "✅ Excel report sent!", error: "❌ An error occurred",
+        time: "Time", additional: "Notes", summa: "Amount:", tMethod: "Method:", chooseSource: "Category:",
+        settings: "Settings", name: "Name", sex: "Gender", status: "Status", currency: "Currency",
+        navDashboard: "Main", navAdd: "Add", navSettings: "Settings",
+        addIncome: "💰 Add Income", addExpense: "💸 Add Expense",
+        personalInfo: "👤 Personal Info", appSettings: "⚙️ App Settings", langLabel: "Language",
+        male: "Male", female: "Female", success: "Success!", enterAmount: "Please enter amount"
+    },
+    ru: {
+        currentMonth: "📊 Текущий месяц", currentDay: "📊 Сегодня", day: "День", month: "Месяц",
+        income: "Доход", expense: "Расход", result: "Результат", cash: "Наличные", card: "Карта",
+        trendTitle: "📈 Тренд за 12 месяцев", btnExpenses: "💸 Расходы", btnIncome: "💰 Доходы", back: "⬅️ Назад",
+        total: "Итого", average: "Среднее", count: "Кол-во", monitoring: "📊 Мониторинг", report: "📅 Отчет",
+        totalToday: "Итого сегодня", todayRecords: "Записи за сегодня", noTodayRecords: "Сегодня записей еще нет", categories: "Категории", detailed: "🔍 Детали",
+        incomeStats: "💰 Статистика доходов", expenseStats: "💸 Статистика расходов",
+        allCategories: "Все категории", allPayments: "Все способы", byDate: "По дате",
+        byAmount: "По сумме", update: "Обновить", date: "Дата", category: "Категория", amount: "Сумма",
+        batafsilTitle: "Детальный список за сегодня", edit: "Правка", save: "Сохранить",
+        deleteConfirm: "Вы уверены, что хотите удалить эту запись?",
+        excelSuccess: "✅ Excel-отчет отправлен!", error: "❌ Произошла ошибка",
+        time: "Время", additional: "Заметка", summa: "Сумма:", tMethod: "Способ:", chooseSource: "Категория:",
+        settings: "Настройки", name: "Имя", sex: "Пол", status: "Статус", currency: "Валюта",
+        navDashboard: "Главная", navAdd: "Добавить", navSettings: "Настройки",
+        addIncome: "💰 Добавить доход", addExpense: "💸 Добавить расход",
+        personalInfo: "👤 Личные данные", appSettings: "⚙️ Настройки приложения", langLabel: "Язык",
+        male: "Мужской", female: "Женский", success: "Успешно!", enterAmount: "Введите сумму"
+    }
+};
+
+function getCategoryLabel(source) {
+    const cat = USER_CATEGORIES.find(c => c.name === source);
+    if (cat) return `${cat.emoji} ${cat.name}`;
+
+    const emojis = ["✨", "🏷️", "💎", "⭐", "🚀", "💡", "📌"];
+    const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+    return `${emoji} ${source.charAt(0).toUpperCase() + source.slice(1)}`;
 }
-const UID = user.id;
 
-/* ================= SUMMARY ================= */
-fetch(`${API}/stats/summary/${UID}`)
-.then(r=>r.json())
-.then(d=>{
-  income.innerText="$"+d.income;
-  expense.innerText="$"+d.expense;
-  result.innerText=(d.result>=0?"+":"-")+"$"+Math.abs(d.result);
-});
-
-/* ================= TREND ================= */
-const trendChart=new Chart(trend,{
-  type:"line",
-  data:{
-    labels:[],
-    datasets:[
-      {label:"Kirim",data:[]},
-      {label:"Chiqim",data:[]}
-    ]
-  }
-});
-
-fetch(`${API}/stats/trend/${UID}`)
-.then(r=>r.json())
-.then(d=>{
-  trendChart.data.labels=d.map(i=>i.month);
-  trendChart.data.datasets[0].data=d.map(i=>i.income);
-  trendChart.data.datasets[1].data=d.map(i=>i.expense);
-  trendChart.update();
-});
-
-/* ================= DETAILS ================= */
-let currentType = null;
-let pieChart = null;
-
-function openPage(type){
-  currentType = type;
-
-  // For now, keep details page hidden as requested
-  detailsPage.classList.add("hidden");
-
-  btnExpenses.classList.remove("active");
-  btnIncome.classList.remove("active");
-
-  if(type==="expenses"){
-    btnExpenses.classList.add("active");
-  }else{
-    btnIncome.classList.add("active");
-  }
+function applyTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[LANG] && translations[LANG][key]) {
+            el.innerText = translations[LANG][key];
+        }
+    });
+    if(trendChart) {
+        trendChart.data.datasets[0].label = translations[LANG].income;
+        trendChart.data.datasets[1].label = translations[LANG].expense;
+        trendChart.update();
+    }
 }
 
-function loadPie(){
-  if(!from.value || !to.value){
-    alert("Sanani tanlang");
-    return;
-  }
+/* ================= NAVIGATION ================= */
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(`page-${pageId}`).classList.add('active');
 
-  let url = currentType==="expenses"
-    ? `${API}/stats/expenses-pie/${UID}?date_from=${from.value}&date_to=${to.value}`
-    : `${API}/stats/income-pie/${UID}?date_from=${from.value}&date_to=${to.value}`;
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const navItem = document.getElementById(`nav-${pageId}`);
+    if(navItem) navItem.classList.add('active');
 
-  fetch(url)
-  .then(r=>r.json())
-  .then(d=>{
-    list.innerHTML="";
-    d.forEach(i=>{
-      list.innerHTML+=`<li>${i.source}: $${i.total}</li>`;
+    if(pageId === 'dashboard') refreshData();
+    if(pageId === 'settings') loadSettingsPage();
+    if(pageId === 'add') setupAddPage();
+}
+
+function switchAddType(type) {
+    currentType = type;
+    setupAddPage();
+}
+
+function openDetails(type) {
+    currentType = type;
+    showPage('details');
+    document.getElementById("distributionTitle").innerText = (type === 'income' ? translations[LANG].incomeStats : translations[LANG].expenseStats);
+    showTab('monitoring');
+    // loadDetails() is called by showTab if tab changes, but here we want to ensure data is loaded
+    // but showTab already calls loadMonitoring/loadReport.
+    // loadDetails also updates metrics.
+    loadDetails();
+}
+
+function showTab(tabId) {
+    currentTab = tabId;
+    document.querySelectorAll('#page-details .tab-nav button').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`tabBtn-${tabId}`).classList.add('active');
+    document.querySelectorAll('#page-details .tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(`tab-${tabId}`).classList.add('active');
+
+    if(tabId === 'monitoring') loadMonitoring();
+    if(tabId === 'report') loadReport();
+}
+
+/* ================= INITIALIZATION ================= */
+function initApp() {
+    try {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
+        const tgStyle = getComputedStyle(document.body);
+        Chart.defaults.color = tgStyle.getPropertyValue('--text') || '#222';
+        Chart.defaults.borderColor = 'rgba(0,0,0,0.05)';
+
+        const user = Telegram.WebApp.initDataUnsafe.user;
+        if(user) {
+            UID = user.id;
+        } else {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                UID = 7583610226;
+            }
+        }
+
+        if(UID) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            const page = urlParams.get('page');
+
+            fetchSettings().then(() => {
+                if(action === 'add_income') {
+                    currentType = 'income';
+                    showPage('add');
+                } else if(action === 'add_expense') {
+                    currentType = 'expenses';
+                    showPage('add');
+                } else if(page) {
+                    showPage(page);
+                } else {
+                    showPage('dashboard');
+                }
+            });
+        }
+
+        // Default dates
+        const now = new Date();
+        document.getElementById('from').value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+        document.getElementById('to').value = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+    } catch (e) { console.error(e); }
+}
+
+async function fetchSettings() {
+    const r = await fetch(`${API}/stats/settings/${UID}`);
+    const d = await r.json();
+    LANG = d.language || 'uz';
+    document.getElementById('set-fullname').value = d.fullname || "";
+    document.getElementById('set-sex').value = d.sex || "male";
+    document.getElementById('set-status').value = d.social_status || "";
+    document.getElementById('set-lang').value = LANG;
+    document.getElementById('set-currency').value = d.currency || "uzs";
+
+    const catR = await fetch(`${API}/stats/categories/${UID}`);
+    USER_CATEGORIES = await catR.json();
+
+    applyTranslations();
+}
+
+/* ================= DATA LOADING ================= */
+function refreshData() {
+    if(!UID) return;
+    loadDashboardSummary();
+    loadTrend();
+}
+
+function switchDashPeriod(p) {
+    dashPeriod = p;
+    document.getElementById('dash-day').classList.toggle('active', p === 'day');
+    document.getElementById('dash-month').classList.toggle('active', p === 'month');
+
+    const title = document.getElementById('dashboard-title');
+    title.setAttribute('data-i18n', p === 'day' ? 'currentDay' : 'currentMonth');
+    applyTranslations();
+
+    loadDashboardSummary();
+}
+
+function loadDashboardSummary() {
+    fetch(`${API}/stats/summary/${UID}?period=${dashPeriod}`).then(r=>r.json()).then(d=>{
+        const inP = d.income > 0 ? ` (${Math.round(d.income_cash/d.income*100)}% | ${Math.round(d.income_card/d.income*100)}%)` : "";
+        document.getElementById("income").innerText = d.income.toLocaleString();
+        document.getElementById("income_cash").innerText = d.income_cash.toLocaleString();
+        document.getElementById("income_card").innerText = d.income_card.toLocaleString() + inP;
+
+        const exP = d.expense > 0 ? ` (${Math.round(d.expense_cash/d.expense*100)}% | ${Math.round(d.expense_card/d.expense*100)}%)` : "";
+        document.getElementById("expense").innerText = d.expense.toLocaleString();
+        document.getElementById("expense_cash").innerText = d.expense_cash.toLocaleString();
+        document.getElementById("expense_card").innerText = d.expense_card.toLocaleString() + exP;
+
+        const res = d.result;
+        document.getElementById("result").innerText = (res >= 0 ? "+" : "") + res.toLocaleString() + " " + d.currency;
+    });
+}
+
+function loadTrend() {
+    fetch(`${API}/stats/trend/${UID}`).then(r=>r.json()).then(d=>{
+        if(!trendChart) {
+            trendChart = new Chart(document.getElementById("trend"), {
+                type: "line",
+                data: {
+                    labels: d.map(i=>i.month),
+                    datasets: [
+                        { label: translations[LANG].income, data: d.map(i=>i.income), borderColor: '#2ecc71', tension: 0.3 },
+                        { label: translations[LANG].expense, data: d.map(i=>i.expense), borderColor: '#e74c3c', tension: 0.3 }
+                    ]
+                }
+            });
+        } else {
+            trendChart.data.labels = d.map(i=>i.month);
+            trendChart.data.datasets[0].data = d.map(i=>i.income);
+            trendChart.data.datasets[1].data = d.map(i=>i.expense);
+            trendChart.update();
+        }
+    });
+}
+
+function loadDetails() {
+    const f = document.getElementById("from").value;
+    const t = document.getElementById("to").value;
+
+    fetch(`${API}/stats/metrics/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`).then(r=>r.json()).then(d=>{
+        document.getElementById("mTotal").innerText = (d.total || 0).toLocaleString();
+        document.getElementById("mAvg").innerText = Math.round(d.average || 0).toLocaleString();
+        document.getElementById("mCount").innerText = d.count || 0;
     });
 
-    if(pieChart) pieChart.destroy();
-
-    pieChart=new Chart(pie,{
-      type:"pie",
-      data:{
-        labels:d.map(i=>i.source),
-        datasets:[{
-          data:d.map(i=>i.total),
-          backgroundColor:d.map(_=>`hsl(${Math.random()*360},70%,60%)`)
-        }]
-      }
-    });
-  });
+    if(currentTab === 'monitoring') loadMonitoring();
+    else loadReport();
 }
+
+let lastMonLoad = 0;
+function loadMonitoring() {
+    const now = Date.now();
+    if(now - lastMonLoad < 300) return; // Debounce
+    lastMonLoad = now;
+    fetch(`${API}/stats/monitoring/${UID}?type=${currentType}`).then(r=>r.json()).then(d=>{
+        const monList = document.getElementById("monList");
+        monList.innerHTML = "";
+        d.categories.forEach(c => {
+            const label = getCategoryLabel(c.source);
+            monList.innerHTML += `<li class="cat-item"><span>${label}</span> <b>${c.total.toLocaleString()}</b></li>`;
+        });
+
+        const transList = document.getElementById("todayTransList");
+        transList.innerHTML = "";
+        if (!d.transactions || d.transactions.length === 0) {
+            transList.innerHTML = `<p style="color: var(--hint); text-align: center; font-size: 13px;">${translations[LANG].noTodayRecords}</p>`;
+        } else {
+            d.transactions.forEach(t => {
+                transList.innerHTML += `<div class="settings-item" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 8px 0;">
+                    <div style="display: flex; flex-direction: column; flex: 1;">
+                        <span style="font-weight: 600; font-size: 14px;">${getCategoryLabel(t.source)}</span>
+                        <span style="font-size: 11px; color: var(--hint);">${t.time} • ${translations[LANG][t.payment_method]}</span>
+                    </div>
+                    <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+                        <span style="font-weight: 700; color: ${currentType === 'income' ? 'var(--success)' : 'var(--danger)'};">${t.amount.toLocaleString()}</span>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="openEditTransactionModal(${t.id}, '${currentType}', ${t.amount}, '${t.source}', '${t.payment_method}', '${t.additional_info || ''}')" style="padding: 2px; background: transparent; font-size: 12px;">✏️</button>
+                            <button onclick="deleteTransaction(${t.id}, '${currentType}')" style="padding: 2px; background: transparent; font-size: 12px;">🗑</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        const ctx = document.getElementById("monPie");
+        if(!ctx) return;
+        if(monPieChart) monPieChart.destroy();
+        monPieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: d.categories.map(c => getCategoryLabel(c.source)),
+                datasets: [{ data: d.categories.map(c => c.total), backgroundColor: d.categories.map((_,i)=>`hsl(${i*60},70%,60%)`) }]
+            },
+            options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+        });
+    });
+}
+
+function showBatafsilToday() {
+    showTab('report');
+}
+
+function downloadReport(e) {
+    if(e) e.preventDefault();
+    const f = document.getElementById("from").value;
+    const t = document.getElementById("to").value;
+    fetch(`${API}/stats/export/${UID}?type=${currentType}&date_from=${f}&date_to=${t}`).then(r => {
+        if(r.ok) alert(translations[LANG].excelSuccess);
+        else alert(translations[LANG].error);
+    });
+}
+
+let lastRepLoad = 0;
+function loadReport() {
+    const now = Date.now();
+    if(now - lastRepLoad < 300) return; // Debounce
+    lastRepLoad = now;
+    const f = document.getElementById("from").value;
+    const t = document.getElementById("to").value;
+    const srt = document.getElementById("repSort").value;
+    const src = document.getElementById("repSource").value;
+    const met = document.getElementById("repMethod").value;
+
+    let url = `${API}/stats/report/${UID}?type=${currentType}&date_from=${f}&date_to=${t}&sort_by=${srt}`;
+    if(src) url += `&source=${encodeURIComponent(src)}`;
+    if(met) url += `&payment_method=${met}`;
+
+    fetch(url).then(r=>r.json()).then(rows => {
+        const tbody = document.getElementById("reportTableBody");
+        tbody.innerHTML = "";
+        const dailyData = {};
+        const catData = {};
+        const methodData = { cash: 0, card: 0 };
+
+        rows.forEach(r => {
+            tbody.innerHTML += `<tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                <td style="padding: 10px;">${r.date}<br><small style="color:var(--hint)">${translations[LANG][r.payment_method] || r.payment_method}</small></td>
+                <td style="padding: 10px;">${getCategoryLabel(r.source)}</td>
+                <td style="padding: 10px; text-align: right;">
+                    <b>${r.amount.toLocaleString()}</b>
+                    <div style="margin-top: 5px; display: flex; gap: 8px; justify-content: flex-end;">
+                        <button onclick="openEditTransactionModal(${r.id}, '${currentType}', ${r.amount}, '${r.source}', '${r.payment_method}', '${r.additional_info || ''}')" style="padding: 2px; background: transparent; font-size: 11px;">✏️</button>
+                        <button onclick="deleteTransaction(${r.id}, '${currentType}')" style="padding: 2px; background: transparent; font-size: 11px;">🗑</button>
+                    </div>
+                </td>
+            </tr>`;
+            const dStr = r.date.split(' ')[0];
+            dailyData[dStr] = (dailyData[dStr] || 0) + r.amount;
+            catData[r.source] = (catData[r.source] || 0) + r.amount;
+            methodData[r.payment_method] = (methodData[r.payment_method] || 0) + r.amount;
+        });
+
+        const repSrcSel = document.getElementById("repSource");
+        if(repSrcSel.options.length <= 1) {
+            [...new Set(rows.map(r=>r.source))].forEach(s => {
+                const opt = document.createElement("option");
+                opt.value = s; opt.innerText = getCategoryLabel(s);
+                repSrcSel.appendChild(opt);
+            });
+        }
+
+        // 1. Daily Bar Chart
+        const ctxBar = document.getElementById("repChart");
+        if(ctxBar) {
+            if(repBarChart) repBarChart.destroy();
+            const sortedDates = Object.keys(dailyData).sort();
+            repBarChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: sortedDates,
+                    datasets: [{
+                        label: currentType === 'income' ? translations[LANG].income : translations[LANG].expense,
+                        data: sortedDates.map(d => dailyData[d]),
+                        backgroundColor: currentType === 'income' ? '#2ecc71' : '#e74c3c',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false }, title: { display: true, text: translations[LANG].trendTitle, font: { size: 10 } } },
+                    scales: { y: { beginAtZero: true, grid: { display: false }, ticks: { font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 8 } } } }
+                }
+            });
+        }
+
+        // 2. Category Doughnut Chart
+        const ctxCat = document.getElementById("repCatChart");
+        if(ctxCat) {
+            if(repCatChart) repCatChart.destroy();
+            const catLabels = Object.keys(catData);
+            repCatChart = new Chart(ctxCat, {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels.map(s => getCategoryLabel(s)),
+                    datasets: [{
+                        data: catLabels.map(l => catData[l]),
+                        backgroundColor: catLabels.map((_,i) => `hsl(${i*60}, 70%, 60%)`)
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: true, position: 'bottom' }, title: { display: true, text: translations[LANG].categories, font: { size: 12, weight: 'bold' } } },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        // 3. Payment Method Pie Chart
+        const ctxMethod = document.getElementById("repMethodChart");
+        if(ctxMethod) {
+            if(repMethodChart) repMethodChart.destroy();
+            repMethodChart = new Chart(ctxMethod, {
+                type: 'pie',
+                data: {
+                    labels: [translations[LANG].cash, translations[LANG].card],
+                    datasets: [{
+                        data: [methodData.cash, methodData.card],
+                        backgroundColor: ['#f1c40f', '#3498db']
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: true, position: 'bottom' }, title: { display: true, text: translations[LANG].tMethod.replace(':',''), font: { size: 12, weight: 'bold' } } }
+                }
+            });
+        }
+    });
+}
+
+/* ================= SETTINGS ================= */
+function loadSettingsPage() {
+    renderSettingsCategories();
+}
+
+function updateSettings() {
+    const data = {
+        fullname: document.getElementById('set-fullname').value,
+        sex: document.getElementById('set-sex').value,
+        social_status: document.getElementById('set-status').value,
+        language: document.getElementById('set-lang').value,
+        currency: document.getElementById('set-currency').value
+    };
+    fetch(`${API}/stats/settings/${UID}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).then(() => {
+        LANG = data.language;
+        applyTranslations();
+    });
+}
+
+function showCatTab(type) {
+    currentCatTab = type;
+    document.querySelectorAll('#catTab-income, #catTab-expense').forEach(b=>b.classList.remove('active'));
+    document.getElementById(`catTab-${type}`).classList.add('active');
+    renderSettingsCategories();
+}
+
+function renderSettingsCategories() {
+    const list = document.getElementById('settings-cat-list');
+    list.innerHTML = "";
+    USER_CATEGORIES.filter(c => c.type === (currentCatTab === 'income' ? 'income' : 'expense')).forEach(c => {
+        list.innerHTML += `<li class="cat-item">
+            <span>${c.emoji} ${c.name}</span>
+            <div>
+                <button onclick="openEditCategoryModal(${c.id}, '${c.name}', '${c.emoji}')" style="padding: 4px; background: transparent;">✏️</button>
+                <button onclick="deleteCategory(${c.id})" style="padding: 4px; background: transparent;">🗑</button>
+            </div>
+        </li>`;
+    });
+}
+
+function openEditCategoryModal(id, name, emoji) {
+    document.getElementById('modalTitle').innerText = translations[LANG].edit;
+    document.getElementById('modalContent').innerHTML = `
+        <div class="form-group"><label>Name:</label><input id="edit-cat-name" type="text" value="${name}"></div>
+        <div class="form-group"><label>Emoji:</label><input id="edit-cat-emoji" type="text" maxlength="2" value="${emoji}"></div>
+        <button onclick="saveEditedCategory(${id})" class="primary" style="width: 100%">${translations[LANG].save}</button>
+    `;
+    openModal();
+}
+
+function saveEditedCategory(id) {
+    const name = document.getElementById('edit-cat-name').value;
+    const emoji = document.getElementById('edit-cat-emoji').value;
+    fetch(`${API}/stats/categories/${UID}/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name, emoji})
+    }).then(r => {
+        if(r.ok) { closeModal(); fetchSettings().then(renderSettingsCategories); }
+        else r.json().then(d => alert(d.detail));
+    });
+}
+
+function openAddCategoryModal() {
+    document.getElementById('modalTitle').innerText = translations[LANG].categories;
+    document.getElementById('modalContent').innerHTML = `
+        <div class="form-group"><label>Name:</label><input id="new-cat-name" type="text"></div>
+        <div class="form-group"><label>Emoji:</label><input id="new-cat-emoji" type="text" maxlength="2"></div>
+        <button onclick="saveCategory()" class="primary" style="width: 100%">${translations[LANG].save}</button>
+    `;
+    openModal();
+}
+
+function saveCategory() {
+    const name = document.getElementById('new-cat-name').value;
+    const emoji = document.getElementById('new-cat-emoji').value;
+    fetch(`${API}/stats/categories/${UID}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({type: currentCatTab === 'income' ? 'income' : 'expense', name, emoji})
+    }).then(r => {
+        if(r.ok) { closeModal(); fetchSettings().then(renderSettingsCategories); }
+        else r.json().then(d => alert(d.detail));
+    });
+}
+
+function deleteCategory(id) {
+    if(!confirm(translations[LANG].deleteConfirm)) return;
+    fetch(`${API}/stats/categories/${UID}/${id}`, { method: 'DELETE' }).then(r => {
+        if(r.ok) fetchSettings().then(renderSettingsCategories);
+        else r.json().then(d => alert(d.detail));
+    });
+}
+
+/* ================= EDIT / DELETE TRANSACTION ================= */
+function openEditTransactionModal(id, type, amount, source, method, notes) {
+    document.getElementById('modalTitle').innerText = translations[LANG].edit;
+
+    let catOptions = "";
+    USER_CATEGORIES.filter(c => c.type === (type === 'income' ? 'income' : 'expense')).forEach(c => {
+        catOptions += `<option value="${c.name}" ${c.name === source ? 'selected' : ''}>${c.emoji} ${c.name}</option>`;
+    });
+
+    document.getElementById('modalContent').innerHTML = `
+        <div class="form-group"><label>${translations[LANG].summa}</label><input id="edit-trans-amount" type="number" value="${amount}"></div>
+        <div class="form-group">
+            <label>${translations[LANG].category}</label>
+            <select id="edit-trans-category">${catOptions}</select>
+        </div>
+        <div class="form-group">
+            <label>${translations[LANG].tMethod}</label>
+            <select id="edit-trans-method">
+                <option value="cash" ${method === 'cash' ? 'selected' : ''}>${translations[LANG].cash}</option>
+                <option value="card" ${method === 'card' ? 'selected' : ''}>${translations[LANG].card}</option>
+            </select>
+        </div>
+        <div class="form-group"><label>${translations[LANG].additional}</label><textarea id="edit-trans-notes" rows="2">${notes}</textarea></div>
+        <button onclick="saveEditedTransaction(${id}, '${type}')" class="primary" style="width: 100%">${translations[LANG].save}</button>
+    `;
+    openModal();
+}
+
+function saveEditedTransaction(id, type) {
+    const data = {
+        amount: document.getElementById('edit-trans-amount').value,
+        source: document.getElementById('edit-trans-category').value,
+        payment_method: document.getElementById('edit-trans-method').value,
+        additional_info: document.getElementById('edit-trans-notes').value
+    };
+    fetch(`${API}/stats/transaction/${UID}/${type}/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).then(r => {
+        if(r.ok) { closeModal(); loadDetails(); refreshData(); }
+        else alert(translations[LANG].error);
+    });
+}
+
+function deleteTransaction(id, type) {
+    if(!confirm(translations[LANG].deleteConfirm)) return;
+    fetch(`${API}/stats/transaction/${UID}/${type}/${id}`, { method: 'DELETE' }).then(r => {
+        if(r.ok) { loadDetails(); refreshData(); }
+        else alert(translations[LANG].error);
+    });
+}
+
+/* ================= ADD TRANSACTION ================= */
+function setupAddPage() {
+    document.getElementById('add-title').innerText = currentType === 'income' ? translations[LANG].addIncome : translations[LANG].addExpense;
+
+    document.getElementById('addTab-income').classList.toggle('active', currentType === 'income');
+    document.getElementById('addTab-expense').classList.toggle('active', currentType === 'expenses');
+
+    const sel = document.getElementById('add-category');
+    sel.innerHTML = "";
+    USER_CATEGORIES.filter(c => c.type === (currentType === 'income' ? 'income' : 'expense')).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.name; opt.innerText = `${c.emoji} ${c.name}`;
+        sel.appendChild(opt);
+    });
+}
+
+function saveNewTransaction() {
+    const amount = document.getElementById('add-amount').value;
+    const source = document.getElementById('add-category').value;
+    const payment_method = document.getElementById('add-method').value;
+    const additional_info = document.getElementById('add-notes').value;
+
+    if(!amount) return alert(translations[LANG].enterAmount);
+
+    const type = currentType === 'income' ? 'income' : 'expenses';
+    fetch(`${API}/stats/transaction/${UID}/${type}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ amount, source, payment_method, additional_info, currency: document.getElementById('set-currency').value })
+    }).then(r => {
+        if(r.ok) {
+            alert(translations[LANG].success);
+            showPage('dashboard');
+        }
+    });
+}
+
+/* ================= UTILS ================= */
+function openModal() { document.getElementById('modal').classList.remove('hidden'); }
+function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+document.addEventListener('DOMContentLoaded', initApp);
 </script>
 
 </body>

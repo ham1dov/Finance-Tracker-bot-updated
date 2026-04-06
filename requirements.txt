@@ -4,3 +4,5 @@ aiogram
 uvicorn
 sqlalchemy
 fastapi
+openpyxl
+httpx

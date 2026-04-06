@@ -12,10 +12,12 @@ class AddIncomeState(StatesGroup):
     get_amount = State()
     get_source = State()
     get_source_manually = State()
+    get_payment_method = State()
     get_more_information = State()
 
 class AddExpenseState(StatesGroup):
     get_amount = State()
     get_source = State()
     get_source_manually = State()
+    get_payment_method = State()
     get_more_information = State()
